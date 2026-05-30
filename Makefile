@@ -128,6 +128,10 @@ help:
 	@echo "  make build-windows   Cross-compile Windows"
 	@echo "  make release         All platforms"
 	@echo ""
+	@echo "Mocks:"
+	@echo "  make generate-mocks  Generate all mocks"
+	@echo "  make clean-mocks     Clean all mocks"
+	@echo ""
 	@echo "Docker:"
 	@echo "  make docker-test     Test in container"
 	@echo "  make docker-sonar    SonarCloud scan"
@@ -323,7 +327,7 @@ compose-restart:
 # UTILITIES
 # =============================================================================
 
-.PHONY: swagger install-tools info clean clean-docs clean-all gen-keys gen-keys-local
+.PHONY: swagger install-tools info clean clean-docs clean-all gen-keys gen-keys-local generate-mocks clean-mocks
 
 swagger:
 	@which swag > /dev/null || (echo "Error: swag not found. Run: make install-tools"; exit 1)
@@ -351,6 +355,19 @@ gen-keys-local:
 	mkdir -p $(LOCAL_KEYS_DIR)
 	openssl genpkey -algorithm RSA -out $(LOCAL_KEYS_DIR)/private.pem -pkeyopt rsa_keygen_bits:2048
 	openssl rsa -pubout -in $(LOCAL_KEYS_DIR)/private.pem -out $(LOCAL_KEYS_DIR)/public.pem
+
+generate-mocks:
+	@echo "Generating mocks for link repository..."
+	cd internal/repository/link && $(GO) generate
+	@echo "Generating mocks for user repository..."
+	cd internal/repository/user && $(GO) generate
+	@echo "✓ Mocks generated successfully"
+
+clean-mocks:
+	@echo "Cleaning mocks..."
+	rm -rf internal/repository/link/mocks
+	rm -rf internal/repository/user/mocks
+	@echo "✓ Mocks cleaned"
 
 clean:
 	rm -rf $(BIN_DIR) $(COVERAGE_DIR)

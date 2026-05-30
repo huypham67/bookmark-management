@@ -4,9 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/huypham67/bookmark-service/internal/handler"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+
+	"github.com/huypham67/bookmark-service/internal/handler/auth"
+	"github.com/huypham67/bookmark-service/internal/handler/health"
+	"github.com/huypham67/bookmark-service/internal/handler/link"
+	"github.com/huypham67/bookmark-service/internal/handler/profile"
 )
 
 // Router wraps the Gin engine and application server configuration.
@@ -38,41 +42,64 @@ func (r *Router) GroupV1() *gin.RouterGroup {
 	return r.GroupAPI().Group("/v1")
 }
 
-// RegisterHealthRoutes registers all health-check routes.
+// RegisterHealthRoutes registers all health check routes.
 func RegisterHealthRoutes(
 	apiGroup *gin.RouterGroup,
-	healthCheckHandler handler.HealthCheck,
+	handler health.Handler,
 ) {
 	apiGroup.GET(
 		"/health-check",
-		healthCheckHandler.GetHealthCheck,
+		handler.GetHealthCheck,
 	)
 }
 
 // RegisterLinkRoutes registers all link management routes.
 func RegisterLinkRoutes(
 	routerGroup *gin.RouterGroup,
-	linkHandler handler.Link,
+	handler link.Handler,
 ) {
 	routerGroup.POST(
 		"/links/shorten",
-		linkHandler.ShortenURL,
+		handler.ShortenURL,
 	)
 
 	routerGroup.GET(
 		"/links/redirect/:code",
-		linkHandler.RedirectToURL,
+		handler.RedirectToURL,
 	)
 }
 
-// RegisterUserRoutes registers all user management routes.
-func RegisterUserRoutes(
+// RegisterAuthRoutes registers all authentication routes (registration and login).
+func RegisterAuthRoutes(
 	routerGroup *gin.RouterGroup,
-	userHandler handler.User,
+	handler auth.Handler,
 ) {
 	routerGroup.POST(
 		"/users/register",
-		userHandler.Register,
+		handler.Register,
+	)
+
+	routerGroup.POST(
+		"/users/login",
+		handler.Login,
+	)
+}
+
+func RegisterProfileRoutes(
+	routerGroup *gin.RouterGroup,
+	handler profile.Handler,
+	jwtMiddleware gin.HandlerFunc,
+) {
+	routerGroup.GET(
+		"/self/info",
+		jwtMiddleware,
+		handler.GetUserInfo,
+	)
+
+	routerGroup.PUT(
+		"/self/info",
+		jwtMiddleware,
+		handler.UpdateUserInfo,
 	)
 }
 

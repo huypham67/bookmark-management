@@ -1,15 +1,29 @@
 package integration
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"testing"
+	"time"
+
+	"github.com/huypham67/bookmark-service/pkg/middleware"
+	"github.com/stretchr/testify/require"
 
 	"github.com/huypham67/bookmark-service/internal/api"
-	"github.com/huypham67/bookmark-service/internal/handler"
-	"github.com/huypham67/bookmark-service/internal/repository"
+	authHandler "github.com/huypham67/bookmark-service/internal/handler/auth"
+	healthHandler "github.com/huypham67/bookmark-service/internal/handler/health"
+	linkHandler "github.com/huypham67/bookmark-service/internal/handler/link"
+	profileHandler "github.com/huypham67/bookmark-service/internal/handler/profile"
+	linkRepo "github.com/huypham67/bookmark-service/internal/repository/link"
 	"github.com/huypham67/bookmark-service/internal/repository/ping"
-	"github.com/huypham67/bookmark-service/internal/repository/testutil"
-	"github.com/huypham67/bookmark-service/internal/service"
-	"github.com/huypham67/bookmark-service/pkg/redis"
+	userRepo "github.com/huypham67/bookmark-service/internal/repository/user"
+	authSvc "github.com/huypham67/bookmark-service/internal/service/auth"
+	healthSvc "github.com/huypham67/bookmark-service/internal/service/health"
+	linkSvc "github.com/huypham67/bookmark-service/internal/service/link"
+	profileSvc "github.com/huypham67/bookmark-service/internal/service/profile"
+	"github.com/huypham67/bookmark-service/internal/testutil"
+	"github.com/huypham67/bookmark-service/pkg/jwtutils"
+	pkgRedis "github.com/huypham67/bookmark-service/pkg/redis"
 	"github.com/huypham67/bookmark-service/pkg/security"
 	"github.com/huypham67/bookmark-service/pkg/utils"
 )
@@ -17,25 +31,60 @@ import (
 // TestApp represents the test application with its dependencies.
 type TestApp struct {
 	Router    *api.Router
-	MockRedis *redis.MockRedis
+	MockRedis *pkgRedis.MockRedis
+}
+
+type AuthenticatedTestApp struct {
+	*TestApp
+	TokenGenerator jwtutils.TokenGenerator
+}
+
+func createTestJWT(t *testing.T) (
+	jwtutils.TokenGenerator,
+	jwtutils.TokenValidator,
+) {
+	t.Helper()
+
+	privateKey, err := rsa.GenerateKey(
+		rand.Reader,
+		2048,
+	)
+	require.NoError(t, err)
+
+	tokenGenerator, err := jwtutils.NewTokenGenerator(
+		privateKey,
+		"test-issuer",
+		"test-audience",
+		time.Hour,
+	)
+	require.NoError(t, err)
+
+	tokenValidator, err := jwtutils.NewTokenValidator(
+		&privateKey.PublicKey,
+		"test-issuer",
+		"test-audience",
+	)
+	require.NoError(t, err)
+
+	return tokenGenerator, tokenValidator
 }
 
 func setupHealthCheckTestApp(t *testing.T, serviceName string, instanceID string) *TestApp {
 	t.Helper()
 
-	mockRedis := redis.NewMockRedis(t)
+	mockRedis := pkgRedis.NewMockRedis(t)
 
-	pinger := ping.NewPinger(mockRedis.Client)
+	pinger := ping.NewRedis(mockRedis.Client)
 
-	healthService := service.NewHealthCheckService(serviceName, instanceID, pinger)
+	healthService := healthSvc.NewService(serviceName, instanceID, pinger)
 
-	healthHandler := handler.NewHealthCheckHandler(healthService)
+	healthHandlerInstance := healthHandler.NewHandler(healthService)
 
 	router := api.NewRouter()
 
 	api.RegisterHealthRoutes(
 		router.GroupAPI(),
-		healthHandler,
+		healthHandlerInstance,
 	)
 
 	return &TestApp{
@@ -47,16 +96,16 @@ func setupHealthCheckTestApp(t *testing.T, serviceName string, instanceID string
 func setupLinkTestApp(t *testing.T) *TestApp {
 	t.Helper()
 
-	mockRedis := redis.NewMockRedis(t)
+	mockRedis := pkgRedis.NewMockRedis(t)
 
-	linkRepository := repository.NewLinkRepository(mockRedis.Client)
+	linkRepository := linkRepo.NewRepository(mockRedis.Client)
 
-	linkService := service.NewLinkService(
+	linkService := linkSvc.NewService(
 		linkRepository,
 		utils.NewCodeGenerator(),
 	)
 
-	linkHandler := handler.NewLinkHandler(
+	linkHandlerInstance := linkHandler.NewHandler(
 		linkService,
 	)
 
@@ -64,7 +113,7 @@ func setupLinkTestApp(t *testing.T) *TestApp {
 
 	api.RegisterLinkRoutes(
 		router.GroupV1(),
-		linkHandler,
+		linkHandlerInstance,
 	)
 
 	return &TestApp{
@@ -73,27 +122,71 @@ func setupLinkTestApp(t *testing.T) *TestApp {
 	}
 }
 
-func setupUserTestApp(t *testing.T) *TestApp {
+func createTestTokenGenerator(t *testing.T) jwtutils.TokenGenerator {
 	t.Helper()
 
-	mockDB := testutil.SetupUserTestDatabase(t)
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	require.NoError(t, err)
 
-	userRepository := repository.NewUserRepository(mockDB)
+	generator, err := jwtutils.NewTokenGenerator(
+		privateKey,
+		"test-issuer",
+		"test-audience",
+		time.Hour,
+	)
+	require.NoError(t, err)
+
+	return generator
+}
+
+func setupAuthTestApp(t *testing.T) *TestApp {
+	t.Helper()
+
+	mockDB := testutil.NewTestDB(t, &testutil.UserTestDB{})
+
+	userRepository := userRepo.NewRepository(mockDB)
 
 	passwordHasher := security.NewBcryptPasswordHasher()
 
-	userService := service.NewUserService(userRepository, passwordHasher)
+	tokenGenerator := createTestTokenGenerator(t)
 
-	userHandler := handler.NewUserHandler(userService)
+	authService := authSvc.NewService(userRepository, passwordHasher, tokenGenerator)
+
+	authHandlerInstance := authHandler.NewHandler(authService)
 
 	router := api.NewRouter()
 
-	api.RegisterUserRoutes(
+	api.RegisterAuthRoutes(
 		router.GroupV1(),
-		userHandler,
+		authHandlerInstance,
 	)
 
 	return &TestApp{
 		Router: router,
+	}
+}
+
+func setupProfileTestApp(t *testing.T) *AuthenticatedTestApp {
+	t.Helper()
+
+	mockDB := testutil.NewTestDB(t, &testutil.UserTestDB{})
+
+	userRepository := userRepo.NewRepository(mockDB)
+	profileService := profileSvc.NewService(userRepository)
+	profileHandlerInstance := profileHandler.NewHandler(profileService)
+
+	tokenGenerator, tokenValidator := createTestJWT(t)
+
+	router := api.NewRouter()
+
+	jwtMiddleware := middleware.JWTAuth(tokenValidator)
+
+	api.RegisterProfileRoutes(router.GroupV1(), profileHandlerInstance, jwtMiddleware)
+
+	return &AuthenticatedTestApp{
+		TestApp: &TestApp{
+			Router: router,
+		},
+		TokenGenerator: tokenGenerator,
 	}
 }

@@ -282,9 +282,8 @@ The application uses constructor-based dependency injection in the bootstrap lay
 
 **Using Make:**
 ```bash
-make test              # Run all tests with coverage
-make test-verbose      # Run tests with verbose output
-make test-coverage     # Generate and view HTML coverage report
+make test              # Run all tests with coverage (excludes infra packages)
+make test-coverage     # Generate and view HTML coverage report in browser
 ```
 
 **Direct Go:**
@@ -296,18 +295,46 @@ go tool cover -html=coverage.out
 
 ### Test Coverage
 
-The project aims for 90%+ coverage on main business logic:
+Current coverage: **96.5%** on testable code (excludes infra packages)
 
-- **Handler Tests**: HTTP request/response handling
-- **Service Tests**: Business logic and error cases
-- **Repository Tests**: Redis operations with miniredis
-- **Integration Tests**: End-to-end API flows
+**Coverage breakdown by layer:**
+- **Handlers**: HTTP request/response validation and error handling
+- **Services**: Business logic, error cases, and data transformation
+- **Repository**: Database operations and error classification
+- **Integration**: End-to-end API flows with real database
+- **Utilities**: Helper functions (JWT, password hashing, code generation)
+
+**Excluded from coverage (infrastructure):**
+- `cmd/` - Application entry point
+- `internal/bootstrap/` - Dependency injection setup
+- `pkg/logger/`, `pkg/redis/`, `pkg/sqldb/` - Configuration boilerplate
+- `docs/` - Auto-generated Swagger documentation
 
 ### Test Types
 
-1. **Unit Tests**: Individual layer tests with mocks
-2. **Integration Tests**: Full API flow tests with miniredis
-3. **Mock Generation**: Uses mockery for interface mocking
+1. **Unit Tests**: Individual layer testing with mocks
+   - Location: `*_test.go` files alongside source code
+   - Uses: `testify/assert`, `testify/mock`, `testify/require`
+
+2. **Integration Tests**: Full API flow testing
+   - Location: `internal/integration/`
+   - Database: PostgreSQL with test fixtures
+   - Features: Tests real request/response handling and database operations
+
+3. **Mock Generation**: Interfaces use mockery for testing
+   - Command: `make generate-mocks`
+   - Generated mocks: `**/mocks/` directories
+
+### Key Test Files
+
+| Package | Test Coverage | Notes |
+|---------|---|---|
+| `internal/handler/auth` | ✅ Auth endpoints registration/login | Uses mocks for service layer |
+| `internal/handler/profile` | ✅ User profile get/update | Mock service dependencies |
+| `internal/service/auth` | ✅ Registration & login logic | Database and password validation |
+| `internal/service/profile` | ✅ User info updates | Email/username uniqueness checks |
+| `internal/repository/user` | ✅ Database read/write operations | Real PostgreSQL with test data |
+| `internal/integration` | ✅ End-to-end API flows | Login, registration, user updates |
 
 ## 📦 Building
 

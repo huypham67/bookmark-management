@@ -8,6 +8,8 @@ import (
 )
 
 // TokenValidator defines the contract for JWT token validation operations.
+//
+//go:generate mockery --name=TokenValidator --dir=pkg/jwtutils --output=pkg/jwtutils/mocks --filename=validator.go
 type TokenValidator interface {
 	ValidateToken(tokenString string) (*CustomClaims, error)
 }

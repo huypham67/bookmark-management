@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/huypham67/bookmark-service/internal/bootstrap"
-	"github.com/huypham67/bookmark-service/internal/dto/response"
+	healthDTO "github.com/huypham67/bookmark-service/internal/dto/health"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,7 +17,7 @@ func TestHealthCheckEndpoint(t *testing.T) {
 
 	type expected struct {
 		statusCode int
-		response   response.HealthCheckResponse
+		response   healthDTO.HealthCheckResponse
 	}
 
 	testCases := []struct {
@@ -36,7 +36,7 @@ func TestHealthCheckEndpoint(t *testing.T) {
 			},
 			expected: expected{
 				statusCode: http.StatusOK,
-				response: response.HealthCheckResponse{
+				response: healthDTO.HealthCheckResponse{
 					Message:     "OK",
 					ServiceName: "bookmark-service",
 					InstanceID:  "instance-1",
@@ -54,7 +54,7 @@ func TestHealthCheckEndpoint(t *testing.T) {
 			},
 			expected: expected{
 				statusCode: http.StatusInternalServerError,
-				response: response.HealthCheckResponse{
+				response: healthDTO.HealthCheckResponse{
 					Message:     "FAILED",
 					ServiceName: "bookmark-service",
 					InstanceID:  "instance-2",
@@ -75,11 +75,11 @@ func TestHealthCheckEndpoint(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			app.Router.ServeHTTP(recorder, req)
 
-			assert.Equal(t, tc.expected.statusCode, recorder.Code)
-			assert.Equal(t, "application/json; charset=utf-8", recorder.Header().Get("Content-Type"))
+		assert.Equal(t, tc.expected.statusCode, recorder.Code)
+		assert.Equal(t, "application/json; charset=utf-8", recorder.Header().Get("Content-Type"))
 
-			var actual response.HealthCheckResponse
-			err := json.Unmarshal(recorder.Body.Bytes(), &actual)
+		var actual healthDTO.HealthCheckResponse
+		err := json.Unmarshal(recorder.Body.Bytes(), &actual)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.expected.response, actual)

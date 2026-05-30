@@ -1,8 +1,10 @@
 package jwtutils
 
 import (
+	"errors"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -26,4 +28,32 @@ func newCustomClaims(userID, displayName, email string, expiry time.Duration, is
 			Audience:  jwt.ClaimStrings{audience},
 		},
 	}
+}
+
+var (
+	ErrMissingClaims = errors.New("missing claims in context")
+	ErrInvalidClaims = errors.New("invalid claims type")
+)
+
+func GetClaims(c *gin.Context) (*CustomClaims, error) {
+	claimsObj, exists := c.Get("claims")
+	if !exists {
+		return nil, ErrMissingClaims
+	}
+
+	claims, ok := claimsObj.(*CustomClaims)
+	if !ok {
+		return nil, ErrInvalidClaims
+	}
+
+	return claims, nil
+}
+
+func GetUserIDFromContext(c *gin.Context) (string, error) {
+	claims, err := GetClaims(c)
+	if err != nil {
+		return "", err
+	}
+
+	return claims.UserID, nil
 }

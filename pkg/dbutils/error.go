@@ -1,0 +1,39 @@
+package dbutils
+
+import (
+	"errors"
+	"strings"
+)
+
+var errorFilter = []func(error) (bool, error){
+	IsDuplicationError,
+	IsForeignKeyViolationError,
+	IsRecordNotFoundError,
+}
+
+var (
+	ErrDuplicationType         = errors.New("duplicate type error")
+	ErrRecordNotFoundType      = errors.New("record not found")
+	ErrForeignKeyViolationType = errors.New("foreign key violation")
+)
+
+func ClassifyError(err error) error {
+	for _, filter := range errorFilter {
+		if isMatch, errType := filter(err); isMatch {
+			return errType
+		}
+	}
+	return err
+}
+
+func IsDuplicationError(err error) (bool, error) {
+	return strings.Contains(err.Error(), "duplicate key value violates unique constraint"), ErrDuplicationType
+}
+
+func IsForeignKeyViolationError(err error) (bool, error) {
+	return strings.Contains(err.Error(), "violates foreign key constraint"), ErrForeignKeyViolationType
+}
+
+func IsRecordNotFoundError(err error) (bool, error) {
+	return strings.Contains(err.Error(), "record not found"), ErrRecordNotFoundType
+}

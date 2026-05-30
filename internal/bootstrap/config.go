@@ -17,8 +17,8 @@ type Config struct {
 	SwaggerSchemes string `envconfig:"SWAGGER_SCHEMES" default:""`
 }
 
-// LoadConfig loads application configuration from environment variables.
-func LoadConfig() (*Config, error) {
+// NewConfig loads application configuration from environment variables.
+func NewConfig() (*Config, error) {
 	cfg := &Config{}
 
 	err := envconfig.Process("", cfg)
