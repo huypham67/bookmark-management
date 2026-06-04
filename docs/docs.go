@@ -32,13 +32,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.HealthCheckResponse"
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.HealthCheckResponse"
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse"
                         }
                     }
                 }
@@ -105,7 +105,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_request.ShortenURLRequest"
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_link.ShortenURLRequest"
                         }
                     }
                 ],
@@ -113,7 +113,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Shorten URL generated successfully",
                         "schema": {
-                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.ShortenURLResponse"
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_link.ShortenURLResponse"
                         }
                     },
                     "400": {
@@ -153,7 +153,7 @@ const docTemplate = `{
                     "200": {
                         "description": "User information",
                         "schema": {
-                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.UserResponse"
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UserResponse"
                         }
                     },
                     "401": {
@@ -200,7 +200,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_request.UpdateUserRequest"
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserRequest"
                         }
                     }
                 ],
@@ -208,7 +208,7 @@ const docTemplate = `{
                     "200": {
                         "description": "User updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.UpdateUserResponse"
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserResponse"
                         }
                     },
                     "400": {
@@ -258,7 +258,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_request.LoginRequest"
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.LoginRequest"
                         }
                     }
                 ],
@@ -266,7 +266,7 @@ const docTemplate = `{
                     "200": {
                         "description": "User logged in successfully",
                         "schema": {
-                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.LoginResponse"
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.LoginResponse"
                         }
                     },
                     "400": {
@@ -316,7 +316,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_request.RegisterUserRequest"
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserRequest"
                         }
                     }
                 ],
@@ -324,7 +324,7 @@ const docTemplate = `{
                     "201": {
                         "description": "User registered successfully",
                         "schema": {
-                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.RegisterUserResponse"
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserResponse"
                         }
                     },
                     "400": {
@@ -354,7 +354,7 @@ const docTemplate = `{
             "type": "object",
             "additionalProperties": {}
         },
-        "github_com_huypham67_bookmark-service_internal_dto_request.LoginRequest": {
+        "github_com_huypham67_bookmark-service_internal_dto_auth.LoginRequest": {
             "type": "object",
             "required": [
                 "password",
@@ -370,7 +370,18 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_huypham67_bookmark-service_internal_dto_request.RegisterUserRequest": {
+        "github_com_huypham67_bookmark-service_internal_dto_auth.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserRequest": {
             "type": "object",
             "required": [
                 "display_name",
@@ -398,7 +409,50 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_huypham67_bookmark-service_internal_dto_request.ShortenURLRequest": {
+        "github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.UserData"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_internal_dto_auth.UserData": {
+            "type": "object",
+            "properties": {
+                "created_at": {},
+                "display_name": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "instance_id": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "service_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_internal_dto_link.ShortenURLRequest": {
             "type": "object",
             "required": [
                 "url"
@@ -415,7 +469,18 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_huypham67_bookmark-service_internal_dto_request.UpdateUserRequest": {
+        "github_com_huypham67_bookmark-service_internal_dto_link.ShortenURLResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserRequest": {
             "type": "object",
             "properties": {
                 "display_name": {
@@ -428,54 +493,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_huypham67_bookmark-service_internal_dto_response.HealthCheckResponse": {
-            "type": "object",
-            "properties": {
-                "instance_id": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "service_name": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_huypham67_bookmark-service_internal_dto_response.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_huypham67_bookmark-service_internal_dto_response.RegisterUserResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.UserData"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_huypham67_bookmark-service_internal_dto_response.ShortenURLResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_huypham67_bookmark-service_internal_dto_response.UpdateUserResponse": {
+        "github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -483,7 +501,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_huypham67_bookmark-service_internal_dto_response.UserData": {
+        "github_com_huypham67_bookmark-service_internal_dto_profile.UserData": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -503,10 +521,12 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_huypham67_bookmark-service_internal_dto_response.UserResponse": {
+        "github_com_huypham67_bookmark-service_internal_dto_profile.UserResponse": {
             "type": "object",
             "properties": {
-                "data": {},
+                "data": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UserData"
+                },
                 "message": {
                     "type": "string"
                 }

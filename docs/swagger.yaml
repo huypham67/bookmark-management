@@ -2,7 +2,7 @@ definitions:
   gin.H:
     additionalProperties: {}
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_request.LoginRequest:
+  github_com_huypham67_bookmark-service_internal_dto_auth.LoginRequest:
     properties:
       password:
         minLength: 8
@@ -13,7 +13,14 @@ definitions:
     - password
     - username
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_request.RegisterUserRequest:
+  github_com_huypham67_bookmark-service_internal_dto_auth.LoginResponse:
+    properties:
+      data:
+        type: string
+      message:
+        type: string
+    type: object
+  github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserRequest:
     properties:
       display_name:
         maxLength: 100
@@ -34,7 +41,35 @@ definitions:
     - password
     - username
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_request.ShortenURLRequest:
+  github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserResponse:
+    properties:
+      data:
+        $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.UserData'
+      message:
+        type: string
+    type: object
+  github_com_huypham67_bookmark-service_internal_dto_auth.UserData:
+    properties:
+      created_at: {}
+      display_name:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      username:
+        type: string
+    type: object
+  github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse:
+    properties:
+      instance_id:
+        type: string
+      message:
+        type: string
+      service_name:
+        type: string
+    type: object
+  github_com_huypham67_bookmark-service_internal_dto_link.ShortenURLRequest:
     properties:
       exp:
         maximum: 86400
@@ -46,7 +81,14 @@ definitions:
     required:
     - url
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_request.UpdateUserRequest:
+  github_com_huypham67_bookmark-service_internal_dto_link.ShortenURLResponse:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserRequest:
     properties:
       display_name:
         maxLength: 100
@@ -55,42 +97,12 @@ definitions:
       email:
         type: string
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_response.HealthCheckResponse:
-    properties:
-      instance_id:
-        type: string
-      message:
-        type: string
-      service_name:
-        type: string
-    type: object
-  github_com_huypham67_bookmark-service_internal_dto_response.LoginResponse:
-    properties:
-      data:
-        type: string
-      message:
-        type: string
-    type: object
-  github_com_huypham67_bookmark-service_internal_dto_response.RegisterUserResponse:
-    properties:
-      data:
-        $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.UserData'
-      message:
-        type: string
-    type: object
-  github_com_huypham67_bookmark-service_internal_dto_response.ShortenURLResponse:
-    properties:
-      code:
-        type: string
-      message:
-        type: string
-    type: object
-  github_com_huypham67_bookmark-service_internal_dto_response.UpdateUserResponse:
+  github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserResponse:
     properties:
       message:
         type: string
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_response.UserData:
+  github_com_huypham67_bookmark-service_internal_dto_profile.UserData:
     properties:
       created_at:
         type: string
@@ -103,9 +115,10 @@ definitions:
       username:
         type: string
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_response.UserResponse:
+  github_com_huypham67_bookmark-service_internal_dto_profile.UserResponse:
     properties:
-      data: {}
+      data:
+        $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UserData'
       message:
         type: string
     type: object
@@ -126,11 +139,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.HealthCheckResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.HealthCheckResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse'
       summary: Health Check
       tags:
       - health
@@ -172,14 +185,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_request.ShortenURLRequest'
+          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_link.ShortenURLRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Shorten URL generated successfully
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.ShortenURLResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_link.ShortenURLResponse'
         "400":
           description: Invalid request body
           schema:
@@ -202,7 +215,7 @@ paths:
         "200":
           description: User information
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.UserResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UserResponse'
         "401":
           description: Unauthorized
           schema:
@@ -230,14 +243,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_request.UpdateUserRequest'
+          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserRequest'
       produces:
       - application/json
       responses:
         "200":
           description: User updated successfully
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.UpdateUserResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserResponse'
         "400":
           description: Invalid request body
           schema:
@@ -270,14 +283,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_request.LoginRequest'
+          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: User logged in successfully
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.LoginResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.LoginResponse'
         "400":
           description: Invalid request body
           schema:
@@ -308,14 +321,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_request.RegisterUserRequest'
+          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserRequest'
       produces:
       - application/json
       responses:
         "201":
           description: User registered successfully
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_response.RegisterUserResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserResponse'
         "400":
           description: Invalid request body
           schema:

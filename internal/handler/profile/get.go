@@ -17,7 +17,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} github_com_huypham67_bookmark_service_internal_dto_response.UserResponse "User information"
+// @Success 200 {object} profileDTO.UserResponse "User information"
 // @Failure 401 {object} gin.H "Unauthorized"
 // @Failure 404 {object} gin.H "User not found"
 // @Failure 500 {object} gin.H "Internal server error"

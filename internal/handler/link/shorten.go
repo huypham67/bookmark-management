@@ -15,8 +15,8 @@ import (
 // @Tags links
 // @Accept json
 // @Produce json
-// @Param request body request.ShortenURLRequest true "URL to shorten"
-// @Success 200 {object} github_com_huypham67_bookmark_service_internal_dto_response.ShortenURLResponse "Shorten URL generated successfully"
+// @Param request body linkDTO.ShortenURLRequest true "URL to shorten"
+// @Success 200 {object} linkDTO.ShortenURLResponse "Shorten URL generated successfully"
 // @Failure 400 {object} gin.H "Invalid request body"
 // @Failure 500 {object} gin.H "Internal server error"
 // @Router /v1/links/shorten [post]

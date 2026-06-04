@@ -18,8 +18,8 @@ import (
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param request body github_com_huypham67_bookmark_service_internal_dto_request.LoginRequest true "User login data"
-// @Success 200 {object} github_com_huypham67_bookmark_service_internal_dto_response.LoginResponse "User logged in successfully"
+// @Param request body authDTO.LoginRequest true "User login data"
+// @Success 200 {object} authDTO.LoginResponse "User logged in successfully"
 // @Failure 400 {object} gin.H "Invalid request body"
 // @Failure 401 {object} gin.H "Invalid credentials"
 // @Failure 404 {object} gin.H "User not found"

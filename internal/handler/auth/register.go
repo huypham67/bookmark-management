@@ -18,8 +18,8 @@ import (
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param request body github_com_huypham67_bookmark_service_internal_dto_request.RegisterUserRequest true "User registration data"
-// @Success 201 {object} github_com_huypham67_bookmark_service_internal_dto_response.RegisterUserResponse "User registered successfully"
+// @Param request body authDTO.RegisterUserRequest true "User registration data"
+// @Success 201 {object} authDTO.RegisterUserResponse "User registered successfully"
 // @Failure 400 {object} gin.H "Invalid request body"
 // @Failure 409 {object} gin.H "User already exists"
 // @Failure 500 {object} gin.H "Internal server error"

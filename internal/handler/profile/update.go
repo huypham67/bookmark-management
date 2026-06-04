@@ -20,8 +20,8 @@ import (
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body github_com_huypham67_bookmark_service_internal_dto_request.UpdateUserRequest true "User update data"
-// @Success 200 {object} github_com_huypham67_bookmark_service_internal_dto_response.UpdateUserResponse "User updated successfully"
+// @Param request body profileDTO.UpdateUserRequest true "User update data"
+// @Success 200 {object} profileDTO.UpdateUserResponse "User updated successfully"
 // @Failure 400 {object} gin.H "Invalid request body"
 // @Failure 401 {object} gin.H "Unauthorized"
 // @Failure 409 {object} gin.H "Email already exists"
