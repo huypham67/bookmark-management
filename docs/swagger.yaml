@@ -60,6 +60,40 @@ definitions:
       username:
         type: string
     type: object
+  github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      updated_at:
+        type: string
+      url:
+        type: string
+    type: object
+  github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkResponse:
+    properties:
+      data:
+        $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData'
+      message:
+        type: string
+    type: object
+  github_com_huypham67_bookmark-service_internal_dto_bookmark.CreateBookmarkRequest:
+    properties:
+      description:
+        maxLength: 500
+        minLength: 2
+        type: string
+      url:
+        type: string
+    required:
+    - description
+    - url
+    type: object
   github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse:
     properties:
       instance_id:
@@ -147,6 +181,42 @@ paths:
       summary: Health Check
       tags:
       - health
+  /v1/bookmarks:
+    post:
+      consumes:
+      - application/json
+      description: Create a new bookmark for the authenticated user
+      parameters:
+      - description: Bookmark creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.CreateBookmarkRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Bookmark created successfully
+          schema:
+            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Create Bookmark
+      tags:
+      - bookmarks
   /v1/links/redirect/{code}:
     get:
       consumes:

@@ -14,13 +14,16 @@ import (
 	"github.com/huypham67/bookmark-service/docs"
 	"github.com/huypham67/bookmark-service/internal/api"
 	authHandler "github.com/huypham67/bookmark-service/internal/handler/auth"
+	bookmarkHandler "github.com/huypham67/bookmark-service/internal/handler/bookmark"
 	healthHandler "github.com/huypham67/bookmark-service/internal/handler/health"
 	linkHandler "github.com/huypham67/bookmark-service/internal/handler/link"
 	profileHandler "github.com/huypham67/bookmark-service/internal/handler/profile"
+	bookmarkRepo "github.com/huypham67/bookmark-service/internal/repository/bookmark"
 	linkRepo "github.com/huypham67/bookmark-service/internal/repository/link"
 	"github.com/huypham67/bookmark-service/internal/repository/ping"
 	"github.com/huypham67/bookmark-service/internal/repository/user"
 	authSvc "github.com/huypham67/bookmark-service/internal/service/auth"
+	bookmarkSvc "github.com/huypham67/bookmark-service/internal/service/bookmark"
 	healthSvc "github.com/huypham67/bookmark-service/internal/service/health"
 	linkSvc "github.com/huypham67/bookmark-service/internal/service/link"
 	profileSvc "github.com/huypham67/bookmark-service/internal/service/profile"
@@ -105,6 +108,7 @@ func registerRoutes(router *api.Router, cfg *Config, redisClient *redis.Client, 
 		return err
 	}
 	profileHandlerInstance := initProfileHandler(dbClient)
+	bookmarkHandlerInstance := initBookmarkHandler(dbClient)
 
 	jwtMiddleware := initJWTMiddleware()
 
@@ -112,6 +116,7 @@ func registerRoutes(router *api.Router, cfg *Config, redisClient *redis.Client, 
 	api.RegisterLinkRoutes(apiV1Group, linkHandlerInstance)
 	api.RegisterAuthRoutes(apiV1Group, authHandlerInstance)
 	api.RegisterProfileRoutes(apiV1Group, profileHandlerInstance, jwtMiddleware)
+	api.RegisterBookmarkRoutes(apiV1Group, bookmarkHandlerInstance, jwtMiddleware)
 
 	return nil
 }
@@ -209,6 +214,14 @@ func initLinkHandler(redisClient *redis.Client) linkHandler.Handler {
 	service := linkSvc.NewService(linkRepository, codeGenerator)
 
 	return linkHandler.NewHandler(service)
+}
+
+func initBookmarkHandler(db *gorm.DB) bookmarkHandler.Handler {
+	bookmarkRepository := bookmarkRepo.NewRepository(db)
+	codeGenerator := utils.NewCodeGenerator()
+
+	service := bookmarkSvc.NewService(bookmarkRepository, codeGenerator)
+	return bookmarkHandler.NewHandler(service)
 }
 
 func setupSwaggerConfig(cfg *Config) {
