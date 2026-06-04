@@ -8,6 +8,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/huypham67/bookmark-service/internal/handler/auth"
+	"github.com/huypham67/bookmark-service/internal/handler/bookmark"
 	"github.com/huypham67/bookmark-service/internal/handler/health"
 	"github.com/huypham67/bookmark-service/internal/handler/link"
 	"github.com/huypham67/bookmark-service/internal/handler/profile"
@@ -100,6 +101,19 @@ func RegisterProfileRoutes(
 		"/self/info",
 		jwtMiddleware,
 		handler.UpdateUserInfo,
+	)
+}
+
+// RegisterBookmarkRoutes registers all bookmark routes.
+func RegisterBookmarkRoutes(
+	routerGroup *gin.RouterGroup,
+	handler bookmark.Handler,
+	jwtMiddleware gin.HandlerFunc,
+) {
+	routerGroup.POST(
+		"/bookmarks",
+		jwtMiddleware,
+		handler.Create,
 	)
 }
 
