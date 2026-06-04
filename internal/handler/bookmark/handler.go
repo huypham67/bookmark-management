@@ -8,6 +8,7 @@ import (
 // Handler defines the interface for bookmark-related HTTP handlers.
 type Handler interface {
 	Create(c *gin.Context)
+	List(c *gin.Context)
 }
 
 type handler struct {

@@ -62,6 +62,7 @@ WORKDIR /app
 
 COPY --from=build /opt/app/bookmark-service .
 COPY --from=build /opt/app/docs ./docs
+COPY --from=build /opt/app/migrations ./migrations
 
 RUN chown -R ${SERVICE_USER}:${SERVICE_GROUP} /app && \
     apk add --no-cache tzdata && \

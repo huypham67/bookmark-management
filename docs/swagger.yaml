@@ -75,6 +75,15 @@ definitions:
       url:
         type: string
     type: object
+  github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.Pagination'
+    type: object
   github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkResponse:
     properties:
       data:
@@ -93,6 +102,15 @@ definitions:
     required:
     - description
     - url
+    type: object
+  github_com_huypham67_bookmark-service_internal_dto_bookmark.Pagination:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
     type: object
   github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse:
     properties:
@@ -182,6 +200,55 @@ paths:
       tags:
       - health
   /v1/bookmarks:
+    get:
+      consumes:
+      - application/json
+      description: Get paginated list of bookmarks for the authenticated user
+      parameters:
+      - default: 1
+        description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 'Items per page, max 100 (default: 10)'
+        in: query
+        name: limit
+        type: integer
+      - default: created_at
+        description: 'Sort field: created_at, updated_at, code, url (default: created_at)'
+        enum:
+        - created_at
+        - updated_at
+        - code
+        - url
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of bookmarks with pagination
+          schema:
+            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkListResponse'
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: List Bookmarks
+      tags:
+      - bookmarks
     post:
       consumes:
       - application/json

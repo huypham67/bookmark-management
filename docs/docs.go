@@ -45,6 +45,79 @@ const docTemplate = `{
             }
         },
         "/v1/bookmarks": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get paginated list of bookmarks for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bookmarks"
+                ],
+                "summary": "List Bookmarks",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page, max 100 (default: 10)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "created_at",
+                            "updated_at",
+                            "code",
+                            "url"
+                        ],
+                        "type": "string",
+                        "default": "created_at",
+                        "description": "Sort field: created_at, updated_at, code, url (default: created_at)",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of bookmarks with pagination",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -518,6 +591,20 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.Pagination"
+                }
+            }
+        },
         "github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkResponse": {
             "type": "object",
             "properties": {
@@ -543,6 +630,20 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_internal_dto_bookmark.Pagination": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
