@@ -17,7 +17,6 @@ import (
 	healthHandler "github.com/huypham67/bookmark-service/internal/handler/health"
 	linkHandler "github.com/huypham67/bookmark-service/internal/handler/link"
 	profileHandler "github.com/huypham67/bookmark-service/internal/handler/profile"
-	"github.com/huypham67/bookmark-service/internal/model"
 	linkRepo "github.com/huypham67/bookmark-service/internal/repository/link"
 	"github.com/huypham67/bookmark-service/internal/repository/ping"
 	"github.com/huypham67/bookmark-service/internal/repository/user"
@@ -79,15 +78,6 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	// Run database migrations
-	if err := runMigrations(dbClient); err != nil {
-		log.Error().
-			Err(err).
-			Msg("failed to run database migrations")
-
-		return nil, err
-	}
-
 	router := api.NewRouter()
 
 	if err := registerRoutes(router, cfg, redisClient, dbClient); err != nil {
@@ -132,10 +122,6 @@ func initRedisClient() (*redis.Client, error) {
 
 func initPostgresClient() (*gorm.DB, error) {
 	return sqldb.NewDBClient("")
-}
-
-func runMigrations(db *gorm.DB) error {
-	return db.AutoMigrate(&model.User{})
 }
 
 const tokenIssuer = "bookmark-service"
