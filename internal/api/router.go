@@ -115,6 +115,12 @@ func RegisterBookmarkRoutes(
 		jwtMiddleware,
 		handler.Create,
 	)
+
+	routerGroup.GET(
+		"/bookmarks",
+		jwtMiddleware,
+		handler.List,
+	)
 }
 
 // ServeHTTP implements the http.Handler interface.

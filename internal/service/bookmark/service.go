@@ -16,11 +16,17 @@ var (
 
 const bookmarkCodeLength = 6
 
+// PaginationResult holds pagination metadata.
+type PaginationResult struct {
+	Total int64
+}
+
 // Service defines the interface for bookmark operations.
 //
 //go:generate mockery --name=Service --output=./mocks --outpkg=mocks --filename=mock_service.go
 type Service interface {
 	Create(ctx context.Context, userID string, req bookmarkDTO.CreateBookmarkRequest) (*model.Bookmark, error)
+	List(ctx context.Context, userID string, page, limit int64, sort string) ([]*model.Bookmark, *PaginationResult, error)
 }
 
 type service struct {
