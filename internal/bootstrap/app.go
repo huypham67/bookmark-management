@@ -152,10 +152,9 @@ func initJWTMiddleware() gin.HandlerFunc {
 			Err(err).
 			Msg("failed to load public key for JWT")
 		return func(c *gin.Context) {
-			c.JSON(http.StatusInternalServerError, gin.H{
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error": "Internal server error",
 			})
-			c.Abort()
 		}
 	}
 
@@ -165,10 +164,9 @@ func initJWTMiddleware() gin.HandlerFunc {
 			Err(err).
 			Msg("failed to create token validator")
 		return func(c *gin.Context) {
-			c.JSON(http.StatusInternalServerError, gin.H{
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error": "Internal server error",
 			})
-			c.Abort()
 		}
 	}
 

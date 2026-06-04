@@ -22,10 +22,9 @@ func JWTAuth(validator jwtutils.TokenValidator) gin.HandlerFunc {
 		authHeader := c.GetHeader(AuthorizationHeader)
 		if authHeader == "" {
 			log.Warn().Msg("missing authorization header")
-			c.JSON(http.StatusUnauthorized, gin.H{
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": "missing authorization header",
 			})
-			c.Abort()
 			return
 		}
 
@@ -35,10 +34,9 @@ func JWTAuth(validator jwtutils.TokenValidator) gin.HandlerFunc {
 			log.Warn().
 				Str("auth_header", authHeader).
 				Msg("invalid authorization header format")
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid authorization header format",
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "invalid authorization header",
 			})
-			c.Abort()
 			return
 		}
 
@@ -50,10 +48,9 @@ func JWTAuth(validator jwtutils.TokenValidator) gin.HandlerFunc {
 			log.Warn().
 				Err(err).
 				Msg("token validation failed")
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid token",
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "invalid or expired token",
 			})
-			c.Abort()
 			return
 		}
 

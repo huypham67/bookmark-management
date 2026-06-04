@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/huypham67/bookmark-service/internal/bootstrap"
+	"github.com/huypham67/bookmark-service/pkg/common"
 
 	// Docs package is required to automatically register Swagger documentation via its init() function.
 	_ "github.com/huypham67/bookmark-service/docs"
@@ -17,11 +18,7 @@ import (
 // @description Type "Bearer" followed by a space and JWT token.
 func main() {
 	app, err := bootstrap.NewApp()
-	if err != nil {
-		panic(err)
-	}
+	common.ExitOnError(err, "Failed to create application")
 
-	if err := app.Run(); err != nil {
-		panic(err)
-	}
+	common.ExitOnError(app.Run(), "Failed to run application")
 }
