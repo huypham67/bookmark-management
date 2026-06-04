@@ -87,7 +87,7 @@ CACHE_TO ?= type=local,dest=/tmp/.buildx-cache-new,mode=max
 # KEYS
 # =============================================================================
 
-VM_KEYS_DIR ?= /opt/bookmark-service/keys
+VM_KEYS_DIR ?= /opt/bookmark-system/bookmark-service/keys
 LOCAL_KEYS_DIR ?= ./keys
 
 # =============================================================================

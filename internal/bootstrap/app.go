@@ -90,7 +90,9 @@ func NewApp() (*App, error) {
 
 	router := api.NewRouter()
 
-	registerRoutes(router, cfg, redisClient, dbClient)
+	if err := registerRoutes(router, cfg, redisClient, dbClient); err != nil {
+		return nil, err
+	}
 
 	log.Info().
 		Msg("application initialized successfully")
@@ -102,13 +104,16 @@ func NewApp() (*App, error) {
 	}, nil
 }
 
-func registerRoutes(router *api.Router, cfg *Config, redisClient *redis.Client, dbClient *gorm.DB) {
+func registerRoutes(router *api.Router, cfg *Config, redisClient *redis.Client, dbClient *gorm.DB) error {
 	apiGroup := router.GroupAPI()
 	apiV1Group := router.GroupV1()
 
 	healthHandlerInstance := initHealthHandler(cfg, redisClient)
 	linkHandlerInstance := initLinkHandler(redisClient)
-	authHandlerInstance := initAuthHandler(dbClient)
+	authHandlerInstance, err := initAuthHandler(dbClient)
+	if err != nil {
+		return err
+	}
 	profileHandlerInstance := initProfileHandler(dbClient)
 
 	jwtMiddleware := initJWTMiddleware()
@@ -117,6 +122,8 @@ func registerRoutes(router *api.Router, cfg *Config, redisClient *redis.Client, 
 	api.RegisterLinkRoutes(apiV1Group, linkHandlerInstance)
 	api.RegisterAuthRoutes(apiV1Group, authHandlerInstance)
 	api.RegisterProfileRoutes(apiV1Group, profileHandlerInstance, jwtMiddleware)
+
+	return nil
 }
 
 func initRedisClient() (*redis.Client, error) {
@@ -131,9 +138,15 @@ func runMigrations(db *gorm.DB) error {
 	return db.AutoMigrate(&model.User{})
 }
 
+const tokenIssuer = "bookmark-service"
+const tokenAudience = "bookmark-service"
+const tokenExpiration = time.Hour * 1
+const privateKeyPath = "keys/private.pem"
+const publicKeyPath = "keys/public.pem"
+
 func initJWTMiddleware() gin.HandlerFunc {
 	// Load public key for JWT token validation
-	publicKey, err := jwtutils.LoadRSAPublicKeyFromFile("keys/public.pem")
+	publicKey, err := jwtutils.LoadRSAPublicKeyFromFile(publicKeyPath)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -146,7 +159,7 @@ func initJWTMiddleware() gin.HandlerFunc {
 		}
 	}
 
-	tokenValidator, err := jwtutils.NewTokenValidator(publicKey, "bookmark-service", "bookmark-service")
+	tokenValidator, err := jwtutils.NewTokenValidator(publicKey, tokenIssuer, tokenAudience)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -162,30 +175,30 @@ func initJWTMiddleware() gin.HandlerFunc {
 	return middleware.JWTAuth(tokenValidator)
 }
 
-func initAuthHandler(db *gorm.DB) authHandler.Handler {
+func initAuthHandler(db *gorm.DB) (authHandler.Handler, error) {
 	userRepository := user.NewRepository(db)
 	passwordHasher := security.NewBcryptPasswordHasher()
 
 	// Load private key for JWT token generation
-	privateKey, err := jwtutils.LoadRSAPrivateKeyFromFile("keys/private.pem")
+	privateKey, err := jwtutils.LoadRSAPrivateKeyFromFile(privateKeyPath)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Msg("failed to load private key for JWT")
-		return nil
+		return nil, err
 	}
 
-	tokenGenerator, err := jwtutils.NewTokenGenerator(privateKey, "bookmark-service", "bookmark-service", time.Hour*1)
+	tokenGenerator, err := jwtutils.NewTokenGenerator(privateKey, tokenIssuer, tokenAudience, tokenExpiration)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Msg("failed to create token generator")
-		return nil
+		return nil, err
 	}
 
 	// Create auth service (for registration and login)
 	authService := authSvc.NewService(userRepository, passwordHasher, tokenGenerator)
-	return authHandler.NewHandler(authService)
+	return authHandler.NewHandler(authService), nil
 }
 
 func initProfileHandler(db *gorm.DB) profileHandler.Handler {

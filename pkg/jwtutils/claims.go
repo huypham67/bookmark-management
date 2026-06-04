@@ -35,6 +35,7 @@ var (
 	ErrInvalidClaims = errors.New("invalid claims type")
 )
 
+// GetClaims retrieves the CustomClaims from the Gin context set by the JWTAuth middleware.
 func GetClaims(c *gin.Context) (*CustomClaims, error) {
 	claimsObj, exists := c.Get("claims")
 	if !exists {
@@ -49,6 +50,7 @@ func GetClaims(c *gin.Context) (*CustomClaims, error) {
 	return claims, nil
 }
 
+// GetUserIDFromContext extracts the user ID from the JWT claims in the Gin context.
 func GetUserIDFromContext(c *gin.Context) (string, error) {
 	claims, err := GetClaims(c)
 	if err != nil {
