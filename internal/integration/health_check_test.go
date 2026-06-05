@@ -75,11 +75,11 @@ func TestHealthCheckEndpoint(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			app.Router.ServeHTTP(recorder, req)
 
-		assert.Equal(t, tc.expected.statusCode, recorder.Code)
-		assert.Equal(t, "application/json; charset=utf-8", recorder.Header().Get("Content-Type"))
+			assert.Equal(t, tc.expected.statusCode, recorder.Code)
+			assert.Equal(t, "application/json; charset=utf-8", recorder.Header().Get("Content-Type"))
 
-		var actual healthDTO.HealthCheckResponse
-		err := json.Unmarshal(recorder.Body.Bytes(), &actual)
+			var actual healthDTO.HealthCheckResponse
+			err := json.Unmarshal(recorder.Body.Bytes(), &actual)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.expected.response, actual)

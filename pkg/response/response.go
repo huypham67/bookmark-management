@@ -22,6 +22,11 @@ type SuccessResponse[T any] struct {
 	Pagination *Pagination `json:"pagination,omitempty"`
 }
 
+// MessageResponse represents a simple response containing only a message.
+type MessageResponse struct {
+	Message string `json:"message"`
+}
+
 // ErrorResponse represents an error API response.
 type ErrorResponse struct {
 	Error   string `json:"error"`
@@ -39,8 +44,8 @@ func Success[T any](data T, message string) SuccessResponse[T] {
 }
 
 // Message creates a successful response without data.
-func Message(message string) SuccessResponse[struct{}] {
-	return SuccessResponse[struct{}]{
+func Message(message string) MessageResponse {
+	return MessageResponse{
 		Message: message,
 	}
 }

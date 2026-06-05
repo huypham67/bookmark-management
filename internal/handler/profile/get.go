@@ -50,7 +50,7 @@ func (h *handler) GetUserInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response.Success(
-		&profileDTO.UserData{
+		profileDTO.UserData{
 			ID:          user.ID,
 			DisplayName: user.DisplayName,
 			Username:    user.Username,
