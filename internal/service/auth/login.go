@@ -6,13 +6,17 @@ import (
 
 	authDTO "github.com/huypham67/bookmark-service/internal/dto/auth"
 	"github.com/huypham67/bookmark-service/pkg/dbutils"
+	"github.com/huypham67/bookmark-service/pkg/security"
 	"github.com/rs/zerolog/log"
 )
 
 // LoginUser authenticates a user by validating credentials and returns a JWT token.
 func (s *service) LoginUser(ctx context.Context, req authDTO.LoginRequest) (string, error) {
 	user, err := s.userRepo.GetByUsername(ctx, req.Username)
-	if err != nil && !errors.Is(err, dbutils.ErrRecordNotFoundType) {
+	if err != nil {
+		if errors.Is(err, dbutils.ErrRecordNotFoundType) {
+			return "", ErrInvalidCredentials
+		}
 		log.Error().
 			Err(err).
 			Str("username", req.Username).
@@ -21,21 +25,20 @@ func (s *service) LoginUser(ctx context.Context, req authDTO.LoginRequest) (stri
 	}
 
 	if user == nil {
-		log.Warn().
-			Str("username", req.Username).
-			Msg("user not found")
 		return "", ErrInvalidCredentials
 	}
 
-	// Validate password
 	if err := s.passwordHasher.Compare(user.Password, req.Password); err != nil {
-		log.Warn().
-			Str("username", req.Username).
-			Msg("invalid password")
-		return "", ErrInvalidCredentials
+		if errors.Is(err, security.ErrPasswordMismatch) {
+			return "", ErrInvalidCredentials
+		}
+		log.Error().
+			Err(err).
+			Str("user_id", user.ID).
+			Msg("failed to compare password hash")
+		return "", ErrInternalServerError
 	}
 
-	// Generate JWT token
 	token, err := s.tokenGenerator.GenerateToken(user.ID, user.DisplayName, user.Email)
 	if err != nil {
 		log.Error().

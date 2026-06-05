@@ -27,12 +27,6 @@ type MessageResponse struct {
 	Message string `json:"message"`
 }
 
-// ErrorResponse represents an error API response.
-type ErrorResponse struct {
-	Error   string `json:"error"`
-	Message string `json:"message,omitempty"`
-}
-
 // Success creates a successful response with data.
 // For pointer types, call with SuccessResponse[*T]{Data: ptr, Message: msg}.
 // For value types, call with Success(value, msg) or SuccessResponse[T]{Data: value, Message: msg}.
@@ -67,13 +61,5 @@ func Paginated[T any](
 			Limit: limit,
 			Total: total,
 		},
-	}
-}
-
-// Error creates an error response.
-func Error(code string, message string) ErrorResponse {
-	return ErrorResponse{
-		Error:   code,
-		Message: message,
 	}
 }

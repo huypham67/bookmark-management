@@ -9,6 +9,7 @@ import (
 	userMocks "github.com/huypham67/bookmark-service/internal/repository/user/mocks"
 	"github.com/huypham67/bookmark-service/pkg/dbutils"
 	jwtutilsMocks "github.com/huypham67/bookmark-service/pkg/jwtutils/mocks"
+	"github.com/huypham67/bookmark-service/pkg/security"
 	securityMocks "github.com/huypham67/bookmark-service/pkg/security/mocks"
 	"github.com/stretchr/testify/assert"
 )
@@ -126,7 +127,7 @@ func TestService_LoginUser(t *testing.T) {
 
 				passwordHasher.
 					On("Compare", "$2a$10$hashedpassword123456789", "wrongpassword").
-					Return(assert.AnError).
+					Return(security.ErrPasswordMismatch).
 					Once()
 			},
 			verifyResponse: func(t *testing.T, token string, err error) {

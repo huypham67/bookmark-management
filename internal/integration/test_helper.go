@@ -28,6 +28,11 @@ import (
 	"github.com/huypham67/bookmark-service/pkg/utils"
 )
 
+const (
+	testIssuer   = "test-issuer"
+	testAudience = "test-audience"
+)
+
 // TestApp represents the test application with its dependencies.
 type TestApp struct {
 	Router    *api.Router
@@ -53,16 +58,16 @@ func createTestJWT(t *testing.T) (
 
 	tokenGenerator, err := jwtutils.NewTokenGenerator(
 		privateKey,
-		"test-issuer",
-		"test-audience",
+		testIssuer,
+		testAudience,
 		time.Hour,
 	)
 	require.NoError(t, err)
 
 	tokenValidator, err := jwtutils.NewTokenValidator(
 		&privateKey.PublicKey,
-		"test-issuer",
-		"test-audience",
+		testIssuer,
+		testAudience,
 	)
 	require.NoError(t, err)
 

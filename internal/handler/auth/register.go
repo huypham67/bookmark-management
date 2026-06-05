@@ -45,7 +45,7 @@ func (h *handler) Register(c *gin.Context) {
 			Msg("failed to register user")
 
 		switch {
-		case errors.Is(err, auth.ErrEmailAlreadyRegistered), errors.Is(err, auth.ErrUsernameAlreadyExists):
+		case errors.Is(err, auth.ErrUserAlreadyExists):
 			c.JSON(http.StatusConflict, gin.H{
 				"error": "User already exists",
 			})
