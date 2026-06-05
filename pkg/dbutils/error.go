@@ -27,7 +27,9 @@ func ClassifyError(err error) error {
 }
 
 func IsDuplicationError(err error) (bool, error) {
-	return strings.Contains(err.Error(), "duplicate key value violates unique constraint"), ErrDuplicationType
+	errMsg := err.Error()
+	return strings.Contains(errMsg, "duplicate key value violates unique constraint") ||
+		strings.Contains(errMsg, "UNIQUE constraint failed"), ErrDuplicationType
 }
 
 func IsForeignKeyViolationError(err error) (bool, error) {

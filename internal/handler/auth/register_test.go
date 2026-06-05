@@ -80,10 +80,10 @@ func TestHandler_Register(t *testing.T) {
 			},
 		},
 		{
-			name: "should return 409 when email already registered",
+			name: "should return 409 when user already exists",
 			requestBody: `{
 				"display_name":"Test User",
-				"username":"testuser",
+				"username":"existinguser",
 				"email":"existing@example.com",
 				"password":"password123"
 			}`,
@@ -94,40 +94,12 @@ func TestHandler_Register(t *testing.T) {
 						ctx,
 						authDTO.RegisterUserRequest{
 							DisplayName: "Test User",
-							Username:    "testuser",
+							Username:    "existinguser",
 							Email:       "existing@example.com",
 							Password:    "password123",
 						},
 					).
-					Return(nil, auth.ErrEmailAlreadyRegistered).
-					Once()
-			},
-			expected: expected{
-				statusCode:   http.StatusConflict,
-				bodyContains: "User already exists",
-			},
-		},
-		{
-			name: "should return 409 when username already exists",
-			requestBody: `{
-				"display_name":"Test User",
-				"username":"existinguser",
-				"email":"test@example.com",
-				"password":"password123"
-			}`,
-			setupMock: func(ctx context.Context, mockSvc *mocks.Service) {
-				mockSvc.
-					On(
-						"RegisterUser",
-						ctx,
-						authDTO.RegisterUserRequest{
-							DisplayName: "Test User",
-							Username:    "existinguser",
-							Email:       "test@example.com",
-							Password:    "password123",
-						},
-					).
-					Return(nil, auth.ErrUsernameAlreadyExists).
+					Return(nil, auth.ErrUserAlreadyExists).
 					Once()
 			},
 			expected: expected{
