@@ -8,6 +8,7 @@ import (
 	authDTO "github.com/huypham67/bookmark-service/internal/dto/auth"
 	"github.com/huypham67/bookmark-service/internal/service/auth"
 	"github.com/huypham67/bookmark-service/pkg/requestutils"
+	"github.com/huypham67/bookmark-service/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -57,8 +58,5 @@ func (h *handler) Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, authDTO.LoginResponse{
-		Data:    token,
-		Message: "Logged in successfully!",
-	})
+	c.JSON(http.StatusOK, response.Success(token, "Logged in successfully!"))
 }

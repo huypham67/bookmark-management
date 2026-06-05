@@ -1,6 +1,10 @@
 package profile
 
-import "time"
+import (
+	"time"
+
+	"github.com/huypham67/bookmark-service/pkg/response"
+)
 
 // UserData represents the user data in the profile response.
 type UserData struct {
@@ -11,14 +15,8 @@ type UserData struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// UserResponse represents the user info response payload.
-type UserResponse struct {
-	Data    *UserData `json:"data"`
-	Message string    `json:"message"`
-}
+// UserResponse is a type alias for user profile response.
+type UserResponse = response.SuccessResponse[*UserData]
 
-// UpdateUserResponse represents the user update response payload.
-type UpdateUserResponse struct {
-	Message string `json:"message"`
-}
-
+// UpdateUserResponse is a type alias for user update response.
+type UpdateUserResponse = response.SuccessResponse[struct{}]

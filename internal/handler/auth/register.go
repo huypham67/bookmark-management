@@ -8,6 +8,7 @@ import (
 	authDTO "github.com/huypham67/bookmark-service/internal/dto/auth"
 	"github.com/huypham67/bookmark-service/internal/service/auth"
 	"github.com/huypham67/bookmark-service/pkg/requestutils"
+	"github.com/huypham67/bookmark-service/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -56,14 +57,14 @@ func (h *handler) Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, authDTO.RegisterUserResponse{
-		Data: authDTO.UserData{
+	c.JSON(http.StatusCreated, response.Success(
+		authDTO.UserData{
 			ID:          user.ID,
 			DisplayName: user.DisplayName,
 			Username:    user.Username,
 			Email:       user.Email,
 			CreatedAt:   user.CreatedAt,
 		},
-		Message: "Register an user successfully!",
-	})
+		"Register an user successfully!",
+	))
 }

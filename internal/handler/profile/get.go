@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	profileDTO "github.com/huypham67/bookmark-service/internal/dto/profile"
 	"github.com/huypham67/bookmark-service/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -48,14 +49,14 @@ func (h *handler) GetUserInfo(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, profileDTO.UserResponse{
-		Data: &profileDTO.UserData{
+	c.JSON(http.StatusOK, response.Success(
+		&profileDTO.UserData{
 			ID:          user.ID,
 			DisplayName: user.DisplayName,
 			Username:    user.Username,
 			Email:       user.Email,
 			CreatedAt:   user.CreatedAt,
 		},
-		Message: "User information retrieved successfully!",
-	})
+		"User information retrieved successfully!",
+	))
 }

@@ -19,6 +19,8 @@ definitions:
         type: string
       message:
         type: string
+      pagination:
+        $ref: '#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination'
     type: object
   github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserRequest:
     properties:
@@ -47,10 +49,13 @@ definitions:
         $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.UserData'
       message:
         type: string
+      pagination:
+        $ref: '#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination'
     type: object
   github_com_huypham67_bookmark-service_internal_dto_auth.UserData:
     properties:
-      created_at: {}
+      created_at:
+        type: string
       display_name:
         type: string
       email:
@@ -81,8 +86,10 @@ definitions:
         items:
           $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData'
         type: array
+      message:
+        type: string
       pagination:
-        $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.Pagination'
+        $ref: '#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination'
     type: object
   github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkResponse:
     properties:
@@ -90,6 +97,8 @@ definitions:
         $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData'
       message:
         type: string
+      pagination:
+        $ref: '#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination'
     type: object
   github_com_huypham67_bookmark-service_internal_dto_bookmark.CreateBookmarkRequest:
     properties:
@@ -102,15 +111,6 @@ definitions:
     required:
     - description
     - url
-    type: object
-  github_com_huypham67_bookmark-service_internal_dto_bookmark.Pagination:
-    properties:
-      limit:
-        type: integer
-      page:
-        type: integer
-      total:
-        type: integer
     type: object
   github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse:
     properties:
@@ -150,9 +150,6 @@ definitions:
         type: string
     type: object
   github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserResponse:
-    properties:
-      message:
-        type: string
     type: object
   github_com_huypham67_bookmark-service_internal_dto_profile.UserData:
     properties:
@@ -173,6 +170,17 @@ definitions:
         $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UserData'
       message:
         type: string
+      pagination:
+        $ref: '#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination'
+    type: object
+  github_com_huypham67_bookmark-service_pkg_response.Pagination:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
     type: object
 info:
   contact: {}
