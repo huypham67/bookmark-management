@@ -16,7 +16,7 @@ type UserData struct {
 }
 
 // UserResponse is a type alias for user profile response.
-type UserResponse = response.SuccessResponse[*UserData]
+type UserResponse = response.SuccessResponse[UserData]
 
 // UpdateUserResponse is a type alias for user update response.
 type UpdateUserResponse = response.SuccessResponse[struct{}]
