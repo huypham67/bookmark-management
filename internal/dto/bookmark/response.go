@@ -1,6 +1,10 @@
 package bookmark
 
-import "time"
+import (
+	"time"
+
+	"github.com/huypham67/bookmark-service/pkg/response"
+)
 
 type BookmarkData struct {
 	ID          string    `json:"id"`
@@ -11,18 +15,8 @@ type BookmarkData struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-type BookmarkResponse struct {
-	Data    *BookmarkData `json:"data"`
-	Message string        `json:"message"`
-}
+// BookmarkResponse is a type alias for single bookmark response.
+type BookmarkResponse = response.SuccessResponse[*BookmarkData]
 
-type Pagination struct {
-	Page  int64 `json:"page"`
-	Limit int64 `json:"limit"`
-	Total int64 `json:"total"`
-}
-
-type BookmarkListResponse struct {
-	Data       []BookmarkData `json:"data"`
-	Pagination Pagination     `json:"pagination"`
-}
+// BookmarkListResponse is a type alias for paginated bookmark list response.
+type BookmarkListResponse = response.SuccessResponse[[]BookmarkData]

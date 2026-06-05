@@ -7,6 +7,7 @@ import (
 	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
 	"github.com/huypham67/bookmark-service/pkg/jwtutils"
 	"github.com/huypham67/bookmark-service/pkg/requestutils"
+	"github.com/huypham67/bookmark-service/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -87,12 +88,11 @@ func (h *handler) List(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, bookmarkDTO.BookmarkListResponse{
-		Data: bookmarkDataList,
-		Pagination: bookmarkDTO.Pagination{
-			Page:  page,
-			Limit: limit,
-			Total: pagination.Total,
-		},
-	})
+	c.JSON(http.StatusOK, response.Paginated(
+		bookmarkDataList,
+		page,
+		limit,
+		pagination.Total,
+		"Bookmarks retrieved successfully!",
+	))
 }

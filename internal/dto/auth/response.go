@@ -1,16 +1,10 @@
 package auth
 
-// RegisterUserResponse represents the user registration response payload.
-type RegisterUserResponse struct {
-	Data    UserData `json:"data"`
-	Message string   `json:"message"`
-}
+import (
+	"time"
 
-// LoginResponse represents the user login response payload.
-type LoginResponse struct {
-	Data    string `json:"data"`
-	Message string `json:"message"`
-}
+	"github.com/huypham67/bookmark-service/pkg/response"
+)
 
 // UserData represents the user data in the response.
 type UserData struct {
@@ -18,6 +12,11 @@ type UserData struct {
 	DisplayName string    `json:"display_name"`
 	Username    string    `json:"username"`
 	Email       string    `json:"email"`
-	CreatedAt   interface{} `json:"created_at"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
+// RegisterUserResponse is a type alias for user registration response.
+type RegisterUserResponse = response.SuccessResponse[UserData]
+
+// LoginResponse is a type alias for login response with JWT token.
+type LoginResponse = response.SuccessResponse[string]

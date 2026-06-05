@@ -9,6 +9,7 @@ import (
 	"github.com/huypham67/bookmark-service/internal/service/bookmark"
 	"github.com/huypham67/bookmark-service/pkg/jwtutils"
 	"github.com/huypham67/bookmark-service/pkg/requestutils"
+	"github.com/huypham67/bookmark-service/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -68,8 +69,8 @@ func (h *handler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, bookmarkDTO.BookmarkResponse{
-		Data: &bookmarkDTO.BookmarkData{
+	c.JSON(http.StatusCreated, response.Success(
+		&bookmarkDTO.BookmarkData{
 			ID:          bm.ID,
 			Code:        bm.Code,
 			Description: bm.Description,
@@ -77,6 +78,6 @@ func (h *handler) Create(c *gin.Context) {
 			CreatedAt:   bm.CreatedAt,
 			UpdatedAt:   bm.UpdatedAt,
 		},
-		Message: "Bookmark created successfully!",
-	})
+		"Bookmark created successfully!",
+	))
 }

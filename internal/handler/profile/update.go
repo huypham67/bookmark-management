@@ -9,6 +9,7 @@ import (
 	"github.com/huypham67/bookmark-service/internal/service/profile"
 	"github.com/huypham67/bookmark-service/pkg/jwtutils"
 	"github.com/huypham67/bookmark-service/pkg/requestutils"
+	"github.com/huypham67/bookmark-service/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -69,7 +70,5 @@ func (h *handler) UpdateUserInfo(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, profileDTO.UpdateUserResponse{
-		Message: "Edit current user successfully!",
-	})
+	c.JSON(http.StatusOK, response.Message("Edit current user successfully!"))
 }

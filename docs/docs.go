@@ -508,6 +508,9 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination"
                 }
             }
         },
@@ -547,13 +550,18 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination"
                 }
             }
         },
         "github_com_huypham67_bookmark-service_internal_dto_auth.UserData": {
             "type": "object",
             "properties": {
-                "created_at": {},
+                "created_at": {
+                    "type": "string"
+                },
                 "display_name": {
                     "type": "string"
                 },
@@ -600,8 +608,11 @@ const docTemplate = `{
                         "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData"
                     }
                 },
+                "message": {
+                    "type": "string"
+                },
                 "pagination": {
-                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.Pagination"
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination"
                 }
             }
         },
@@ -613,6 +624,9 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination"
                 }
             }
         },
@@ -630,20 +644,6 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string"
-                }
-            }
-        },
-        "github_com_huypham67_bookmark-service_internal_dto_bookmark.Pagination": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer"
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
                 }
             }
         },
@@ -703,12 +703,7 @@ const docTemplate = `{
             }
         },
         "github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
+            "type": "object"
         },
         "github_com_huypham67_bookmark-service_internal_dto_profile.UserData": {
             "type": "object",
@@ -738,6 +733,23 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_pkg_response.Pagination": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         }
