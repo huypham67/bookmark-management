@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	linkDTO "github.com/huypham67/bookmark-service/internal/dto/link"
+	"github.com/huypham67/bookmark-service/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -24,9 +25,7 @@ func (h *handler) ShortenURL(c *gin.Context) {
 	var req linkDTO.ShortenURLRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid request body",
-		})
+		response.BadRequest(c, "Invalid request body")
 		return
 	}
 
@@ -39,9 +38,7 @@ func (h *handler) ShortenURL(c *gin.Context) {
 			Int64("exp", req.Exp).
 			Msg("500 - failed to shorten URL")
 
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal Server Error",
-		})
+		response.InternalServerError(c)
 
 		return
 	}

@@ -32,37 +32,20 @@ func (h *handler) List(c *gin.Context) {
 
 	if err != nil {
 		log.Warn().Msg("user ID not found in context")
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Unauthorized",
-		})
+		response.Unauthorized(c, "Unauthorized")
 		return
 	}
 
 	req, err := requestutils.Bind[bookmarkDTO.ListBookmarksRequest](c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid query parameters",
-		})
+		response.BadRequest(c, "Invalid query parameters")
 		return
 	}
 
-	page := req.Page
-	if page == 0 {
-		page = 1
-	}
+	req.SetDefaults()
 
-	limit := req.Limit
-	if limit == 0 {
-		limit = 10
-	}
-
-	sort := req.Sort
-	if sort == "" {
-		sort = "created_at"
-	}
-
-	bookmarks, pagination, err := h.service.List(c, userID, page, limit, sort)
+	bookmarks, pagination, err := h.service.List(c, userID, req)
 
 	if err != nil {
 		log.Error().
@@ -70,9 +53,7 @@ func (h *handler) List(c *gin.Context) {
 			Str("user_id", userID).
 			Msg("failed to list bookmarks")
 
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal Server Error",
-		})
+		response.InternalServerError(c)
 		return
 	}
 
@@ -90,8 +71,8 @@ func (h *handler) List(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response.Paginated(
 		bookmarkDataList,
-		page,
-		limit,
+		pagination.Page,
+		pagination.Limit,
 		pagination.Total,
 		"Bookmarks retrieved successfully!",
 	))

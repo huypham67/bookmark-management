@@ -29,9 +29,7 @@ func (h *handler) Register(c *gin.Context) {
 	req, err := requestutils.Bind[authDTO.RegisterUserRequest](c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid request body",
-		})
+		response.BadRequest(c, "Invalid request body")
 		return
 	}
 
@@ -46,13 +44,9 @@ func (h *handler) Register(c *gin.Context) {
 
 		switch {
 		case errors.Is(err, auth.ErrUserAlreadyExists):
-			c.JSON(http.StatusConflict, gin.H{
-				"error": "User already exists",
-			})
+			response.Conflict(c, "User already exists")
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error",
-			})
+			response.InternalServerError(c)
 		}
 		return
 	}

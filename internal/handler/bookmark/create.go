@@ -33,18 +33,14 @@ func (h *handler) Create(c *gin.Context) {
 
 	if err != nil {
 		log.Warn().Msg("user ID not found in context")
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Unauthorized",
-		})
+		response.Unauthorized(c, "Unauthorized")
 		return
 	}
 
 	req, err := requestutils.Bind[bookmarkDTO.CreateBookmarkRequest](c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid request body",
-		})
+		response.BadRequest(c, "Invalid request body")
 		return
 	}
 
@@ -59,17 +55,11 @@ func (h *handler) Create(c *gin.Context) {
 
 		switch {
 		case errors.Is(err, bookmark.ErrBookmarkAlreadyExists):
-			c.JSON(http.StatusConflict, gin.H{
-				"error": "Bookmark code already exists",
-			})
+			response.Conflict(c, "Bookmark code already exists")
 		case errors.Is(err, bookmark.ErrBadRequest):
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Invalid bookmark request",
-			})
+			response.BadRequest(c, "Invalid bookmark request")
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error",
-			})
+			response.InternalServerError(c)
 		}
 		return
 	}

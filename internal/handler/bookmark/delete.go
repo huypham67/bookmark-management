@@ -32,9 +32,7 @@ func (h *handler) Delete(c *gin.Context) {
 
 	if err != nil {
 		log.Warn().Msg("user ID not found in context")
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Unauthorized",
-		})
+		response.Unauthorized(c, "Unauthorized")
 		return
 	}
 
@@ -44,9 +42,7 @@ func (h *handler) Delete(c *gin.Context) {
 		log.Warn().
 			Err(err).
 			Msg("invalid delete bookmark request")
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid request",
-		})
+		response.BadRequest(c, "invalid request")
 		return
 	}
 
@@ -59,17 +55,11 @@ func (h *handler) Delete(c *gin.Context) {
 
 		switch {
 		case errors.Is(err, bookmark.ErrBookmarkNotFound):
-			c.JSON(http.StatusNotFound, gin.H{
-				"error": "Bookmark not found",
-			})
+			response.NotFound(c, "Bookmark not found")
 		case errors.Is(err, bookmark.ErrBadRequest):
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Invalid request",
-			})
+			response.BadRequest(c, "invalid request")
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error",
-			})
+			response.InternalServerError(c)
 		}
 		return
 	}

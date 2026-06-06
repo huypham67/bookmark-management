@@ -28,9 +28,7 @@ func (h *handler) GetUserInfo(c *gin.Context) {
 
 	if err != nil {
 		log.Warn().Msg("user ID not found in context")
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Unauthorized",
-		})
+		response.Unauthorized(c, "Unauthorized")
 		return
 	}
 
@@ -42,9 +40,7 @@ func (h *handler) GetUserInfo(c *gin.Context) {
 			Str("user_id", userID).
 			Msg("failed to get user info")
 
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal Server Error",
-		})
+		response.InternalServerError(c)
 
 		return
 	}
