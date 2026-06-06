@@ -55,15 +55,43 @@ func TestService_GetOriginalURL(t *testing.T) {
 				assert.Empty(t, url)
 			},
 		},
+		{
+			name: "should return error when context is cancelled",
+			args: args{
+				code: "abc1234",
+			},
+			setupMocks: func(ctx context.Context, mockRepo *mocks.Repository) {
+				mockRepo.
+					On("GetLink", ctx, "abc1234").
+					Return("", context.Canceled).
+					Once()
+			},
+			verifyResponse: func(t *testing.T, url string, err error) {
+				assert.Error(t, err)
+				assert.Empty(t, url)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
+		tc := tc
+
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
+			var ctx context.Context
 			mockRepo := new(mocks.Repository)
 			mockCodeGen := new(utilsMocks.CodeGenerator)
+
+			// For context cancellation test, create a cancelled context
+			if tc.name == "should return error when context is cancelled" {
+				cancelledCtx, cancel := context.WithCancel(context.Background())
+				cancel()
+				ctx = cancelledCtx
+			} else {
+				ctx = context.Background()
+			}
+
 			tc.setupMocks(ctx, mockRepo)
 
 			service := NewService(mockRepo, mockCodeGen)

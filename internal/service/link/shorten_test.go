@@ -181,6 +181,30 @@ func TestService_ShortenURL(t *testing.T) {
 				assert.Empty(t, code)
 			},
 		},
+		{
+			name: "should return error when context is cancelled",
+			args: args{
+				request: linkDTO.ShortenURLRequest{
+					Url: "https://google.com",
+					Exp: 3600,
+				},
+			},
+			setupMocks: func(ctx context.Context, mockRepo *mocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
+				mockCodeGen.
+					On("Generate", shortCodeLength).
+					Return("abc1234", nil).
+					Once()
+
+				mockRepo.
+					On("CheckExists", ctx, "abc1234").
+					Return(false, context.Canceled).
+					Once()
+			},
+			verifyResponse: func(t *testing.T, code string, err error) {
+				assert.Error(t, err)
+				assert.Empty(t, code)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -189,9 +213,18 @@ func TestService_ShortenURL(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
+			var ctx context.Context
 			mockRepo := new(mocks.Repository)
 			mockCodeGen := new(utilsMocks.CodeGenerator)
+
+			// For context cancellation test, create a cancelled context
+			if tc.name == "should return error when context is cancelled" {
+				cancelledCtx, cancel := context.WithCancel(context.Background())
+				cancel()
+				ctx = cancelledCtx
+			} else {
+				ctx = context.Background()
+			}
 
 			tc.setupMocks(ctx, mockRepo, mockCodeGen)
 

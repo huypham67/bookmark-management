@@ -95,6 +95,36 @@ func TestService_GetUserInfo(t *testing.T) {
 				assert.Nil(t, user)
 			},
 		},
+		{
+			name: "should return error when context is cancelled",
+			args: args{
+				userID: "user-id",
+			},
+			setupMocks: func(
+				ctx context.Context,
+				mockRepo *mocks.Repository,
+			) {
+				mockRepo.
+					On(
+						"GetByID",
+						ctx,
+						"user-id",
+					).
+					Return(
+						nil,
+						context.Canceled,
+					).
+					Once()
+			},
+			verifyResponse: func(
+				t *testing.T,
+				user *model.User,
+				err error,
+			) {
+				assert.Error(t, err)
+				assert.Nil(t, user)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -103,9 +133,17 @@ func TestService_GetUserInfo(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
-
+			var ctx context.Context
 			mockRepo := new(mocks.Repository)
+
+			// For context cancellation test, create a cancelled context
+			if tc.name == "should return error when context is cancelled" {
+				cancelledCtx, cancel := context.WithCancel(context.Background())
+				cancel()
+				ctx = cancelledCtx
+			} else {
+				ctx = context.Background()
+			}
 
 			tc.setupMocks(ctx, mockRepo)
 
