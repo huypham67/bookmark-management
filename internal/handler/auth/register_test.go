@@ -69,9 +69,19 @@ func TestHandler_Register(t *testing.T) {
 			},
 		},
 		{
-			name: "should return 400 when request body is invalid",
+			name:        "should return 400 when request body is invalid JSON",
+			requestBody: `{invalid json}`,
+			setupMock:   func(ctx context.Context, mockSvc *mocks.Service) {},
+			expected: expected{
+				statusCode:   http.StatusBadRequest,
+				bodyContains: "Invalid request body",
+			},
+		},
+		{
+			name: "should return 400 when required field is missing",
 			requestBody: `{
-				"display_name":"Test User"
+				"display_name":"Test User",
+				"username":"testuser"
 			}`,
 			setupMock: func(ctx context.Context, mockSvc *mocks.Service) {},
 			expected: expected{
