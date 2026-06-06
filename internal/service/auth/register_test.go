@@ -2,12 +2,12 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	authDTO "github.com/huypham67/bookmark-service/internal/dto/auth"
 	"github.com/huypham67/bookmark-service/internal/model"
 	userMocks "github.com/huypham67/bookmark-service/internal/repository/user/mocks"
+	"github.com/huypham67/bookmark-service/pkg/dbutils"
 	jwtutilsMocks "github.com/huypham67/bookmark-service/pkg/jwtutils/mocks"
 	securityMocks "github.com/huypham67/bookmark-service/pkg/security/mocks"
 	"github.com/stretchr/testify/assert"
@@ -115,15 +115,13 @@ func TestService_RegisterUser(t *testing.T) {
 
 				expectedUser := expectedAuthRegisteredUser()
 
-				duplicateError := errors.New(`ERROR: duplicate key value violates unique constraint "idx_users_email" (SQLSTATE 23505)`)
-
 				userRepo.
 					On(
 						"Create",
 						ctx,
 						matchAuthUser(expectedUser),
 					).
-					Return(duplicateError).
+					Return(dbutils.ErrDuplicationType).
 					Once()
 			},
 			verifyResponse: func(

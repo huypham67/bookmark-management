@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	ErrUserAlreadyExists   = errors.New("username or email already exists")
+	ErrUserAlreadyExists   = errors.New("Username or email already exists")
 	ErrInvalidCredentials  = errors.New("Invalid username or password")
 	ErrInternalServerError = errors.New("internal server error")
 )

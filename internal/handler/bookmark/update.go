@@ -22,9 +22,9 @@ import (
 // @Produce json
 // @Security Bearer
 // @Param id path string true "Bookmark ID"
-// @Param request body bookmarkDTO.UpdateBookmarkRequest true "Updated bookmark data"
+// @Param request body object{description=string,url=string} false "Updated bookmark data"
 // @Success 200 {object} gin.H "Bookmark updated successfully"
-// @Failure 400 {object} gin.H "Invalid request body"
+// @Failure 400 {object} gin.H "Invalid bookmark ID or request data"
 // @Failure 401 {object} gin.H "Unauthorized"
 // @Failure 404 {object} gin.H "Bookmark not found"
 // @Failure 500 {object} gin.H "Internal server error"
@@ -40,28 +40,33 @@ func (h *handler) Update(c *gin.Context) {
 		return
 	}
 
-	bookmarkID := c.Param("id")
-
 	req, err := requestutils.Bind[bookmarkDTO.UpdateBookmarkRequest](c)
 
 	if err != nil {
+		log.Warn().
+			Err(err).
+			Msg("invalid update bookmark request")
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid request body",
+			"error": "Invalid request",
 		})
 		return
 	}
 
-	if err := h.service.Update(c, userID, bookmarkID, *req); err != nil {
+	if err := h.service.Update(c, userID, req.ID, *req); err != nil {
 		log.Error().
 			Err(err).
 			Str("user_id", userID).
-			Str("bookmark_id", bookmarkID).
+			Str("bookmark_id", req.ID).
 			Msg("failed to update bookmark")
 
 		switch {
 		case errors.Is(err, bookmark.ErrBookmarkNotFound):
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "Bookmark not found",
+			})
+		case errors.Is(err, bookmark.ErrBadRequest):
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Invalid request",
 			})
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{

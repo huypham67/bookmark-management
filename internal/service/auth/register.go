@@ -28,8 +28,11 @@ func (s *service) RegisterUser(ctx context.Context, req authDTO.RegisterUserRequ
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
-		classifiedErr := dbutils.ClassifyError(err)
-		if errors.Is(classifiedErr, dbutils.ErrDuplicationType) {
+		if errors.Is(err, dbutils.ErrDuplicationType) {
+			log.Warn().
+				Str("email", req.Email).
+				Str("username", req.Username).
+				Msg("user already exists")
 			return nil, ErrUserAlreadyExists
 		}
 

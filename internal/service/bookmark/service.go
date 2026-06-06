@@ -11,8 +11,13 @@ import (
 )
 
 var (
+	// Client errors (4xx)
+	ErrBadRequest            = errors.New("bad request")
+	ErrBookmarkNotFound      = errors.New("bookmark not found")
+	ErrBookmarkAlreadyExists = errors.New("bookmark code already exists")
+
+	// Server errors (5xx)
 	ErrInternalServerError = errors.New("internal server error")
-	ErrBookmarkNotFound    = errors.New("bookmark not found")
 )
 
 const bookmarkCodeLength = 6
