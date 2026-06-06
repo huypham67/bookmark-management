@@ -14,10 +14,12 @@ const (
 
 var baseTime = time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 
+// BookmarkTestDB is a test database struct that embeds UserTestDB to manage both user and bookmark data for testing purposes.
 type BookmarkTestDB struct {
 	UserTestDB
 }
 
+// MigrateDB migrates the database schema for bookmarks and users.
 func (b *BookmarkTestDB) MigrateDB() error {
 	// Enable foreign key constraints for SQLite
 	if err := b.db.Exec("PRAGMA foreign_keys = ON").Error; err != nil {
@@ -27,6 +29,7 @@ func (b *BookmarkTestDB) MigrateDB() error {
 	return b.db.AutoMigrate(&model.User{}, &model.Bookmark{})
 }
 
+// SeedData seeds the database with test data for bookmarks and users.
 func (b *BookmarkTestDB) SeedData() error {
 	if err := b.UserTestDB.SeedData(); err != nil {
 		return err

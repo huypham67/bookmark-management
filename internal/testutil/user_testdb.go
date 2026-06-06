@@ -8,14 +8,17 @@ import (
 
 const TestPassword = "password123"
 
+// UserTestDB is a test database struct for user-related tests. It embeds baseTestDB to inherit common database setup and teardown functionalities.
 type UserTestDB struct {
 	baseTestDB
 }
 
+// NewUserTestDB creates a new UserTestDB instance with the given gorm.DB connection.
 func (u *UserTestDB) MigrateDB() error {
 	return u.db.AutoMigrate(&model.User{})
 }
 
+// SeedData populates the database with predefined test users. It uses a session with SkipHooks to bypass any model hooks during seeding.
 func (u *UserTestDB) SeedData() error {
 	db := u.db.Session(&gorm.Session{SkipHooks: true})
 

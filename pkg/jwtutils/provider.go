@@ -5,7 +5,6 @@ import (
 )
 
 // Provider encapsulates JWT token generation and validation capabilities.
-// It loads RSA keys from configured paths and provides token generator/validator instances.
 type Provider interface {
 	Generator() TokenGenerator
 	Validator() TokenValidator
@@ -17,17 +16,6 @@ type jwtProvider struct {
 }
 
 // NewProvider initializes a new JWT provider from environment configuration.
-// It loads configuration from environment variables, validates it, loads RSA keys,
-// and creates TokenGenerator and TokenValidator instances.
-//
-// Parameters:
-//   - envPrefix: Environment variable prefix (e.g., "" for default, "STAGING_" for staging)
-//
-// Returns an error if:
-// - Configuration loading fails
-// - Configuration validation fails
-// - Key files cannot be read or are invalid
-// - Key parsing fails
 func NewProvider(envPrefix string) (Provider, error) {
 	cfg, err := LoadJWTConfig(envPrefix)
 	if err != nil {

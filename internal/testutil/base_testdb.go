@@ -26,6 +26,7 @@ func (b *baseTestDB) GetDB() *gorm.DB {
 	return b.db
 }
 
+// NewTestDB creates a new test database, runs migrations, and seeds data for testing.
 func NewTestDB(t *testing.T, testdb TestDatabase) *gorm.DB {
 	testdb.SetupDB(sqldb.CreateMockDB(t))
 

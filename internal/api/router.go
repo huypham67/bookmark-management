@@ -86,6 +86,7 @@ func RegisterAuthRoutes(
 	)
 }
 
+// RegisterProfileRoutes registers all user profile routes.
 func RegisterProfileRoutes(
 	routerGroup *gin.RouterGroup,
 	handler profile.Handler,
