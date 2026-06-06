@@ -16,6 +16,7 @@ type Repository interface {
 	CountByUserID(ctx context.Context, userID string) (int64, error)
 	GetByIDAndUserID(ctx context.Context, id, userID string) (*model.Bookmark, error)
 	Update(ctx context.Context, id, userID string, updates *model.Bookmark) error
+	Delete(ctx context.Context, id, userID string) error
 }
 
 type repository struct {

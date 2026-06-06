@@ -17,3 +17,10 @@ func (r *repository) Update(ctx context.Context, id, userID string, updates *mod
 		Where("id = ? AND user_id = ?", id, userID).
 		Updates(updates).Error
 }
+
+// Delete deletes a bookmark for a specific user.
+func (r *repository) Delete(ctx context.Context, id, userID string) error {
+	return r.db.WithContext(ctx).
+		Where("id = ? AND user_id = ?", id, userID).
+		Delete(&model.Bookmark{}).Error
+}

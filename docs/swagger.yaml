@@ -302,6 +302,38 @@ paths:
       tags:
       - bookmarks
   /v1/bookmarks/{id}:
+    delete:
+      description: Delete an existing bookmark
+      parameters:
+      - description: Bookmark ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Bookmark deleted successfully
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Bookmark not found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Delete Bookmark
+      tags:
+      - bookmarks
     put:
       consumes:
       - application/json
