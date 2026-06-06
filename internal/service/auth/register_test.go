@@ -207,6 +207,48 @@ func TestService_RegisterUser(t *testing.T) {
 				assert.ErrorIs(t, err, ErrInternalServerError)
 			},
 		},
+		{
+			name: "should return error when context is cancelled",
+			args: args{
+				request: authDTO.RegisterUserRequest{
+					DisplayName: "Test Display Name",
+					Username:    "testuser",
+					Email:       "testuser@gmail.com",
+					Password:    "password123",
+				},
+			},
+			setupMocks: func(
+				ctx context.Context,
+				userRepo *userMocks.Repository,
+				passwordHasher *securityMocks.PasswordHasher,
+				tokenGenerator *jwtutilsMocks.TokenGenerator,
+			) {
+				passwordHasher.
+					On("Hash", "password123").
+					Return("$2a$10$hashedpassword123456789", nil).
+					Once()
+
+				expectedUser := expectedAuthRegisteredUser()
+
+				userRepo.
+					On(
+						"Create",
+						ctx,
+						matchAuthUser(expectedUser),
+					).
+					Return(context.Canceled).
+					Once()
+			},
+			verifyResponse: func(
+				t *testing.T,
+				user *model.User,
+				err error,
+			) {
+				assert.Error(t, err)
+				assert.Nil(t, user)
+				assert.ErrorIs(t, err, ErrInternalServerError)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -215,11 +257,19 @@ func TestService_RegisterUser(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
-
+			var ctx context.Context
 			userRepo := new(userMocks.Repository)
 			passwordHasher := securityMocks.NewPasswordHasher(t)
 			tokenGenerator := jwtutilsMocks.NewTokenGenerator(t)
+
+			// For context cancellation test, create a cancelled context
+			if tc.name == "should return error when context is cancelled" {
+				cancelledCtx, cancel := context.WithCancel(context.Background())
+				cancel()
+				ctx = cancelledCtx
+			} else {
+				ctx = context.Background()
+			}
 
 			tc.setupMocks(ctx, userRepo, passwordHasher, tokenGenerator)
 
