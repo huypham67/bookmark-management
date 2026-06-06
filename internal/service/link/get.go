@@ -20,4 +20,3 @@ func (s *service) GetOriginalURL(ctx context.Context, code string) (string, erro
 
 	return url, nil
 }
-

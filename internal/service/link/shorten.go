@@ -43,4 +43,3 @@ func (s *service) ShortenURL(ctx context.Context, request linkDTO.ShortenURLRequ
 	}
 	return code, nil
 }
-
