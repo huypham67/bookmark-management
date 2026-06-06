@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/internal/testutil"
 	"github.com/huypham67/bookmark-service/pkg/dbutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -58,8 +57,7 @@ func TestRepository_GetByEmail(t *testing.T) {
 
 			ctx := context.Background()
 
-			testDB := testutil.NewTestDB(t, &testutil.UserTestDB{})
-			repo := NewRepository(testDB)
+			repo, _ := newTestRepository(t)
 
 			user, err := repo.GetByEmail(ctx, tc.args.email)
 
@@ -115,8 +113,7 @@ func TestRepository_GetByUsername(t *testing.T) {
 
 			ctx := context.Background()
 
-			testDB := testutil.NewTestDB(t, &testutil.UserTestDB{})
-			repo := NewRepository(testDB)
+			repo, _ := newTestRepository(t)
 
 			user, err := repo.GetByUsername(ctx, tc.args.username)
 
@@ -172,8 +169,7 @@ func TestRepository_GetByID(t *testing.T) {
 
 			ctx := context.Background()
 
-			testDB := testutil.NewTestDB(t, &testutil.UserTestDB{})
-			repo := NewRepository(testDB)
+			repo, _ := newTestRepository(t)
 
 			user, err := repo.GetByID(ctx, tc.args.userID)
 

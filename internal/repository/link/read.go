@@ -2,8 +2,10 @@ package link
 
 import (
 	"context"
+	"errors"
 
 	"github.com/huypham67/bookmark-service/pkg/dbutils"
+	"github.com/redis/go-redis/v9"
 )
 
 // CheckExists checks whether the short code already exists.
@@ -17,5 +19,12 @@ func (r *repository) CheckExists(ctx context.Context, code string) (bool, error)
 
 // GetLink retrieves original URL from Redis.
 func (r *repository) GetLink(ctx context.Context, code string) (string, error) {
-	return r.client.Get(ctx, code).Result()
+	url, err := r.client.Get(ctx, code).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return "", dbutils.ErrRecordNotFoundType
+		}
+		return "", err
+	}
+	return url, nil
 }

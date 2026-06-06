@@ -36,16 +36,3 @@ func (r *repository) CountByUserID(ctx context.Context, userID string) (int64, e
 
 	return count, nil
 }
-
-// GetByIDAndUserID fetches a bookmark by ID, verifying it belongs to the specified user.
-func (r *repository) GetByIDAndUserID(ctx context.Context, id, userID string) (*model.Bookmark, error) {
-	var bookmark *model.Bookmark
-
-	if err := r.db.WithContext(ctx).
-		Where("id = ? AND user_id = ?", id, userID).
-		First(&bookmark).Error; err != nil {
-		return nil, dbutils.ClassifyError(err)
-	}
-
-	return bookmark, nil
-}

@@ -46,14 +46,14 @@ func TestRedirectToURLEndpoint(t *testing.T) {
 			},
 		},
 		{
-			name: "should return 404 when redis connection fails",
+			name: "should return 500 when redis connection fails",
 			code: "abc1234",
 			setupRedis: func(app *TestApp) {
 				app.MockRedis.Close()
 			},
 			expected: expected{
-				statusCode:   http.StatusNotFound,
-				bodyContains: "Short link not found",
+				statusCode:   http.StatusInternalServerError,
+				bodyContains: "Internal Server Error",
 			},
 		},
 	}
