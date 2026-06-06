@@ -2,38 +2,39 @@ package bookmark
 
 import (
 	"context"
+	"errors"
 
+	"github.com/huypham67/bookmark-service/pkg/dbutils"
 	"github.com/rs/zerolog/log"
-	"gorm.io/gorm"
 )
 
 // Delete deletes an existing bookmark for the user.
 func (s *service) Delete(ctx context.Context, userID, bookmarkID string) error {
-	_, err := s.bookmarkRepo.GetByIDAndUserID(ctx, bookmarkID, userID)
+	rowsAffected, err := s.bookmarkRepo.Delete(ctx, bookmarkID, userID)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		switch {
+		case errors.Is(err, dbutils.ErrForeignKeyViolationType):
 			log.Warn().
 				Str("user_id", userID).
 				Str("bookmark_id", bookmarkID).
-				Msg("bookmark not found")
-			return ErrBookmarkNotFound
+				Msg("user not found")
+			return ErrBadRequest
+		default:
+			log.Error().
+				Err(err).
+				Str("user_id", userID).
+				Str("bookmark_id", bookmarkID).
+				Msg("failed to delete bookmark")
+			return ErrInternalServerError
 		}
-
-		log.Error().
-			Err(err).
-			Str("user_id", userID).
-			Str("bookmark_id", bookmarkID).
-			Msg("failed to fetch bookmark")
-		return ErrInternalServerError
 	}
 
-	if err := s.bookmarkRepo.Delete(ctx, bookmarkID, userID); err != nil {
-		log.Error().
-			Err(err).
+	if rowsAffected == 0 {
+		log.Warn().
 			Str("user_id", userID).
 			Str("bookmark_id", bookmarkID).
-			Msg("failed to delete bookmark")
-		return ErrInternalServerError
+			Msg("bookmark not found")
+		return ErrBookmarkNotFound
 	}
 
 	log.Info().

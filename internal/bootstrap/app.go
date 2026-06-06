@@ -15,8 +15,7 @@ type App struct {
 	router    *api.Router
 }
 
-// NewApp initializes the application by setting up the DI Container and Router,
-// then registering all routes.
+// NewApp initializes the application by setting up logging, configuration, dependencies, and routing.
 func NewApp() (*App, error) {
 	if err := logger.NewLoggerClient(""); err != nil {
 		return nil, err

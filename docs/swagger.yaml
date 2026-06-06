@@ -112,15 +112,6 @@ definitions:
     - description
     - url
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_bookmark.UpdateBookmarkRequest:
-    properties:
-      description:
-        maxLength: 500
-        minLength: 2
-        type: string
-      url:
-        type: string
-    type: object
   github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse:
     properties:
       instance_id:
@@ -292,6 +283,10 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/gin.H'
+        "409":
+          description: Bookmark code already exists
+          schema:
+            $ref: '#/definitions/gin.H'
         "500":
           description: Internal server error
           schema:
@@ -315,6 +310,10 @@ paths:
       responses:
         "200":
           description: Bookmark deleted successfully
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: Invalid bookmark ID
           schema:
             $ref: '#/definitions/gin.H'
         "401":
@@ -347,9 +346,13 @@ paths:
       - description: Updated bookmark data
         in: body
         name: request
-        required: true
         schema:
-          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.UpdateBookmarkRequest'
+          properties:
+            description:
+              type: string
+            url:
+              type: string
+          type: object
       produces:
       - application/json
       responses:
@@ -358,7 +361,7 @@ paths:
           schema:
             $ref: '#/definitions/gin.H'
         "400":
-          description: Invalid request body
+          description: Invalid bookmark ID or request data
           schema:
             $ref: '#/definitions/gin.H'
         "401":

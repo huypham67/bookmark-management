@@ -5,8 +5,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
 	"github.com/huypham67/bookmark-service/internal/service/bookmark"
 	"github.com/huypham67/bookmark-service/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service/pkg/requestutils"
 	"github.com/huypham67/bookmark-service/pkg/response"
 	"github.com/rs/zerolog/log"
 )
@@ -20,6 +22,7 @@ import (
 // @Security Bearer
 // @Param id path string true "Bookmark ID"
 // @Success 200 {object} gin.H "Bookmark deleted successfully"
+// @Failure 400 {object} gin.H "Invalid bookmark ID"
 // @Failure 401 {object} gin.H "Unauthorized"
 // @Failure 404 {object} gin.H "Bookmark not found"
 // @Failure 500 {object} gin.H "Internal server error"
@@ -35,19 +38,33 @@ func (h *handler) Delete(c *gin.Context) {
 		return
 	}
 
-	bookmarkID := c.Param("id")
+	req, err := requestutils.Bind[bookmarkDTO.DeleteBookmarkRequest](c)
 
-	if err := h.service.Delete(c, userID, bookmarkID); err != nil {
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Msg("invalid delete bookmark request")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid request",
+		})
+		return
+	}
+
+	if err := h.service.Delete(c, userID, req.ID); err != nil {
 		log.Error().
 			Err(err).
 			Str("user_id", userID).
-			Str("bookmark_id", bookmarkID).
+			Str("bookmark_id", req.ID).
 			Msg("failed to delete bookmark")
 
 		switch {
 		case errors.Is(err, bookmark.ErrBookmarkNotFound):
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "Bookmark not found",
+			})
+		case errors.Is(err, bookmark.ErrBadRequest):
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Invalid request",
 			})
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{

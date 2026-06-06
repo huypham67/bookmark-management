@@ -165,6 +165,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/gin.H"
                         }
                     },
+                    "409": {
+                        "description": "Bookmark code already exists",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -204,9 +210,16 @@ const docTemplate = `{
                         "description": "Updated bookmark data",
                         "name": "request",
                         "in": "body",
-                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.UpdateBookmarkRequest"
+                            "type": "object",
+                            "properties": {
+                                "description": {
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "type": "string"
+                                }
+                            }
                         }
                     }
                 ],
@@ -218,7 +231,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request body",
+                        "description": "Invalid bookmark ID or request data",
                         "schema": {
                             "$ref": "#/definitions/gin.H"
                         }
@@ -269,6 +282,12 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Bookmark deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid bookmark ID",
                         "schema": {
                             "$ref": "#/definitions/gin.H"
                         }
@@ -756,19 +775,6 @@ const docTemplate = `{
                 "description",
                 "url"
             ],
-            "properties": {
-                "description": {
-                    "type": "string",
-                    "maxLength": 500,
-                    "minLength": 2
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_huypham67_bookmark-service_internal_dto_bookmark.UpdateBookmarkRequest": {
-            "type": "object",
             "properties": {
                 "description": {
                     "type": "string",
