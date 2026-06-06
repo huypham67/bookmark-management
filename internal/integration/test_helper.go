@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/huypham67/bookmark-service/pkg/middleware"
+	"github.com/huypham67/bookmark-service/middleware"
 	"github.com/stretchr/testify/require"
 
 	"github.com/huypham67/bookmark-service/internal/api"

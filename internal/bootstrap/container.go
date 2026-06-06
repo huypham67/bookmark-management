@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/huypham67/bookmark-service/middleware"
 	pkgRedis "github.com/huypham67/bookmark-service/pkg/redis"
 	"github.com/huypham67/bookmark-service/pkg/sqldb"
 	"github.com/redis/go-redis/v9"
@@ -23,7 +24,6 @@ import (
 	linkSvc "github.com/huypham67/bookmark-service/internal/service/link"
 	profileSvc "github.com/huypham67/bookmark-service/internal/service/profile"
 	"github.com/huypham67/bookmark-service/pkg/jwtutils"
-	"github.com/huypham67/bookmark-service/pkg/middleware"
 	"github.com/huypham67/bookmark-service/pkg/security"
 	"github.com/huypham67/bookmark-service/pkg/utils"
 )
