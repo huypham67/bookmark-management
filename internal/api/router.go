@@ -127,6 +127,12 @@ func RegisterBookmarkRoutes(
 		jwtMiddleware,
 		handler.Update,
 	)
+
+	routerGroup.DELETE(
+		"/bookmarks/:id",
+		jwtMiddleware,
+		handler.Delete,
+	)
 }
 
 // ServeHTTP implements the http.Handler interface.
