@@ -11,12 +11,10 @@ import (
 )
 
 var (
-	// Client errors (4xx)
 	ErrBadRequest            = errors.New("bad request")
 	ErrBookmarkNotFound      = errors.New("bookmark not found")
 	ErrBookmarkAlreadyExists = errors.New("bookmark code already exists")
 
-	// Server errors (5xx)
 	ErrInternalServerError = errors.New("internal server error")
 )
 
@@ -24,6 +22,8 @@ const bookmarkCodeLength = 6
 
 // PaginationResult holds pagination metadata.
 type PaginationResult struct {
+	Page  int64
+	Limit int64
 	Total int64
 }
 
@@ -32,7 +32,7 @@ type PaginationResult struct {
 //go:generate mockery --name=Service --output=./mocks --outpkg=mocks --filename=mock_service.go
 type Service interface {
 	Create(ctx context.Context, userID string, req bookmarkDTO.CreateBookmarkRequest) (*model.Bookmark, error)
-	List(ctx context.Context, userID string, page, limit int64, sort string) ([]*model.Bookmark, *PaginationResult, error)
+	List(ctx context.Context, userID string, req *bookmarkDTO.ListBookmarksRequest) ([]*model.Bookmark, *PaginationResult, error)
 	Update(ctx context.Context, userID, bookmarkID string, req bookmarkDTO.UpdateBookmarkRequest) error
 	Delete(ctx context.Context, userID, bookmarkID string) error
 }

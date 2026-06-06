@@ -32,3 +32,16 @@ type ListBookmarksRequest struct {
 	Limit int64  `form:"limit" binding:"omitempty,min=1,max=100"`
 	Sort  string `form:"sort" binding:"omitempty,oneof=created_at updated_at code url"`
 }
+
+// SetDefaults assigns default values to pagination and sorting fields if they are not provided in the request.
+func (r *ListBookmarksRequest) SetDefaults() {
+	if r.Page == 0 {
+		r.Page = 1
+	}
+	if r.Limit == 0 {
+		r.Limit = 10
+	}
+	if r.Sort == "" {
+		r.Sort = "created_at"
+	}
+}

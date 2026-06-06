@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/huypham67/bookmark-service/pkg/response"
 )
 
 // RedirectToURL handles the redirect endpoint.
@@ -24,9 +25,7 @@ func (h *handler) RedirectToURL(c *gin.Context) {
 	url, err := h.service.GetOriginalURL(c, code)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Short link not found",
-		})
+		response.NotFound(c, "Short link not found")
 		return
 	}
 
