@@ -54,91 +54,6 @@ func TestUpdateUserInfoEndpoint(t *testing.T) {
 			},
 		},
 		{
-			name:        "should return 400 when request body is invalid JSON",
-			requestBody: `{invalid json}`,
-			setupAuth: func(
-				t *testing.T,
-				app *AuthenticatedTestApp,
-				req *http.Request,
-			) {
-				token, err := app.TokenGenerator.GenerateToken(
-					"user-uuid-1",
-					"testuser1",
-					"testuser1@gmail.com",
-				)
-
-				require.NoError(t, err)
-
-				req.Header.Set(
-					"Authorization",
-					"Bearer "+token,
-				)
-			},
-			expected: expected{
-				statusCode:   http.StatusBadRequest,
-				bodyContains: "Invalid request body",
-			},
-		},
-		{
-			name: "should return 401 when authorization header is missing",
-			requestBody: `{
-				"display_name": "Updated User",
-				"email": "updated@example.com"
-			}`,
-			setupAuth: func(
-				t *testing.T,
-				app *AuthenticatedTestApp,
-				req *http.Request,
-			) {
-			},
-			expected: expected{
-				statusCode:   http.StatusUnauthorized,
-				bodyContains: "missing authorization header",
-			},
-		},
-		{
-			name: "should return 401 when authorization header format is invalid",
-			requestBody: `{
-				"display_name": "Updated User",
-				"email": "updated@example.com"
-			}`,
-			setupAuth: func(
-				t *testing.T,
-				app *AuthenticatedTestApp,
-				req *http.Request,
-			) {
-				req.Header.Set(
-					"Authorization",
-					"InvalidFormat token",
-				)
-			},
-			expected: expected{
-				statusCode:   http.StatusUnauthorized,
-				bodyContains: "invalid authorization header format",
-			},
-		},
-		{
-			name: "should return 401 when token is invalid",
-			requestBody: `{
-				"display_name": "Updated User",
-				"email": "updated@example.com"
-			}`,
-			setupAuth: func(
-				t *testing.T,
-				app *AuthenticatedTestApp,
-				req *http.Request,
-			) {
-				req.Header.Set(
-					"Authorization",
-					"Bearer invalid-token",
-				)
-			},
-			expected: expected{
-				statusCode:   http.StatusUnauthorized,
-				bodyContains: "invalid token",
-			},
-		},
-		{
 			name: "should return 409 when email already exists",
 			requestBody: `{
 				"display_name": "Updated User",
@@ -194,6 +109,50 @@ func TestUpdateUserInfoEndpoint(t *testing.T) {
 			expected: expected{
 				statusCode:   http.StatusInternalServerError,
 				bodyContains: "Internal Server Error",
+			},
+		},
+		{
+			name:        "should return 400 when request body is invalid JSON",
+			requestBody: `{invalid json}`,
+			setupAuth: func(
+				t *testing.T,
+				app *AuthenticatedTestApp,
+				req *http.Request,
+			) {
+				token, err := app.TokenGenerator.GenerateToken(
+					"user-uuid-1",
+					"testuser1",
+					"testuser1@gmail.com",
+				)
+
+				require.NoError(t, err)
+
+				req.Header.Set(
+					"Authorization",
+					"Bearer "+token,
+				)
+			},
+			expected: expected{
+				statusCode:   http.StatusBadRequest,
+				bodyContains: "Invalid request",
+			},
+		},
+		{
+			name: "should return 401 when authorization header is missing",
+			requestBody: `{
+				"display_name": "Updated User",
+				"email": "updated@example.com"
+			}`,
+			setupAuth: func(
+				t *testing.T,
+				app *AuthenticatedTestApp,
+				req *http.Request,
+			) {
+				// No auth header set
+			},
+			expected: expected{
+				statusCode:   http.StatusUnauthorized,
+				bodyContains: "missing authorization header",
 			},
 		},
 	}

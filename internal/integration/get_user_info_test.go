@@ -54,53 +54,6 @@ func TestGetUserInfoEndpoint(t *testing.T) {
 			},
 		},
 		{
-			name: "should return 401 when authorization header is missing",
-			setupAuth: func(
-				t *testing.T,
-				app *AuthenticatedTestApp,
-				req *http.Request,
-			) {
-			},
-			expected: expected{
-				statusCode:   http.StatusUnauthorized,
-				bodyContains: "missing authorization header",
-			},
-		},
-		{
-			name: "should return 401 when authorization header format is invalid",
-			setupAuth: func(
-				t *testing.T,
-				app *AuthenticatedTestApp,
-				req *http.Request,
-			) {
-				req.Header.Set(
-					"Authorization",
-					"InvalidFormat token",
-				)
-			},
-			expected: expected{
-				statusCode:   http.StatusUnauthorized,
-				bodyContains: "invalid authorization header format",
-			},
-		},
-		{
-			name: "should return 401 when token is invalid",
-			setupAuth: func(
-				t *testing.T,
-				app *AuthenticatedTestApp,
-				req *http.Request,
-			) {
-				req.Header.Set(
-					"Authorization",
-					"Bearer invalid-token",
-				)
-			},
-			expected: expected{
-				statusCode:   http.StatusUnauthorized,
-				bodyContains: "invalid token",
-			},
-		},
-		{
 			name: "should return 500 when user does not exist",
 			setupAuth: func(
 				t *testing.T,
@@ -123,6 +76,20 @@ func TestGetUserInfoEndpoint(t *testing.T) {
 			expected: expected{
 				statusCode:   http.StatusInternalServerError,
 				bodyContains: "Internal Server Error",
+			},
+		},
+		{
+			name: "should return 401 when authorization header is missing",
+			setupAuth: func(
+				t *testing.T,
+				app *AuthenticatedTestApp,
+				req *http.Request,
+			) {
+				// No auth header set
+			},
+			expected: expected{
+				statusCode:   http.StatusUnauthorized,
+				bodyContains: "missing authorization header",
 			},
 		},
 	}

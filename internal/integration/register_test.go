@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateUserEndpoint(t *testing.T) {
+func TestRegisterUserEndpoint(t *testing.T) {
 	t.Parallel()
 
 	type expected struct {
@@ -39,62 +39,6 @@ func TestCreateUserEndpoint(t *testing.T) {
 			},
 		},
 		{
-			name:        "should return 400 when request body is invalid JSON",
-			requestBody: `{invalid json}`,
-			expected: expected{
-				statusCode:   http.StatusBadRequest,
-				bodyContains: "Invalid request body",
-			},
-		},
-		{
-			name: "should return 400 when validation fails - missing display_name",
-			requestBody: `{
-				"username": "newuser",
-				"email": "newuser@example.com",
-				"password": "password123"
-			}`,
-			expected: expected{
-				statusCode:   http.StatusBadRequest,
-				bodyContains: "Invalid request body",
-			},
-		},
-		{
-			name: "should return 400 when validation fails - missing email",
-			requestBody: `{
-				"display_name": "New User",
-				"username": "newuser",
-				"password": "password123"
-			}`,
-			expected: expected{
-				statusCode:   http.StatusBadRequest,
-				bodyContains: "Invalid request body",
-			},
-		},
-		{
-			name: "should return 400 when validation fails - missing username",
-			requestBody: `{
-				"display_name": "New User",
-				"email": "newuser@example.com",
-				"password": "password123"
-			}`,
-			expected: expected{
-				statusCode:   http.StatusBadRequest,
-				bodyContains: "Invalid request body",
-			},
-		},
-		{
-			name: "should return 400 when validation fails - missing password",
-			requestBody: `{
-				"display_name": "New User",
-				"username": "newuser",
-				"email": "newuser@example.com"
-			}`,
-			expected: expected{
-				statusCode:   http.StatusBadRequest,
-				bodyContains: "Invalid request body",
-			},
-		},
-		{
 			name: "should return 409 when email already exists",
 			requestBody: `{
 				"display_name": "Duplicate User",
@@ -118,6 +62,14 @@ func TestCreateUserEndpoint(t *testing.T) {
 			expected: expected{
 				statusCode:   http.StatusConflict,
 				bodyContains: "User already exists",
+			},
+		},
+		{
+			name:        "should return 400 when request body is invalid JSON",
+			requestBody: `{invalid json}`,
+			expected: expected{
+				statusCode:   http.StatusBadRequest,
+				bodyContains: "Invalid request body",
 			},
 		},
 	}

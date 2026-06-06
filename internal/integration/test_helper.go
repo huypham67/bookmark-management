@@ -11,13 +11,16 @@ import (
 
 	"github.com/huypham67/bookmark-service/internal/api"
 	authHandler "github.com/huypham67/bookmark-service/internal/handler/auth"
+	bookmarkHandler "github.com/huypham67/bookmark-service/internal/handler/bookmark"
 	healthHandler "github.com/huypham67/bookmark-service/internal/handler/health"
 	linkHandler "github.com/huypham67/bookmark-service/internal/handler/link"
 	profileHandler "github.com/huypham67/bookmark-service/internal/handler/profile"
+	bookmarkRepo "github.com/huypham67/bookmark-service/internal/repository/bookmark"
 	linkRepo "github.com/huypham67/bookmark-service/internal/repository/link"
 	"github.com/huypham67/bookmark-service/internal/repository/ping"
 	userRepo "github.com/huypham67/bookmark-service/internal/repository/user"
 	authSvc "github.com/huypham67/bookmark-service/internal/service/auth"
+	bookmarkSvc "github.com/huypham67/bookmark-service/internal/service/bookmark"
 	healthSvc "github.com/huypham67/bookmark-service/internal/service/health"
 	linkSvc "github.com/huypham67/bookmark-service/internal/service/link"
 	profileSvc "github.com/huypham67/bookmark-service/internal/service/profile"
@@ -187,6 +190,36 @@ func setupProfileTestApp(t *testing.T) *AuthenticatedTestApp {
 	jwtMiddleware := middleware.JWTAuth(tokenValidator)
 
 	api.RegisterProfileRoutes(router.GroupV1(), profileHandlerInstance, jwtMiddleware)
+
+	return &AuthenticatedTestApp{
+		TestApp: &TestApp{
+			Router: router,
+		},
+		TokenGenerator: tokenGenerator,
+	}
+}
+
+func setupBookmarkTestApp(t *testing.T) *AuthenticatedTestApp {
+	t.Helper()
+
+	mockDB := testutil.NewTestDB(t, &testutil.BookmarkTestDB{})
+
+	bookmarkRepository := bookmarkRepo.NewRepository(mockDB)
+
+	bookmarkService := bookmarkSvc.NewService(
+		bookmarkRepository,
+		utils.NewCodeGenerator(),
+	)
+
+	bookmarkHandlerInstance := bookmarkHandler.NewHandler(bookmarkService)
+
+	tokenGenerator, tokenValidator := createTestJWT(t)
+
+	router := api.NewRouter()
+
+	jwtMiddleware := middleware.JWTAuth(tokenValidator)
+
+	api.RegisterBookmarkRoutes(router.GroupV1(), bookmarkHandlerInstance, jwtMiddleware)
 
 	return &AuthenticatedTestApp{
 		TestApp: &TestApp{
