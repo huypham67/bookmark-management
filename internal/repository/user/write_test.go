@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/internal/testutil"
+	"github.com/huypham67/bookmark-service/pkg/dbutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
@@ -58,6 +58,7 @@ func TestRepository_Create(t *testing.T) {
 			},
 			verify: func(t *testing.T, db *gorm.DB, err error, a args) {
 				require.Error(t, err)
+				assert.ErrorIs(t, err, dbutils.ErrDuplicationType)
 
 				var actual model.User
 				err = db.Where("username = ?", "testuser5").First(&actual).Error
@@ -76,6 +77,7 @@ func TestRepository_Create(t *testing.T) {
 			},
 			verify: func(t *testing.T, db *gorm.DB, err error, a args) {
 				require.Error(t, err)
+				assert.ErrorIs(t, err, dbutils.ErrDuplicationType)
 
 				var actual model.User
 				err = db.Where("username = ?", "testuser1").First(&actual).Error
@@ -92,8 +94,7 @@ func TestRepository_Create(t *testing.T) {
 
 			ctx := context.Background()
 
-			testDB := testutil.NewTestDB(t, &testutil.UserTestDB{})
-			repo := NewRepository(testDB)
+			repo, testDB := newTestRepository(t)
 
 			err := repo.Create(ctx, &tc.args.user)
 
@@ -151,6 +152,26 @@ func TestRepository_Update(t *testing.T) {
 				assert.ErrorIs(t, err, gorm.ErrRecordNotFound)
 			},
 		},
+		{
+			name:   "should return error when updating to duplicate email",
+			userID: "user-uuid-1",
+			user: model.User{
+				BaseModel: model.BaseModel{
+					ID: "user-uuid-1",
+				},
+				DisplayName: "Updated User 1",
+				Email:       "testuser2@gmail.com", // duplicate email
+			},
+			verify: func(t *testing.T, db *gorm.DB, err error) {
+				require.Error(t, err)
+				assert.ErrorIs(t, err, dbutils.ErrDuplicationType)
+
+				var actual model.User
+				err = db.First(&actual, "id = ?", "user-uuid-1").Error
+				require.NoError(t, err)
+				assert.Equal(t, "testuser1@gmail.com", actual.Email) // email unchanged
+			},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -160,8 +181,7 @@ func TestRepository_Update(t *testing.T) {
 
 			ctx := context.Background()
 
-			testDB := testutil.NewTestDB(t, &testutil.UserTestDB{})
-			repo := NewRepository(testDB)
+			repo, testDB := newTestRepository(t)
 
 			err := repo.Update(ctx, &tc.user)
 

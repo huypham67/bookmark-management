@@ -14,7 +14,6 @@ type Repository interface {
 	Create(ctx context.Context, bookmark *model.Bookmark) error
 	GetPaginatedByUserID(ctx context.Context, userID string, offset, limit int64, sort string) ([]*model.Bookmark, error)
 	CountByUserID(ctx context.Context, userID string) (int64, error)
-	GetByIDAndUserID(ctx context.Context, id, userID string) (*model.Bookmark, error)
 	Update(ctx context.Context, id, userID string, updates *model.Bookmark) (int64, error)
 	Delete(ctx context.Context, id, userID string) (int64, error)
 }

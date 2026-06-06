@@ -5,19 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/huypham67/bookmark-service/pkg/redis"
+	"github.com/huypham67/bookmark-service/pkg/dbutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-func newTestRepository(t *testing.T) (Repository, *redis.MockRedis) {
-	t.Helper()
-
-	mockRedis := redis.NewMockRedis(t)
-	repo := NewRepository(mockRedis.Client)
-
-	return repo, mockRedis
-}
 
 func TestRepository_GetLink(t *testing.T) {
 	t.Parallel()
@@ -56,6 +47,22 @@ func TestRepository_GetLink(t *testing.T) {
 			verify: func(t *testing.T, url string, err error) {
 				require.Error(t, err)
 				assert.Empty(t, url)
+				assert.ErrorIs(t, err, dbutils.ErrRecordNotFoundType)
+			},
+		},
+		{
+			name: "should return error if Redis client is unavailable",
+			setupDataFunc: func(ctx context.Context, repo Repository) {
+				err := repo.SaveLink(ctx, "abc1234", "https://www.google.com", 1234)
+				require.NoError(t, err)
+			},
+			args: args{
+				code: "abc1234",
+			},
+			verify: func(t *testing.T, url string, err error) {
+				assert.Error(t, err)
+				assert.Empty(t, url)
+				assert.Contains(t, err.Error(), "redis: client is closed")
 			},
 		},
 	}
@@ -66,9 +73,13 @@ func TestRepository_GetLink(t *testing.T) {
 
 			ctx := context.Background()
 
-			repo, _ := newTestRepository(t)
+			repo, mockRedis := newTestRepository(t)
 
 			tc.setupDataFunc(ctx, repo)
+
+			if tc.name == "should return error if Redis client is unavailable" {
+				mockRedis.Close()
+			}
 
 			url, err := repo.GetLink(ctx, tc.args.code)
 

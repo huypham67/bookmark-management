@@ -33,7 +33,9 @@ func IsDuplicationError(err error) (bool, error) {
 }
 
 func IsForeignKeyViolationError(err error) (bool, error) {
-	return strings.Contains(err.Error(), "violates foreign key constraint"), ErrForeignKeyViolationType
+	errMsg := err.Error()
+	return strings.Contains(errMsg, "violates foreign key constraint") ||
+		strings.Contains(errMsg, "FOREIGN KEY constraint failed"), ErrForeignKeyViolationType
 }
 
 func IsRecordNotFoundError(err error) (bool, error) {

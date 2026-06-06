@@ -7,4 +7,7 @@ type Bookmark struct {
 	URL         string `json:"url" gorm:"type:text"`
 	Code        string `json:"code" gorm:"type:varchar(255);not null;uniqueIndex"`
 	UserID      string `json:"user_id" gorm:"type:uuid;not null;index"`
+
+	// Foreign key relationship to User
+	User *User `gorm:"foreignKey:UserID;references:ID"`
 }
