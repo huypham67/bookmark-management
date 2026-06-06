@@ -157,6 +157,12 @@ help:
 	@echo "  make lint            Linter"
 	@echo "  make tidy            Dependencies"
 	@echo ""
+	@echo "Database:"
+	@echo "  make migrate-up      Apply all pending migrations"
+	@echo "  make migrate-down    Rollback last migration"
+	@echo "  make migrate-version Show current migration version"
+	@echo "  make migrate-force   Force migration to specific version"
+	@echo ""
 	@echo "Testing:"
 	@echo "  make test            Local tests + coverage report"
 	@echo "  make test-coverage   Open coverage HTML"
@@ -363,6 +369,42 @@ compose-logs:
 
 compose-restart:
 	docker compose down && docker compose up --build -d
+
+# =============================================================================
+# DATABASE MIGRATIONS
+# =============================================================================
+
+.PHONY: migrate-up migrate-down migrate-force migrate-version
+
+MIGRATIONS_PATH ?= ./migrations
+DB_HOST ?= localhost
+DB_PORT ?= 5432
+DB_USER ?= postgres
+DB_PASSWORD ?= postgres
+DB_NAME ?= bookmark_service
+DB_SSLMODE ?= disable
+
+# Build PostgreSQL connection string
+DB_URL = postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)
+
+migrate-up:
+	@which migrate > /dev/null || (echo "Error: migrate tool not found. Install with: brew install golang-migrate (macOS) or download from https://github.com/golang-migrate/migrate"; exit 1)
+	@echo "Applying migrations from $(MIGRATIONS_PATH)..."
+	migrate -path $(MIGRATIONS_PATH) -database "$(DB_URL)" up
+
+migrate-down:
+	@which migrate > /dev/null || (echo "Error: migrate tool not found. Install with: brew install golang-migrate (macOS) or download from https://github.com/golang-migrate/migrate"; exit 1)
+	@echo "Rolling back migrations..."
+	migrate -path $(MIGRATIONS_PATH) -database "$(DB_URL)" down
+
+migrate-force:
+	@which migrate > /dev/null || (echo "Error: migrate tool not found"; exit 1)
+	@read -p "Enter migration version to force: " version; \
+	migrate -path $(MIGRATIONS_PATH) -database "$(DB_URL)" force $$version
+
+migrate-version:
+	@which migrate > /dev/null || (echo "Error: migrate tool not found"; exit 1)
+	migrate -path $(MIGRATIONS_PATH) -database "$(DB_URL)" version
 
 # =============================================================================
 # UTILITIES
