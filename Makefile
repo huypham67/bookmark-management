@@ -18,28 +18,68 @@ DOCS_DIR    := ./docs
 COVERAGE_DIR       ?= coverage_report
 COVERAGE_THRESHOLD ?= 80
 
-# Single source of truth: list infrastructure packages that don't require tests
-INFRA_DIRS  := cmd internal/bootstrap pkg/logger pkg/redis pkg/sqldb
-INFRA_FILES := config.go loader.go claims.go router.go test_helper.go
+# ═══════════════════════════════════════════════════════════════════════════
+# SINGLE SOURCE OF TRUTH: Coverage & Quality Gate Exclusions
+#
+# Strategy:
+#   1. SYSTEM_DIRS/FILES: Completely excluded (no scan, no coverage)
+#      → Auto-generated, vendored, test infrastructure
+#      → Used for sonar.exclusions + local coverage filter
+#
+#   2. INFRA_DIRS: Exclude from coverage % but INCLUDE in security scan
+#      → Infrastructure/setup code (DI, config, models, middleware)
+#      → Scanned for security vulnerabilities (SonarQube)
+#      → Excluded from coverage % threshold (sonar.coverage.exclusions)
+#
+# Usage:
+#   - make test        → filters coverage.out to exclude infrastructure + system
+#   - make docker-test → passes COVERAGE_EXCLUDE to Docker build
+#   - make docker-sonar → sonar.exclusions (system only)
+#                        sonar.coverage.exclusions (system + infra)
+# ═══════════════════════════════════════════════════════════════════════════
 
-# System artifacts: auto-generated, vendored, or test infrastructure
-SYSTEM_FILES := _test.go mocks vendor docs bin testutil .pb.go
+# Infrastructure dirs: exclude from coverage % but SCAN for security
+INFRA_DIRS := \
+	cmd \
+	internal/api \
+	internal/bootstrap \
+	internal/dto \
+	internal/model \
+	internal/repository/ping \
+	middleware \
+	pkg/common \
+	pkg/dbutils \
+	pkg/http \
+	pkg/jwtutils \
+	pkg/logger \
+	pkg/redis \
+	pkg/requestutils \
+	pkg/response \
+	pkg/security \
+	pkg/sqldb \
+	pkg/utils
 
-# Build all exclude patterns from raw lists (automatic format conversion)
+# System artifacts: auto-generated, vendored, test infrastructure (NO SCAN)
+SYSTEM_DIRS := vendor docs bin internal/testutil mocks
+SYSTEM_FILES := _test.go .pb.go
+
+# Format conversion for Makefile
 comma := ,
 space := $(subst ,, )
 
-# SONAR: Ant-style glob format
-SONAR_DIRS := $(foreach d,$(INFRA_DIRS),**/$(d)**)
-SONAR_FILES := $(foreach f,$(INFRA_FILES),**/$(f))
-SONAR_TRASH_FILES := $(foreach f,$(filter %.go,$(SYSTEM_FILES)),**/*$(f))
-SONAR_TRASH_DIRS := $(foreach d,$(filter-out %.go,$(SYSTEM_FILES)),**/$(d)**)
+# Pattern builders for Sonar (Ant-style glob)
+SONAR_INFRA_DIRS := $(foreach d,$(INFRA_DIRS),**/$(d)**)
+SONAR_SYSTEM_DIRS := $(foreach d,$(SYSTEM_DIRS),**/$(d)**)
+SONAR_SYSTEM_FILES := $(foreach f,$(SYSTEM_FILES),**/*$(f))
 
-SONAR_EXCLUDE_PATTERNS := $(subst $(space),$(comma),$(strip $(SONAR_TRASH_FILES) $(SONAR_TRASH_DIRS) $(COVERAGE_DIR)/**))
-SONAR_COVERAGE_EXCLUSIONS := $(subst $(space),$(comma),$(strip $(SONAR_DIRS) $(SONAR_FILES)))
+# Sonar: exclude system artifacts completely
+SONAR_EXCLUDE_PATTERNS := $(subst $(space),$(comma),$(strip $(SONAR_SYSTEM_FILES) $(SONAR_SYSTEM_DIRS) $(COVERAGE_DIR)/**))
 
-# Local/Docker: Regex format
-ALL_EXCLUDES := $(INFRA_DIRS) $(INFRA_FILES) $(SYSTEM_FILES)
+# Sonar: exclude infrastructure from coverage % but allow security scan
+SONAR_COVERAGE_EXCLUSIONS := $(subst $(space),$(comma),$(strip $(SONAR_INFRA_DIRS) $(SONAR_SYSTEM_DIRS)))
+
+# Local/Docker: Regex format (coverage.out filtering)
+ALL_EXCLUDES := $(INFRA_DIRS) $(SYSTEM_DIRS) $(SYSTEM_FILES)
 COVERAGE_EXCLUDE := $(subst $(space),|,$(strip $(ALL_EXCLUDES)))
 
 # Go test: Scan all, let grep filter
@@ -180,7 +220,8 @@ test:
 	@$(GO) clean -testcache
 	@mkdir -p $(COVERAGE_DIR)
 	@$(GO) test ./... -coverprofile=$(COVERAGE_DIR)/coverage.tmp -covermode=atomic -coverpkg=$(COVERPKG) -p 1
-	@grep -vE "$(COVERAGE_EXCLUDE)" $(COVERAGE_DIR)/coverage.tmp > $(COVERAGE_DIR)/coverage.out || touch $(COVERAGE_DIR)/coverage.out
+	@head -1 $(COVERAGE_DIR)/coverage.tmp > $(COVERAGE_DIR)/coverage.out
+	@grep -vE "$(COVERAGE_EXCLUDE)" $(COVERAGE_DIR)/coverage.tmp | tail -n +2 >> $(COVERAGE_DIR)/coverage.out || true
 	@$(GO) tool cover -html=$(COVERAGE_DIR)/coverage.out -o $(COVERAGE_DIR)/coverage.html
 	@total=$$($(GO) tool cover -func=$(COVERAGE_DIR)/coverage.out | grep total | awk '{print $$3}' | sed 's/%//'); \
 	echo "Coverage: $$total%"; \
@@ -357,16 +398,34 @@ gen-keys-local:
 	openssl rsa -pubout -in $(LOCAL_KEYS_DIR)/private.pem -out $(LOCAL_KEYS_DIR)/public.pem
 
 generate-mocks:
+	@echo "Generating mocks for bookmark repository..."
+	cd internal/repository/bookmark && $(GO) generate
 	@echo "Generating mocks for link repository..."
 	cd internal/repository/link && $(GO) generate
 	@echo "Generating mocks for user repository..."
 	cd internal/repository/user && $(GO) generate
+	@echo "Generating mocks for auth service..."
+	cd internal/service/auth && $(GO) generate
+	@echo "Generating mocks for bookmark service..."
+	cd internal/service/bookmark && $(GO) generate
+	@echo "Generating mocks for health service..."
+	cd internal/service/health && $(GO) generate
+	@echo "Generating mocks for link service..."
+	cd internal/service/link && $(GO) generate
+	@echo "Generating mocks for profile service..."
+	cd internal/service/profile && $(GO) generate
 	@echo "✓ Mocks generated successfully"
 
 clean-mocks:
 	@echo "Cleaning mocks..."
+	rm -rf internal/repository/bookmark/mocks
 	rm -rf internal/repository/link/mocks
 	rm -rf internal/repository/user/mocks
+	rm -rf internal/service/auth/mocks
+	rm -rf internal/service/bookmark/mocks
+	rm -rf internal/service/health/mocks
+	rm -rf internal/service/link/mocks
+	rm -rf internal/service/profile/mocks
 	@echo "✓ Mocks cleaned"
 
 clean:

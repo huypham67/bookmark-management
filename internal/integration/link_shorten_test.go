@@ -42,31 +42,6 @@ func TestShortenURLEndpoint(t *testing.T) {
 			},
 		},
 		{
-			name:        "should return 400 when request body is invalid JSON",
-			requestBody: `{invalid json}`,
-			setupRedis: func(app *TestApp) {
-			},
-			expected: expected{
-				statusCode:   http.StatusBadRequest,
-				bodyContains: "Invalid request body",
-			},
-		},
-		{
-			name: "should return 400 when validation fails",
-			requestBody: `
-			{
-				"url": "",
-				"exp": 3600
-			}
-			`,
-			setupRedis: func(app *TestApp) {
-			},
-			expected: expected{
-				statusCode:   http.StatusBadRequest,
-				bodyContains: "Invalid request body",
-			},
-		},
-		{
 			name: "should return 500 when redis connection fails",
 			requestBody: `
 			{

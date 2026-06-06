@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	healthDTO "github.com/huypham67/bookmark-service/internal/dto/health"
-	"github.com/huypham67/bookmark-service/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -28,7 +27,7 @@ func (h *handler) GetHealthCheck(c *gin.Context) {
 			Str("message", res.Message).
 			Msg("500 - health check failed")
 
-		response.InternalServerError(c)
+		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 	c.JSON(http.StatusOK, res)

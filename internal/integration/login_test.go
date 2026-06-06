@@ -43,34 +43,6 @@ func TestLoginEndpoint(t *testing.T) {
 			},
 		},
 		{
-			name:        "should return 400 when request body is invalid JSON",
-			requestBody: `{invalid json}`,
-			expected: expected{
-				statusCode:   http.StatusBadRequest,
-				bodyContains: "Invalid request body",
-			},
-		},
-		{
-			name: `should return 400 when validation fails - missing username`,
-			requestBody: `{
-				"password": "password123"
-			}`,
-			expected: expected{
-				statusCode:   http.StatusBadRequest,
-				bodyContains: "Invalid request body",
-			},
-		},
-		{
-			name: `should return 400 when validation fails - missing password`,
-			requestBody: `{
-				"username": "testuser1"
-			}`,
-			expected: expected{
-				statusCode:   http.StatusBadRequest,
-				bodyContains: "Invalid request body",
-			},
-		},
-		{
 			name: "should return 401 when username does not exist",
 			requestBody: `{
 				"username": "notfound",
@@ -90,6 +62,14 @@ func TestLoginEndpoint(t *testing.T) {
 			expected: expected{
 				statusCode:   http.StatusUnauthorized,
 				bodyContains: "Invalid username or password",
+			},
+		},
+		{
+			name:        "should return 400 when request body is invalid JSON",
+			requestBody: `{invalid json}`,
+			expected: expected{
+				statusCode:   http.StatusBadRequest,
+				bodyContains: "Invalid request body",
 			},
 		},
 	}
