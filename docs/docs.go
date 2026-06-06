@@ -174,6 +174,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/bookmarks/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update an existing bookmark (description and/or URL)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bookmarks"
+                ],
+                "summary": "Update Bookmark",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bookmark ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated bookmark data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.UpdateBookmarkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bookmark updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "404": {
+                        "description": "Bookmark not found",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/links/redirect/{code}": {
             "get": {
                 "description": "Redirect user to the original URL based on the shortened code",
@@ -636,6 +706,19 @@ const docTemplate = `{
                 "description",
                 "url"
             ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 2
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_internal_dto_bookmark.UpdateBookmarkRequest": {
+            "type": "object",
             "properties": {
                 "description": {
                     "type": "string",

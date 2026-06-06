@@ -101,10 +101,10 @@ func TestShortenURLEndpoint(t *testing.T) {
 			assert.Equal(t, "application/json; charset=utf-8", httpRecorder.Header().Get("Content-Type"))
 			assert.Contains(t, httpRecorder.Body.String(), tc.expected.bodyContains)
 
-		if tc.expected.statusCode == http.StatusOK {
-			var actual linkDTO.ShortenURLResponse
+			if tc.expected.statusCode == http.StatusOK {
+				var actual linkDTO.ShortenURLResponse
 
-			err := json.Unmarshal(httpRecorder.Body.Bytes(), &actual)
+				err := json.Unmarshal(httpRecorder.Body.Bytes(), &actual)
 
 				require.NoError(t, err)
 				assert.NotEmpty(t, actual.Code)

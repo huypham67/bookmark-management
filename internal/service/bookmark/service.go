@@ -12,6 +12,8 @@ import (
 
 var (
 	ErrInternalServerError = errors.New("internal server error")
+	ErrBookmarkNotFound    = errors.New("bookmark not found")
+	ErrUnauthorized        = errors.New("unauthorized")
 )
 
 const bookmarkCodeLength = 6
@@ -27,6 +29,7 @@ type PaginationResult struct {
 type Service interface {
 	Create(ctx context.Context, userID string, req bookmarkDTO.CreateBookmarkRequest) (*model.Bookmark, error)
 	List(ctx context.Context, userID string, page, limit int64, sort string) ([]*model.Bookmark, *PaginationResult, error)
+	Update(ctx context.Context, userID, bookmarkID string, req bookmarkDTO.UpdateBookmarkRequest) error
 }
 
 type service struct {

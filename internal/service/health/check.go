@@ -28,4 +28,3 @@ func (s *service) GetStatus(ctx context.Context) healthDTO.HealthCheckResponse {
 		InstanceID:  s.instanceID,
 	}
 }
-

@@ -6,4 +6,3 @@ type HealthCheckResponse struct {
 	ServiceName string `json:"service_name"`
 	InstanceID  string `json:"instance_id"`
 }
-
