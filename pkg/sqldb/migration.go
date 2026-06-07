@@ -75,3 +75,11 @@ func MigratePostgresDBWithSteps(db *gorm.DB, migrationPath string, direction str
 
 	return nil
 }
+
+// RunMigration applies all pending migrations and returns the database client.
+func RunMigration(db *gorm.DB, migrationPath string) (*gorm.DB, error) {
+	if err := MigratePostgresDB(db, migrationPath); err != nil {
+		return nil, err
+	}
+	return db, nil
+}
