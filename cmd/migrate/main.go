@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+
 	"github.com/rs/zerolog/log"
 
 	"github.com/huypham67/bookmark-service/pkg/logger"
@@ -8,6 +10,10 @@ import (
 )
 
 func main() {
+	direction := flag.String("direction", "up", "migration direction: 'up' or 'down'")
+	steps := flag.Int("steps", 0, "number of migration steps (0 means all)")
+	flag.Parse()
+
 	if err := logger.NewLoggerClient(""); err != nil {
 		log.Error().Err(err).Msg("failed to initialize logger")
 		return
@@ -19,10 +25,21 @@ func main() {
 		return
 	}
 
-	if err := sqldb.MigratePostgresDB(dbClient, "migrations"); err != nil {
-		log.Error().Err(err).Msg("failed to run database migrations")
+	var migrateErr error
+	switch {
+	case *steps == 0:
+		migrateErr = sqldb.MigratePostgresDB(dbClient, "migrations")
+	default:
+		migrateErr = sqldb.MigratePostgresDBWithSteps(dbClient, "migrations", *direction, *steps)
+	}
+
+	if migrateErr != nil {
+		log.Error().Err(migrateErr).Msg("failed to run database migrations")
 		return
 	}
 
-	log.Info().Msg("database migrations completed successfully")
+	log.Info().
+		Str("direction", *direction).
+		Int("steps", *steps).
+		Msg("database migrations completed successfully")
 }
