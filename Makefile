@@ -376,35 +376,25 @@ compose-restart:
 
 .PHONY: migrate-up migrate-down migrate-force migrate-version
 
-MIGRATIONS_PATH ?= ./migrations
-DB_HOST ?= localhost
-DB_PORT ?= 5432
-DB_USER ?= postgres
-DB_PASSWORD ?= postgres
-DB_NAME ?= bookmark_service
-DB_SSLMODE ?= disable
-
-# Build PostgreSQL connection string
-DB_URL = postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)
+MIGRATE_CMD := $(GO) run ./cmd/migrate
 
 migrate-up:
-	@which migrate > /dev/null || (echo "Error: migrate tool not found. Install with: brew install golang-migrate (macOS) or download from https://github.com/golang-migrate/migrate"; exit 1)
-	@echo "Applying migrations from $(MIGRATIONS_PATH)..."
-	migrate -path $(MIGRATIONS_PATH) -database "$(DB_URL)" up
+	@echo "Applying all pending migrations..."
+	$(MIGRATE_CMD)
 
 migrate-down:
-	@which migrate > /dev/null || (echo "Error: migrate tool not found. Install with: brew install golang-migrate (macOS) or download from https://github.com/golang-migrate/migrate"; exit 1)
-	@echo "Rolling back migrations..."
-	migrate -path $(MIGRATIONS_PATH) -database "$(DB_URL)" down
+	@echo "Rolling back last migration..."
+	$(MIGRATE_CMD) -direction down -steps 1
 
 migrate-force:
-	@which migrate > /dev/null || (echo "Error: migrate tool not found"; exit 1)
-	@read -p "Enter migration version to force: " version; \
-	migrate -path $(MIGRATIONS_PATH) -database "$(DB_URL)" force $$version
+	@read -p "Enter number of steps to rollback (default 1): " steps; \
+	steps=$${steps:-1}; \
+	echo "Rolling back $$steps migration(s)..."; \
+	$(MIGRATE_CMD) -direction down -steps $$steps
 
 migrate-version:
-	@which migrate > /dev/null || (echo "Error: migrate tool not found"; exit 1)
-	migrate -path $(MIGRATIONS_PATH) -database "$(DB_URL)" version
+	@echo "Current migration status:"
+	$(MIGRATE_CMD) -direction up -steps 0
 
 # =============================================================================
 # UTILITIES

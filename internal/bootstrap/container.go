@@ -62,6 +62,12 @@ func NewContainer() (*Container, error) {
 		return nil, err
 	}
 
+	db, err = sqldb.RunMigration(db, "migrations")
+	if err != nil {
+		log.Error().Err(err).Msg("failed to run database migrations")
+		return nil, err
+	}
+
 	rdb, err := pkgRedis.NewRedisClient("")
 	if err != nil {
 		log.Error().Err(err).Msg("failed to initialize redis client")
