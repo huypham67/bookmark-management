@@ -15,11 +15,13 @@ import (
 	linkHandler "github.com/huypham67/bookmark-service/internal/handler/link"
 	profileHandler "github.com/huypham67/bookmark-service/internal/handler/profile"
 	bookmarkRepo "github.com/huypham67/bookmark-service/internal/repository/bookmark"
+	cacheRepo "github.com/huypham67/bookmark-service/internal/repository/cache"
 	linkRepo "github.com/huypham67/bookmark-service/internal/repository/link"
 	"github.com/huypham67/bookmark-service/internal/repository/ping"
 	"github.com/huypham67/bookmark-service/internal/repository/user"
 	authSvc "github.com/huypham67/bookmark-service/internal/service/auth"
 	bookmarkSvc "github.com/huypham67/bookmark-service/internal/service/bookmark"
+	bookmarkCacheSvc "github.com/huypham67/bookmark-service/internal/service/bookmark/cache"
 	healthSvc "github.com/huypham67/bookmark-service/internal/service/health"
 	linkSvc "github.com/huypham67/bookmark-service/internal/service/link"
 	profileSvc "github.com/huypham67/bookmark-service/internal/service/profile"
@@ -32,9 +34,10 @@ import (
 // It serves as the single source of truth for all infrastructure and business logic components.
 type Container struct {
 	// Infrastructure
-	Config *Config
-	DB     *gorm.DB
-	Redis  *redis.Client
+	Config    *Config
+	DB        *gorm.DB
+	Redis     *redis.Client
+	CacheRepo cacheRepo.Repository
 
 	// Handlers
 	HealthHandler   healthHandler.Handler
@@ -82,6 +85,9 @@ func NewContainer() (*Container, error) {
 
 	jwtMiddleware := middleware.JWTAuth(jwtProvider.Validator())
 
+	// Initialize shared infrastructure
+	cachRepository := cacheRepo.NewRedis(rdb)
+
 	healthHandlerInstance := initHealthHandler(cfg, rdb)
 	authHandlerInstance, err := initAuthHandler(db, jwtProvider.Generator())
 	if err != nil {
@@ -89,12 +95,13 @@ func NewContainer() (*Container, error) {
 	}
 	profileHandlerInstance := initProfileHandler(db)
 	linkHandlerInstance := initLinkHandler(rdb)
-	bookmarkHandlerInstance := initBookmarkHandler(db)
+	bookmarkHandlerInstance := initBookmarkHandler(db, cachRepository)
 
 	return &Container{
 		Config:          cfg,
 		DB:              db,
 		Redis:           rdb,
+		CacheRepo:       cachRepository,
 		HealthHandler:   healthHandlerInstance,
 		AuthHandler:     authHandlerInstance,
 		ProfileHandler:  profileHandlerInstance,
@@ -131,11 +138,14 @@ func initLinkHandler(redisClient *redis.Client) linkHandler.Handler {
 	return linkHandler.NewHandler(service)
 }
 
-func initBookmarkHandler(db *gorm.DB) bookmarkHandler.Handler {
+func initBookmarkHandler(db *gorm.DB, cacheRepository cacheRepo.Repository) bookmarkHandler.Handler {
 	bookmarkRepository := bookmarkRepo.NewRepository(db)
 	codeGenerator := utils.NewCodeGenerator()
-	service := bookmarkSvc.NewService(bookmarkRepository, codeGenerator)
-	return bookmarkHandler.NewHandler(service)
+	bookmarkService := bookmarkSvc.NewService(bookmarkRepository, codeGenerator)
+
+	cachedService := bookmarkCacheSvc.NewBookmarkService(bookmarkService, cacheRepository)
+
+	return bookmarkHandler.NewHandler(cachedService)
 }
 
 // Close gracefully shuts down the database and Redis clients, ensuring that all resources are properly released.
