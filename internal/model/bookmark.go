@@ -6,6 +6,7 @@ type Bookmark struct {
 	Description string `json:"description" gorm:"type:text"`
 	URL         string `json:"url" gorm:"type:text"`
 	Code        string `json:"code" gorm:"type:varchar(255);not null;uniqueIndex"`
+	CodeInt     int    `json:"code_int" gorm:"type:serial;uniqueIndex;autoIncrement"`
 	UserID      string `json:"user_id" gorm:"type:uuid;not null;index"`
 
 	// Foreign key relationship to User
