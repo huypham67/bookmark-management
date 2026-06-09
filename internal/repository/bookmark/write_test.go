@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/internal/testutil"
+	"github.com/huypham67/bookmark-service/internal/test/fixtures"
 	"github.com/huypham67/bookmark-service/pkg/dbutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -32,7 +32,7 @@ func TestRepository_Create(t *testing.T) {
 					Description: "New Test Bookmark",
 					URL:         "https://example.com/new",
 					Code:        "codenew001",
-					UserID:      testutil.TestUserID1,
+					UserID:      fixtures.TestUserID1,
 				},
 			},
 			verify: func(t *testing.T, db *gorm.DB, err error, a args) {
@@ -56,7 +56,7 @@ func TestRepository_Create(t *testing.T) {
 					Description: "Another New Bookmark",
 					URL:         "https://example.com/another",
 					Code:        "codenew002",
-					UserID:      testutil.TestUserID1,
+					UserID:      fixtures.TestUserID1,
 				},
 			},
 			verify: func(t *testing.T, db *gorm.DB, err error, a args) {
@@ -78,7 +78,7 @@ func TestRepository_Create(t *testing.T) {
 					Description: "Duplicate Code Bookmark",
 					URL:         "https://example.com/duplicate",
 					Code:        "code1001", // Already exists from seed data
-					UserID:      testutil.TestUserID2,
+					UserID:      fixtures.TestUserID2,
 				},
 			},
 			verify: func(t *testing.T, db *gorm.DB, err error, a args) {
@@ -97,7 +97,7 @@ func TestRepository_Create(t *testing.T) {
 					BaseModel:   model.BaseModel{ID: "minimal-bookmark"},
 					URL:         "https://example.com/minimal",
 					Code:        "codeminimal",
-					UserID:      testutil.TestUserID2,
+					UserID:      fixtures.TestUserID2,
 					Description: "", // Empty description is OK
 				},
 			},
@@ -140,7 +140,7 @@ func TestRepository_Create(t *testing.T) {
 					Description: "Cancelled Context Bookmark",
 					URL:         "https://example.com/cancel",
 					Code:        "codecancel",
-					UserID:      testutil.TestUserID1,
+					UserID:      fixtures.TestUserID1,
 				},
 			},
 			verify: func(t *testing.T, db *gorm.DB, err error, a args) {
@@ -189,7 +189,7 @@ func TestRepository_Update(t *testing.T) {
 			name: "should update bookmark successfully",
 			args: args{
 				id:     "bookmark-1-1",
-				userID: testutil.TestUserID1,
+				userID: fixtures.TestUserID1,
 				updates: &model.Bookmark{
 					Description: "Updated Description",
 					URL:         "https://example.com/updated",
@@ -212,7 +212,7 @@ func TestRepository_Update(t *testing.T) {
 			name: "should update partial fields",
 			args: args{
 				id:     "bookmark-1-2",
-				userID: testutil.TestUserID1,
+				userID: fixtures.TestUserID1,
 				updates: &model.Bookmark{
 					Description: "Only Description Changed",
 				},
@@ -233,7 +233,7 @@ func TestRepository_Update(t *testing.T) {
 			name: "should return zero rows affected when bookmark does not exist",
 			args: args{
 				id:     "nonexistent-bookmark",
-				userID: testutil.TestUserID1,
+				userID: fixtures.TestUserID1,
 				updates: &model.Bookmark{
 					Description: "Updated",
 					URL:         "https://example.com/updated",
@@ -248,7 +248,7 @@ func TestRepository_Update(t *testing.T) {
 			name: "should return zero rows affected when userID does not match (security check)",
 			args: args{
 				id:     "bookmark-1-1",
-				userID: testutil.TestUserID2, // different user
+				userID: fixtures.TestUserID2, // different user
 				updates: &model.Bookmark{
 					Description: "Updated",
 					URL:         "https://example.com/updated",
@@ -268,7 +268,7 @@ func TestRepository_Update(t *testing.T) {
 			name: "should return error when updating to duplicate code",
 			args: args{
 				id:     "bookmark-1-1",
-				userID: testutil.TestUserID1,
+				userID: fixtures.TestUserID1,
 				updates: &model.Bookmark{
 					Code: "code1002", // already exists
 				},
@@ -283,7 +283,7 @@ func TestRepository_Update(t *testing.T) {
 			name: "should return error when context is cancelled",
 			args: args{
 				id:     "bookmark-1-1",
-				userID: testutil.TestUserID1,
+				userID: fixtures.TestUserID1,
 				updates: &model.Bookmark{
 					Description: "Updated",
 				},
@@ -334,7 +334,7 @@ func TestRepository_Delete(t *testing.T) {
 			name: "should delete bookmark successfully",
 			args: args{
 				id:     "bookmark-1-1",
-				userID: testutil.TestUserID1,
+				userID: fixtures.TestUserID1,
 			},
 			verify: func(t *testing.T, db *gorm.DB, rowsAffected int64, err error) {
 				require.NoError(t, err)
@@ -349,7 +349,7 @@ func TestRepository_Delete(t *testing.T) {
 			name: "should return zero rows affected when bookmark does not exist",
 			args: args{
 				id:     "nonexistent-bookmark",
-				userID: testutil.TestUserID1,
+				userID: fixtures.TestUserID1,
 			},
 			verify: func(t *testing.T, db *gorm.DB, rowsAffected int64, err error) {
 				require.NoError(t, err)
@@ -360,7 +360,7 @@ func TestRepository_Delete(t *testing.T) {
 			name: "should return zero rows affected when userID does not match (security check)",
 			args: args{
 				id:     "bookmark-1-2",
-				userID: testutil.TestUserID2, // different user
+				userID: fixtures.TestUserID2, // different user
 			},
 			verify: func(t *testing.T, db *gorm.DB, rowsAffected int64, err error) {
 				require.NoError(t, err)
@@ -376,7 +376,7 @@ func TestRepository_Delete(t *testing.T) {
 			name: "should return error when context is cancelled",
 			args: args{
 				id:     "bookmark-1-3",
-				userID: testutil.TestUserID1,
+				userID: fixtures.TestUserID1,
 			},
 			verify: func(t *testing.T, db *gorm.DB, rowsAffected int64, err error) {
 				require.Error(t, err)

@@ -4,7 +4,7 @@ A production-ready REST API service for user authentication, profile management,
 
 ## Overview
 
-Bookmark Service is a modern, scalable microservice designed for user management and bookmark operations with a focus on reliability, performance, and maintainability. It provides JWT-based authentication, comprehensive error handling, structured logging with Zerolog, extensive testing (>96% coverage), and complete API documentation using Swagger/OpenAPI.
+Bookmark Service is a modern, scalable microservice designed for user management and bookmark operations with a focus on reliability, performance, and maintainability. It provides JWT-based authentication, comprehensive error handling, structured logging with Zerolog, an enforced test-coverage gate on business logic, and complete API documentation using Swagger/OpenAPI.
 
 ## 🎯 Features
 
@@ -18,7 +18,7 @@ Bookmark Service is a modern, scalable microservice designed for user management
 - **Swagger/OpenAPI Documentation**: Interactive API docs at `/swagger/`
 - **Environment Configuration**: Flexible setup via environment variables
 - **Structured Logging**: Zerolog integration for comprehensive logging
-- **Comprehensive Testing**: Unit and integration tests with 96.5%+ coverage
+- **Comprehensive Testing**: Unit and integration tests with an enforced coverage gate (80%) on business logic
 - **Docker Ready**: Optimized Dockerfile for containerization
 - **Database Migrations**: Golang-migrate for schema management
 - **Cross-Platform Build**: Support for Linux, macOS, and Windows
@@ -30,7 +30,7 @@ Bookmark Service is a modern, scalable microservice designed for user management
 | Language | Go | 1.26 |
 | Web Framework | Gin | v1.12.0 |
 | Database | PostgreSQL | (via GORM) |
-| ORM | GORM | v1.6.0 |
+| ORM | GORM | v1.31.1 (postgres driver v1.6.0) |
 | Cache | Redis | v9.19.0 |
 | Logger | Zerolog | v1.35.1 |
 | Auth | JWT (RSA) | v5.3.1 |
@@ -79,12 +79,14 @@ Create a `.env` file in the project root:
 APP_PORT=8080
 SERVICE_NAME=bookmark-service
 INSTANCE_ID=instance-1
+APP_HOST_NAME=/api/bookmark_service
+APP_ENV=development
 
 # JWT Configuration
-JWT_PRIVATE_KEY_PATH=/keys/private.pem
-JWT_PUBLIC_KEY_PATH=/keys/public.pem
+JWT_PRIVATE_KEY_PATH=keys/private.pem
+JWT_PUBLIC_KEY_PATH=keys/public.pem
 JWT_ISSUER=bookmark-service
-JWT_AUDIENCE=bookmark-app
+JWT_AUDIENCE=bookmark-service
 JWT_EXPIRATION_SECONDS=3600
 
 # PostgreSQL Configuration
@@ -99,7 +101,7 @@ DB_TIMEZONE=UTC
 # Redis Configuration (optional - defaults to localhost:6379)
 REDIS_ADDR=localhost:6379
 REDIS_PASSWORD=
-REDIS_DB=0
+REDIS_DATABASE=0
 ```
 
 **Configuration Reference:**
@@ -108,23 +110,25 @@ REDIS_DB=0
 |----------|----------|---------|-------------|
 | `APP_PORT` | No | 8080 | Port on which the API server runs |
 | `SERVICE_NAME` | Yes | - | Name of the service for health checks |
-| `INSTANCE_ID` | No | Auto-generated UUID | Unique identifier for this service instance |
-| `JWT_PRIVATE_KEY_PATH` | Yes | - | Path to JWT private key (RSA) |
-| `JWT_PUBLIC_KEY_PATH` | Yes | - | Path to JWT public key (RSA) |
+| `INSTANCE_ID` | No | - | Unique identifier for this service instance |
+| `APP_HOST_NAME` | No | /api/bookmark_service | Base path prefix for the API |
+| `APP_ENV` | No | development | Application environment |
+| `SWAGGER_SCHEMES` | No | Empty | Schemes advertised in Swagger docs |
+| `JWT_PRIVATE_KEY_PATH` | No | keys/private.pem | Path to JWT private key (RSA) |
+| `JWT_PUBLIC_KEY_PATH` | No | keys/public.pem | Path to JWT public key (RSA) |
 | `JWT_ISSUER` | No | bookmark-service | JWT issuer claim |
-| `JWT_AUDIENCE` | No | bookmark-app | JWT audience claim |
+| `JWT_AUDIENCE` | No | bookmark-service | JWT audience claim |
 | `JWT_EXPIRATION_SECONDS` | No | 3600 | JWT token expiry in seconds (default 1 hour) |
 | `DB_HOST` | No | localhost | PostgreSQL host |
 | `DB_PORT` | No | 5432 | PostgreSQL port |
-| `DB_USER` | No | postgres | PostgreSQL username |
-| `DB_PASSWORD` | No | postgres | PostgreSQL password |
-| `DB_NAME` | No | bookmark_service | PostgreSQL database name |
-| `DB_SSL_MODE` | No | disable | PostgreSQL SSL mode |
+| `DB_USER` | No | admin | PostgreSQL username |
+| `DB_PASSWORD` | No | admin | PostgreSQL password |
+| `DB_NAME` | No | bookmark_db | PostgreSQL database name |
+| `DB_SSLMODE` | No | disable | PostgreSQL SSL mode |
+| `DB_TIMEZONE` | No | UTC | PostgreSQL timezone |
 | `REDIS_ADDR` | No | localhost:6379 | Redis connection address |
 | `REDIS_PASSWORD` | No | Empty | Redis password |
 | `REDIS_DATABASE` | No | 0 | Redis database number |
-| `DB_SSLMODE` | No | disable | PostgreSQL SSL mode |
-| `DB_TIMEZONE` | No | UTC | PostgreSQL timezone |
 
 ### Database Setup
 
@@ -160,159 +164,76 @@ The API will be available at `http://localhost:8080/api/bookmark_service/v1` and
 ```
 bookmark-service/
 ├── cmd/
-│   └── api/
-│       └── main.go                      # Application entry point
+│   ├── api/
+│   │   └── main.go                      # Application entry point
+│   └── migrate/
+│       └── main.go                      # Database migration runner
 ├── internal/
 │   ├── api/
 │   │   └── router.go                    # Route definitions and setup
 │   ├── bootstrap/
-│   │   └── app.go                       # Application initialization and DI
-│   ├── config/
-│   │   └── config.go                    # Configuration management
+│   │   ├── app.go                       # Application initialization
+│   │   ├── config.go                    # App-level configuration
+│   │   ├── container.go                 # Dependency injection wiring
+│   │   └── routes.go                    # Route registration
 │   ├── dto/
-│   │   ├── auth/
-│   │   │   ├── request.go               # Login/register DTOs
-│   │   │   └── response.go
-│   │   ├── bookmark/
-│   │   │   ├── request.go               # Bookmark request DTOs
-│   │   │   └── response.go
-│   │   ├── health/
-│   │   │   └── response.go
-│   │   ├── link/
-│   │   │   ├── request.go
-│   │   │   └── response.go
-│   │   └── profile/
-│   │       ├── request.go
-│   │       └── response.go
-│   ├── handler/
-│   │   ├── auth/
-│   │   │   ├── handler.go               # Auth handler interface & DI
-│   │   │   ├── register.go              # User registration handler
-│   │   │   ├── login.go                 # User login handler
-│   │   │   ├── register_test.go
-│   │   │   └── login_test.go
-│   │   ├── bookmark/
-│   │   │   ├── handler.go               # Bookmark handler interface & DI
-│   │   │   ├── create.go                # Create bookmark
-│   │   │   ├── list.go                  # List bookmarks with pagination
-│   │   │   ├── update.go                # Update bookmark
-│   │   │   └── delete.go                # Delete bookmark
-│   │   ├── health/
-│   │   │   ├── handler.go
-│   │   │   ├── check.go                 # Health check handler
-│   │   │   └── check_test.go
-│   │   ├── link/
-│   │   │   ├── handler.go               # Link handler interface & DI
-│   │   │   ├── shorten.go               # URL shortening handler
-│   │   │   ├── redirect.go              # URL redirect handler
-│   │   │   ├── shorten_test.go
-│   │   │   └── redirect_test.go
-│   │   └── profile/
-│   │       ├── handler.go               # Profile handler interface & DI
-│   │       ├── get.go                   # Get user profile
-│   │       ├── update.go                # Update user profile
-│   │       ├── get_test.go
-│   │       └── update_test.go
+│   │   ├── auth/                        # Login/register DTOs (request.go, response.go)
+│   │   ├── bookmark/                    # Bookmark DTOs
+│   │   ├── health/                      # Health DTO (response.go)
+│   │   ├── link/                        # Link DTOs
+│   │   └── profile/                     # Profile DTOs
+│   ├── handler/                         # HTTP I/O layer (+ *_test.go)
+│   │   ├── auth/                        # register.go, login.go
+│   │   ├── bookmark/                    # create.go, list.go, update.go, delete.go
+│   │   ├── health/                      # check.go
+│   │   ├── link/                        # shorten.go, redirect.go
+│   │   └── profile/                     # get.go, update.go
 │   ├── model/
 │   │   ├── base.go                      # Base model with timestamps
 │   │   ├── user.go                      # User domain model
 │   │   └── bookmark.go                  # Bookmark domain model
-│   ├── repository/
-│   │   ├── bookmark/
-│   │   │   ├── repo.go                  # Bookmark repository interface & DI
-│   │   │   ├── read.go                  # Read operations (list, get)
-│   │   │   ├── write.go                 # Create/update/delete operations
-│   │   │   ├── write_test.go
-│   │   │   └── mocks/
-│   │   ├── link/
-│   │   │   ├── repo.go
-│   │   │   ├── read.go
-│   │   │   ├── write.go
-│   │   │   ├── write_test.go
-│   │   │   └── mocks/
-│   │   ├── ping/
-│   │   │   └── repo.go                  # Redis ping for health checks
-│   │   └── user/
-│   │       ├── repo.go                  # User repository interface & DI
-│   │       ├── read.go                  # User read operations
-│   │       ├── write.go                 # User create/update operations
-│   │       └── mocks/
-│   ├── service/
-│   │   ├── auth/
-│   │   │   ├── service.go               # Auth service interface & DI
-│   │   │   ├── register.go              # Registration business logic
-│   │   │   ├── login.go                 # Login business logic
-│   │   │   ├── register_test.go
-│   │   │   └── login_test.go
-│   │   ├── bookmark/
-│   │   │   ├── service.go               # Bookmark service interface & DI
-│   │   │   ├── create.go                # Create business logic
-│   │   │   ├── list.go                  # List with pagination logic
-│   │   │   ├── update.go                # Update business logic
-│   │   │   ├── delete.go                # Delete business logic
-│   │   │   └── mocks/
-│   │   ├── health/
-│   │   │   ├── service.go               # Health check service
-│   │   │   ├── check.go
-│   │   │   ├── check_test.go
-│   │   │   └── mocks/
-│   │   ├── link/
-│   │   │   ├── service.go               # Link service interface & DI
-│   │   │   ├── shorten.go               # URL shortening logic
-│   │   │   └── redirect.go              # URL redirect logic
-│   │   └── profile/
-│   │       ├── service.go               # Profile service interface & DI
-│   │       ├── get.go                   # Get user info logic
-│   │       └── update.go                # Update user info logic
-│   ├── integration/
-│   │   ├── test_helper.go               # Integration test setup
-│   │   ├── user_create_test.go
-│   │   ├── login_test.go
-│   │   ├── update_user_info_test.go
-│   │   ├── link_shorten_test.go
-│   │   └── ...
-│   └── testutil/
-│       └── ...                          # Test utilities
+│   ├── repository/                      # Data access layer (+ mocks/)
+│   │   ├── bookmark/                    # repo.go, read.go, write.go
+│   │   ├── cache/                       # redis.go — bookmark Redis cache store
+│   │   ├── link/                        # repo.go, read.go, write.go
+│   │   ├── ping/                        # pinger.go, redis.go — health-check ping
+│   │   └── user/                        # repo.go, read.go, write.go
+│   ├── service/                         # Business logic layer (+ mocks/)
+│   │   ├── auth/                        # register.go, login.go
+│   │   ├── bookmark/                    # create.go, list.go, update.go, delete.go
+│   │   │   └── cache/                   # cache-aside orchestration over repository/cache
+│   │   ├── health/                      # check.go
+│   │   ├── link/                        # shorten.go, get.go
+│   │   │   └── resolver/                # bookmark resolver interface (decouples link↔bookmark)
+│   │   └── profile/                     # get.go, update.go
+│   └── test/
+│       ├── integration/                 # End-to-end API tests (test_helper.go + *_test.go)
+│       └── fixtures/                    # Shared test DB helpers
 ├── pkg/
-│   ├── common/
-│   │   └── ...                          # Common utilities
-│   ├── jwtutils/
-│   │   ├── config.go                    # JWT configuration
-│   │   ├── claims.go                    # JWT claims handling
-│   │   └── ...                          # JWT utilities and validation
-│   ├── logger/
-│   │   ├── logger.go                    # Zerolog configuration
-│   │   └── config.go
-│   ├── password/
-│   │   └── ...                          # Password hashing utilities
-│   ├── redis/
-│   │   ├── config.go                    # Redis configuration
-│   │   └── ...                          # Redis client wrapper
-│   ├── requestutils/
-│   │   └── ...                          # Request binding utilities
-│   ├── response/
-│   │   └── ...                          # Response formatting utilities
-│   ├── security/
-│   │   └── ...                          # Security utilities
-│   ├── sqldb/
-│   │   └── config.go                    # PostgreSQL configuration
-│   └── utils/
-│       └── ...                          # General utilities
+│   ├── base62/                          # Base62 encode/decode for short codes
+│   ├── common/                          # Common utilities
+│   ├── dbutils/                         # Database helpers
+│   ├── jwtutils/                        # JWT: generator, validator, claims, loader, provider, config
+│   ├── logger/                          # Zerolog configuration
+│   ├── redis/                           # Redis client wrapper + config
+│   ├── requestutils/                    # Request binding utilities
+│   ├── response/                        # Response formatting utilities
+│   ├── security/                        # Password hashing (bcrypt) + security utils
+│   ├── shortcode/                       # Short code generation
+│   ├── sqldb/                           # PostgreSQL connection + config
+│   └── utils/                           # General utilities
 ├── middleware/
 │   └── jwt.go                           # JWT authentication middleware
 ├── migrations/
-│   └── *.sql                            # Database migration files
-├── docs/
-│   ├── docs.go                          # Generated Swagger documentation
-│   ├── swagger.json
-│   └── swagger.yaml
-├── coverage/                            # Test coverage reports
+│   └── *.sql                            # Database migration files (up/down)
+├── docs/                                # Generated Swagger docs (docs.go, swagger.json/yaml)
+├── coverage_report/                     # Test coverage reports (generated)
+├── keys/                                # RSA keys for JWT (local, git-ignored)
 ├── Dockerfile                           # Docker configuration
 ├── docker-compose.yml                   # Docker Compose setup
 ├── Makefile                             # Build automation
-├── CLAUDE.md                            # Development guidelines
-├── go.mod                               # Go module definition
-├── go.sum                               # Module checksums
+├── sonar-project.properties             # SonarCloud project metadata
+├── go.mod / go.sum                      # Go module definition & checksums
 ├── .env                                 # Environment variables (local)
 ├── .gitignore
 └── README.md                            # This file
@@ -692,6 +613,9 @@ GET /links/redirect/:code
 #### Check Service Health
 Check application health status and database connectivity.
 
+> Note: this endpoint is registered directly under the API base path (no `/v1`):
+> `GET /api/bookmark_service/health-check`
+
 ```http
 GET /health-check
 ```
@@ -776,21 +700,30 @@ go tool cover -html=coverage.out
 
 ### Test Coverage
 
-Current coverage: **96.5%+** on testable code
+`make test` enforces a coverage gate (`COVERAGE_THRESHOLD`, currently **80%**) on
+business-logic code. The exclusion rules are a single source of truth in the
+`Makefile` (`INFRA_DIRS`, `INFRA_FILES`, `SYSTEM_DIRS`, `SYSTEM_FILES`) and are
+reused for both the local coverage filter and SonarCloud.
 
 **Coverage breakdown by layer:**
 - **Handlers**: HTTP request/response handling, validation, error cases
 - **Services**: Business logic, error handling, domain operations
 - **Repository**: Database operations, query building, error classification
 - **Integration**: End-to-end API flows with real database
-- **Utilities**: Helper functions
+- **Utilities**: `pkg/base62`, `pkg/shortcode`, and JWT token logic
 
-**Excluded from coverage (infrastructure):**
-- `cmd/` - Application entry point
-- `internal/bootstrap/` - Dependency injection setup
-- `internal/config/` - Configuration initialization
-- `pkg/logger/`, `pkg/redis/` - Infrastructure boilerplate
-- `docs/` - Auto-generated Swagger documentation
+**Excluded from the coverage gate but still security-scanned (`INFRA_DIRS` / `INFRA_FILES`):**
+- `cmd/` - Application entry points
+- `internal/api`, `internal/bootstrap` - Routing & dependency injection setup
+- `internal/dto`, `internal/model` - Contracts & domain structs
+- `internal/repository/ping` - Trivial health-check probe
+- `middleware`, and `pkg/{common,dbutils,logger,redis,requestutils,response,security,sqldb,utils}`
+- `pkg/jwtutils/{config,loader,provider}.go` - env load / key file I/O / DI wiring
+  (the real token logic — `generator.go`, `validator.go`, `claims.go` — stays counted)
+
+**Excluded completely, no scan (`SYSTEM_DIRS` / `SYSTEM_FILES`):**
+- `vendor/`, `docs/`, `bin/`, `internal/test/`, `**/mocks/`
+- `*_test.go`, `*test_helper.go`, `*mock.go`, `*.pb.go`
 
 ### Test Types
 
@@ -800,10 +733,10 @@ Current coverage: **96.5%+** on testable code
    - Example: `internal/handler/auth/login_test.go`
 
 2. **Integration Tests**: Full API flow testing with real database
-   - Location: `internal/integration/`
+   - Location: `internal/test/integration/`
    - Database: PostgreSQL with test fixtures
    - Features: Real request/response handling and database operations
-   - Example: `internal/integration/login_test.go`
+   - Example: `internal/test/integration/login_test.go`
 
 3. **Mock Generation**: Interfaces use mockery for testing
    - Command: `make generate-mocks`
@@ -819,7 +752,7 @@ Current coverage: **96.5%+** on testable code
 | `internal/service/auth` | ✅ Registration & login logic | Database and password validation |
 | `internal/service/bookmark` | ✅ Bookmark business logic | Create, list, update, delete |
 | `internal/repository/user` | ✅ Database operations | Real PostgreSQL with test data |
-| `internal/integration` | ✅ End-to-end API flows | Full workflows with real database |
+| `internal/test/integration` | ✅ End-to-end API flows | Full workflows with real database |
 
 ## 📦 Building
 
@@ -918,7 +851,7 @@ make clean-docs    # Remove Swagger docs
 
 **Full cleanup:**
 ```bash
-make clean-all     # Remove everything including vendor
+make clean-all     # Remove build artifacts, Swagger docs, Docker artifacts, and local keys
 ```
 
 ## 🛠️ Available Make Targets
@@ -953,7 +886,7 @@ make help          # Display all available targets
 5. Register routes in `internal/api/router.go`
 6. Add Swagger documentation comments
 7. Write unit tests for handlers, services, and repositories
-8. Write integration tests in `internal/integration/`
+8. Write integration tests in `internal/test/integration/`
 9. Regenerate Swagger docs: `make swagger`
 10. Update this README.md if new endpoints added
 
@@ -971,8 +904,7 @@ make help          # Display all available targets
 
 - [ ] Code formatted: `make fmt`
 - [ ] No linting issues: `make vet`
-- [ ] All tests pass: `make test`
-- [ ] Coverage > 96.5%
+- [ ] All tests pass and coverage gate met: `make test`
 - [ ] Swagger docs updated
 - [ ] No debug prints or commented code
 

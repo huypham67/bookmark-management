@@ -30,7 +30,7 @@ import (
 	healthSvc "github.com/huypham67/bookmark-service/internal/service/health"
 	linkSvc "github.com/huypham67/bookmark-service/internal/service/link"
 	profileSvc "github.com/huypham67/bookmark-service/internal/service/profile"
-	"github.com/huypham67/bookmark-service/internal/testutil"
+	"github.com/huypham67/bookmark-service/internal/test/fixtures"
 	"github.com/huypham67/bookmark-service/pkg/jwtutils"
 	pkgRedis "github.com/huypham67/bookmark-service/pkg/redis"
 	"github.com/huypham67/bookmark-service/pkg/security"
@@ -114,7 +114,7 @@ func setupLinkTestApp(t *testing.T) *TestApp {
 
 	linkRepository := linkRepo.NewRepository(mockRedis.Client)
 
-	mockDB := testutil.NewTestDB(t, &testutil.BookmarkTestDB{})
+	mockDB := fixtures.NewTestDB(t, &fixtures.BookmarkTestDB{})
 	bookmarkResolver := bookmarkRepo.NewRepository(mockDB)
 
 	linkService := linkSvc.NewService(
@@ -160,7 +160,7 @@ func createTestTokenGenerator(t *testing.T) jwtutils.TokenGenerator {
 func setupAuthTestApp(t *testing.T) *TestApp {
 	t.Helper()
 
-	mockDB := testutil.NewTestDB(t, &testutil.UserTestDB{})
+	mockDB := fixtures.NewTestDB(t, &fixtures.UserTestDB{})
 
 	userRepository := userRepo.NewRepository(mockDB)
 
@@ -187,7 +187,7 @@ func setupAuthTestApp(t *testing.T) *TestApp {
 func setupProfileTestApp(t *testing.T) *AuthenticatedTestApp {
 	t.Helper()
 
-	mockDB := testutil.NewTestDB(t, &testutil.UserTestDB{})
+	mockDB := fixtures.NewTestDB(t, &fixtures.UserTestDB{})
 
 	userRepository := userRepo.NewRepository(mockDB)
 	profileService := profileSvc.NewService(userRepository)
@@ -212,7 +212,7 @@ func setupProfileTestApp(t *testing.T) *AuthenticatedTestApp {
 func setupBookmarkTestApp(t *testing.T) *AuthenticatedTestApp {
 	t.Helper()
 
-	mockDB := testutil.NewTestDB(t, &testutil.BookmarkTestDB{})
+	mockDB := fixtures.NewTestDB(t, &fixtures.BookmarkTestDB{})
 	mockRedis := pkgRedis.NewMockRedis(t)
 
 	bookmarkRepository := bookmarkRepo.NewRepository(mockDB)
