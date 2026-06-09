@@ -3,14 +3,14 @@ package user
 import (
 	"testing"
 
-	"github.com/huypham67/bookmark-service/internal/testutil"
+	"github.com/huypham67/bookmark-service/internal/test/fixtures"
 	"gorm.io/gorm"
 )
 
 func newTestRepository(t *testing.T) (Repository, *gorm.DB) {
 	t.Helper()
 
-	testDB := testutil.NewTestDB(t, &testutil.UserTestDB{})
+	testDB := fixtures.NewTestDB(t, &fixtures.UserTestDB{})
 	repo := NewRepository(testDB)
 
 	return repo, testDB

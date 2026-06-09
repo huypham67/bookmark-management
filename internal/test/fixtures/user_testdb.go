@@ -1,4 +1,4 @@
-package testutil
+package fixtures
 
 import (
 	"github.com/huypham67/bookmark-service/internal/model"

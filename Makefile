@@ -26,10 +26,19 @@ COVERAGE_THRESHOLD ?= 80
 #      → Auto-generated, vendored, test infrastructure
 #      → Used for sonar.exclusions + local coverage filter
 #
-#   2. INFRA_DIRS: Exclude from coverage % but INCLUDE in security scan
+#   2. INFRA_DIRS / INFRA_FILES: Exclude from coverage % but INCLUDE in scan
 #      → Infrastructure/setup code (DI, config, models, middleware)
-#      → Scanned for security vulnerabilities (SonarQube)
-#      → Excluded from coverage % threshold (sonar.coverage.exclusions)
+#      → INFRA_DIRS: whole packages excluded from coverage threshold
+#      → INFRA_FILES: surgical per-file exclusion. Used when a package mixes
+#        real logic (keep counted) with wiring/setup (exclude). Example:
+#        pkg/jwtutils keeps generator/validator/claims in coverage, but
+#        config/loader/provider (env load, key file I/O, DI wiring) are excluded.
+#      → Both are still scanned for security vulnerabilities (SonarQube)
+#
+#   3. Everything else = business logic → MUST be covered:
+#      handler/*, service/* (incl. service/bookmark/cache, service/link/resolver),
+#      repository/{bookmark,cache,link,user}, pkg/base62, pkg/shortcode,
+#      pkg/jwtutils/{generator,validator,claims}.go
 #
 # Usage:
 #   - make test        → filters coverage.out to exclude infrastructure + system
@@ -49,8 +58,6 @@ INFRA_DIRS := \
 	middleware \
 	pkg/common \
 	pkg/dbutils \
-	pkg/http \
-	pkg/jwtutils \
 	pkg/logger \
 	pkg/redis \
 	pkg/requestutils \
@@ -59,9 +66,16 @@ INFRA_DIRS := \
 	pkg/sqldb \
 	pkg/utils
 
+# Infrastructure files: surgical per-file coverage exclusion (still SCANNED).
+# For packages that mix tested logic with untestable-worth wiring/setup.
+INFRA_FILES := \
+	pkg/jwtutils/config.go \
+	pkg/jwtutils/loader.go \
+	pkg/jwtutils/provider.go
+
 # System artifacts: auto-generated, vendored, test infrastructure (NO SCAN)
-SYSTEM_DIRS := vendor docs bin internal/testutil mocks
-SYSTEM_FILES := _test.go .pb.go
+SYSTEM_DIRS := vendor docs bin internal/test mocks
+SYSTEM_FILES := _test.go .pb.go test_helper.go mock.go
 
 # Format conversion for Makefile
 comma := ,
@@ -69,17 +83,18 @@ space := $(subst ,, )
 
 # Pattern builders for Sonar (Ant-style glob)
 SONAR_INFRA_DIRS := $(foreach d,$(INFRA_DIRS),**/$(d)**)
+SONAR_INFRA_FILES := $(foreach f,$(INFRA_FILES),**/$(f))
 SONAR_SYSTEM_DIRS := $(foreach d,$(SYSTEM_DIRS),**/$(d)**)
 SONAR_SYSTEM_FILES := $(foreach f,$(SYSTEM_FILES),**/*$(f))
 
-# Sonar: exclude system artifacts completely
+# Sonar: exclude system artifacts completely (INFRA_FILES intentionally absent → still scanned)
 SONAR_EXCLUDE_PATTERNS := $(subst $(space),$(comma),$(strip $(SONAR_SYSTEM_FILES) $(SONAR_SYSTEM_DIRS) $(COVERAGE_DIR)/**))
 
-# Sonar: exclude infrastructure from coverage % but allow security scan
-SONAR_COVERAGE_EXCLUSIONS := $(subst $(space),$(comma),$(strip $(SONAR_INFRA_DIRS) $(SONAR_SYSTEM_DIRS)))
+# Sonar: exclude infrastructure (dirs + files) from coverage % but allow security scan
+SONAR_COVERAGE_EXCLUSIONS := $(subst $(space),$(comma),$(strip $(SONAR_INFRA_DIRS) $(SONAR_INFRA_FILES) $(SONAR_SYSTEM_DIRS)))
 
 # Local/Docker: Regex format (coverage.out filtering)
-ALL_EXCLUDES := $(INFRA_DIRS) $(SYSTEM_DIRS) $(SYSTEM_FILES)
+ALL_EXCLUDES := $(INFRA_DIRS) $(INFRA_FILES) $(SYSTEM_DIRS) $(SYSTEM_FILES)
 COVERAGE_EXCLUDE := $(subst $(space),|,$(strip $(ALL_EXCLUDES)))
 
 # Go test: Scan all, let grep filter

@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	authDTO "github.com/huypham67/bookmark-service/internal/dto/auth"
-	"github.com/huypham67/bookmark-service/internal/testutil"
+	"github.com/huypham67/bookmark-service/internal/test/fixtures"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -35,7 +35,7 @@ func TestLoginEndpoint(t *testing.T) {
 					"password": "%s"
 				}`,
 				"testuser1",
-				testutil.TestPassword,
+				fixtures.TestPassword,
 			),
 			expected: expected{
 				statusCode:   http.StatusOK,

@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/internal/testutil"
+	"github.com/huypham67/bookmark-service/internal/test/fixtures"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -224,7 +224,7 @@ func TestRepository_CountByUserID(t *testing.T) {
 		{
 			name: "should return count for user with multiple bookmarks",
 			args: args{
-				userID: testutil.TestUserID1,
+				userID: fixtures.TestUserID1,
 			},
 			verify: func(t *testing.T, count int64, err error) {
 				require.NoError(t, err)
@@ -234,7 +234,7 @@ func TestRepository_CountByUserID(t *testing.T) {
 		{
 			name: "should return count for user with fewer bookmarks",
 			args: args{
-				userID: testutil.TestUserID2,
+				userID: fixtures.TestUserID2,
 			},
 			verify: func(t *testing.T, count int64, err error) {
 				require.NoError(t, err)
@@ -264,7 +264,7 @@ func TestRepository_CountByUserID(t *testing.T) {
 		{
 			name: "should return error when context is cancelled",
 			args: args{
-				userID: testutil.TestUserID1,
+				userID: fixtures.TestUserID1,
 			},
 			verify: func(t *testing.T, count int64, err error) {
 				require.Error(t, err)
