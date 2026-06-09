@@ -15,6 +15,20 @@ func (r *repository) Create(ctx context.Context, bookmark *model.Bookmark) error
 	return nil
 }
 
+// NextCodeInt generates the next integer code for a new bookmark.
+func (r *repository) NextCodeInt(ctx context.Context) (int64, error) {
+	query := "SELECT COALESCE(MAX(code_int), 0) + 1 FROM bookmarks"
+	if r.db.Dialector.Name() == "postgres" {
+		query = "SELECT nextval(pg_get_serial_sequence('bookmarks', 'code_int'))"
+	}
+
+	var n int64
+	if err := r.db.WithContext(ctx).Raw(query).Scan(&n).Error; err != nil {
+		return 0, dbutils.ClassifyError(err)
+	}
+	return n, nil
+}
+
 // Update updates an existing bookmark for a specific user, only updating non-nil fields.
 // Returns the number of rows affected and any error encountered.
 func (r *repository) Update(ctx context.Context, id, userID string, updates *model.Bookmark) (int64, error) {

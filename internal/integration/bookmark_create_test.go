@@ -24,28 +24,10 @@ func TestCreateBookmarkEndpoint(t *testing.T) {
 		name        string
 		requestBody string
 		setupAuth   func(t *testing.T, app *AuthenticatedTestApp, req *http.Request)
+		setupCache  func(t *testing.T, app *AuthenticatedTestApp)
+		verifyCache func(t *testing.T, app *AuthenticatedTestApp)
 		expected    expected
 	}{
-		{
-			name: "should return 201 when bookmark is created successfully",
-			requestBody: `{
-				"description": "New Bookmark",
-				"url": "https://new-example.com"
-			}`,
-			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
-				token, err := app.TokenGenerator.GenerateToken(
-					"user-uuid-1",
-					"testuser1",
-					"testuser1@gmail.com",
-				)
-				require.NoError(t, err)
-				req.Header.Set("Authorization", "Bearer "+token)
-			},
-			expected: expected{
-				statusCode:   http.StatusCreated,
-				bodyContains: "Bookmark created successfully!",
-			},
-		},
 		{
 			name: "should return 400 when user does not exist",
 			requestBody: `{
@@ -97,15 +79,44 @@ func TestCreateBookmarkEndpoint(t *testing.T) {
 				bodyContains: "missing authorization header",
 			},
 		},
+		{
+			name: "should return 201 and create bookmark successfully, then invalidate cache",
+			requestBody: `{
+				"description": "New Bookmark",
+				"url": "https://new-example.com"
+			}`,
+			setupCache: func(t *testing.T, app *AuthenticatedTestApp) {
+				seedBookmarkListCache(t, app, 1, 10, "created_at")
+				require.True(t, app.MockRedis.Server.Exists(bookmarkCacheHashKey(cacheSeedUserID)))
+			},
+			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
+				token, err := app.TokenGenerator.GenerateToken(
+					"user-uuid-1",
+					"testuser1",
+					"testuser1@gmail.com",
+				)
+				require.NoError(t, err)
+				req.Header.Set("Authorization", "Bearer "+token)
+			},
+			verifyCache: func(t *testing.T, app *AuthenticatedTestApp) {
+				assert.False(t, app.MockRedis.Server.Exists(bookmarkCacheHashKey(cacheSeedUserID)))
+			},
+			expected: expected{
+				statusCode:   http.StatusCreated,
+				bodyContains: "Bookmark created successfully!",
+			},
+		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc
-
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			app := setupBookmarkTestApp(t)
+
+			if tc.setupCache != nil {
+				tc.setupCache(t, app)
+			}
 
 			httpRequest := httptest.NewRequest(
 				http.MethodPost,
@@ -132,6 +143,10 @@ func TestCreateBookmarkEndpoint(t *testing.T) {
 				assert.NotEmpty(t, resp.Data.Code)
 				assert.NotEmpty(t, resp.Data.Description)
 				assert.NotEmpty(t, resp.Data.URL)
+			}
+
+			if tc.verifyCache != nil {
+				tc.verifyCache(t, app)
 			}
 		})
 	}

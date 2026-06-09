@@ -307,7 +307,7 @@
         },
         "/v1/links/redirect/{code}": {
             "get": {
-                "description": "Redirect user to the original URL based on the shortened code",
+                "description": "Redirect user to the original URL for a given code. The code's routing prefix selects the backing store: shortened links resolve from Redis, bookmarks resolve from the database.",
                 "consumes": [
                     "application/json"
                 ],
@@ -321,14 +321,14 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Shortened code",
+                        "description": "Short code (prefixed: a-h for links, i-z for bookmarks)",
                         "name": "code",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "301": {
+                    "302": {
                         "description": "Redirect successful"
                     },
                     "404": {

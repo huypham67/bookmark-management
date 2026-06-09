@@ -15,12 +15,12 @@ import (
 // RedirectToURL handles the redirect endpoint.
 //
 // @Summary Redirect to Original URL
-// @Description Redirect user to the original URL based on the shortened code
+// @Description Redirect user to the original URL for a given code. The code's routing prefix selects the backing store: shortened links resolve from Redis, bookmarks resolve from the database.
 // @Tags links
 // @Accept json
 // @Produce json
-// @Param code path string true "Shortened code"
-// @Success 301 "Redirect successful"
+// @Param code path string true "Short code (prefixed: a-h for links, i-z for bookmarks)"
+// @Success 302 "Redirect successful"
 // @Failure 404 {object} gin.H "Short link not found"
 // @Failure 500 {object} gin.H "Internal server error"
 // @Router /v1/links/redirect/{code} [get]

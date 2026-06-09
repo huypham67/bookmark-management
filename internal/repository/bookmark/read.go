@@ -7,6 +7,18 @@ import (
 	"github.com/huypham67/bookmark-service/pkg/dbutils"
 )
 
+// GetURLByCode retrieves the original URL associated with a given bookmark code.
+func (r *repository) GetURLByCode(ctx context.Context, code string) (string, error) {
+	var bookmark model.Bookmark
+	if err := r.db.WithContext(ctx).
+		Select("url").
+		Where("code = ?", code).
+		First(&bookmark).Error; err != nil {
+		return "", dbutils.ClassifyError(err)
+	}
+	return bookmark.URL, nil
+}
+
 // GetPaginatedByUserID fetches a paginated list of bookmarks for a specific user.
 func (r *repository) GetPaginatedByUserID(ctx context.Context, userID string, offset, limit int64, sort string) ([]*model.Bookmark, error) {
 	var bookmarks []*model.Bookmark
