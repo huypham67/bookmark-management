@@ -7,6 +7,7 @@ import (
 
 	linkDTO "github.com/huypham67/bookmark-service/internal/dto/link"
 	"github.com/huypham67/bookmark-service/internal/repository/link"
+	"github.com/huypham67/bookmark-service/internal/service/link/resolver"
 	"github.com/huypham67/bookmark-service/pkg/utils"
 )
 
@@ -21,14 +22,17 @@ type Service interface {
 }
 
 type service struct {
-	linkRepo      link.Repository
-	codeGenerator utils.CodeGenerator
+	linkRepo         link.Repository
+	codeGenerator    utils.CodeGenerator
+	bookmarkResolver resolver.Bookmark
 }
 
-// NewService creates a new link service with the provided repository and code generator.
-func NewService(linkRepo link.Repository, codeGenerator utils.CodeGenerator) Service {
+// NewService creates a new link service. The bookmarkResolver lets the
+// redirect endpoint resolve codes that route to the SQL bookmark store.
+func NewService(linkRepo link.Repository, codeGenerator utils.CodeGenerator, bookmarkResolver resolver.Bookmark) Service {
 	return &service{
-		linkRepo:      linkRepo,
-		codeGenerator: codeGenerator,
+		linkRepo:         linkRepo,
+		codeGenerator:    codeGenerator,
+		bookmarkResolver: bookmarkResolver,
 	}
 }

@@ -86,7 +86,7 @@ func NewContainer() (*Container, error) {
 	jwtMiddleware := middleware.JWTAuth(jwtProvider.Validator())
 
 	// Initialize shared infrastructure
-	cachRepository := cacheRepo.NewRedis(rdb)
+	cacheRepository := cacheRepo.NewRedis(rdb)
 
 	healthHandlerInstance := initHealthHandler(cfg, rdb)
 	authHandlerInstance, err := initAuthHandler(db, jwtProvider.Generator())
@@ -94,14 +94,14 @@ func NewContainer() (*Container, error) {
 		return nil, err
 	}
 	profileHandlerInstance := initProfileHandler(db)
-	linkHandlerInstance := initLinkHandler(rdb)
-	bookmarkHandlerInstance := initBookmarkHandler(db, cachRepository)
+	linkHandlerInstance := initLinkHandler(rdb, db)
+	bookmarkHandlerInstance := initBookmarkHandler(db, cacheRepository)
 
 	return &Container{
 		Config:          cfg,
 		DB:              db,
 		Redis:           rdb,
-		CacheRepo:       cachRepository,
+		CacheRepo:       cacheRepository,
 		HealthHandler:   healthHandlerInstance,
 		AuthHandler:     authHandlerInstance,
 		ProfileHandler:  profileHandlerInstance,
@@ -131,21 +131,21 @@ func initHealthHandler(cfg *Config, redisClient *redis.Client) healthHandler.Han
 	return healthHandler.NewHandler(healthService)
 }
 
-func initLinkHandler(redisClient *redis.Client) linkHandler.Handler {
+func initLinkHandler(redisClient *redis.Client, db *gorm.DB) linkHandler.Handler {
 	linkRepository := linkRepo.NewRepository(redisClient)
 	codeGenerator := utils.NewCodeGenerator()
-	service := linkSvc.NewService(linkRepository, codeGenerator)
+	bookmarkResolver := bookmarkRepo.NewRepository(db)
+	service := linkSvc.NewService(linkRepository, codeGenerator, bookmarkResolver)
 	return linkHandler.NewHandler(service)
 }
 
 func initBookmarkHandler(db *gorm.DB, cacheRepository cacheRepo.Repository) bookmarkHandler.Handler {
 	bookmarkRepository := bookmarkRepo.NewRepository(db)
-	codeGenerator := utils.NewCodeGenerator()
-	bookmarkService := bookmarkSvc.NewService(bookmarkRepository, codeGenerator)
+	bookmarkService := bookmarkSvc.NewService(bookmarkRepository)
 
-	cachedService := bookmarkCacheSvc.NewBookmarkService(bookmarkService, cacheRepository)
+	cacheService := bookmarkCacheSvc.NewBookmarkService(bookmarkService, cacheRepository)
 
-	return bookmarkHandler.NewHandler(cachedService)
+	return bookmarkHandler.NewHandler(cacheService)
 }
 
 // Close gracefully shuts down the database and Redis clients, ensuring that all resources are properly released.

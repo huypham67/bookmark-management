@@ -385,9 +385,11 @@ paths:
     get:
       consumes:
       - application/json
-      description: Redirect user to the original URL based on the shortened code
+      description: 'Redirect user to the original URL for a given code. The code''s
+        routing prefix selects the backing store: shortened links resolve from Redis,
+        bookmarks resolve from the database.'
       parameters:
-      - description: Shortened code
+      - description: 'Short code (prefixed: a-h for links, i-z for bookmarks)'
         in: path
         name: code
         required: true
@@ -395,7 +397,7 @@ paths:
       produces:
       - application/json
       responses:
-        "301":
+        "302":
           description: Redirect successful
         "404":
           description: Short link not found

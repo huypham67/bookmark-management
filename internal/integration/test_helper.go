@@ -1,8 +1,11 @@
 package integration
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
+	"encoding/json"
+	"fmt"
 	"testing"
 	"time"
 
@@ -15,12 +18,15 @@ import (
 	healthHandler "github.com/huypham67/bookmark-service/internal/handler/health"
 	linkHandler "github.com/huypham67/bookmark-service/internal/handler/link"
 	profileHandler "github.com/huypham67/bookmark-service/internal/handler/profile"
+	"github.com/huypham67/bookmark-service/internal/model"
 	bookmarkRepo "github.com/huypham67/bookmark-service/internal/repository/bookmark"
+	cacheRepo "github.com/huypham67/bookmark-service/internal/repository/cache"
 	linkRepo "github.com/huypham67/bookmark-service/internal/repository/link"
 	"github.com/huypham67/bookmark-service/internal/repository/ping"
 	userRepo "github.com/huypham67/bookmark-service/internal/repository/user"
 	authSvc "github.com/huypham67/bookmark-service/internal/service/auth"
 	bookmarkSvc "github.com/huypham67/bookmark-service/internal/service/bookmark"
+	bookmarkCacheSvc "github.com/huypham67/bookmark-service/internal/service/bookmark/cache"
 	healthSvc "github.com/huypham67/bookmark-service/internal/service/health"
 	linkSvc "github.com/huypham67/bookmark-service/internal/service/link"
 	profileSvc "github.com/huypham67/bookmark-service/internal/service/profile"
@@ -108,9 +114,13 @@ func setupLinkTestApp(t *testing.T) *TestApp {
 
 	linkRepository := linkRepo.NewRepository(mockRedis.Client)
 
+	mockDB := testutil.NewTestDB(t, &testutil.BookmarkTestDB{})
+	bookmarkResolver := bookmarkRepo.NewRepository(mockDB)
+
 	linkService := linkSvc.NewService(
 		linkRepository,
 		utils.NewCodeGenerator(),
+		bookmarkResolver,
 	)
 
 	linkHandlerInstance := linkHandler.NewHandler(
@@ -203,15 +213,15 @@ func setupBookmarkTestApp(t *testing.T) *AuthenticatedTestApp {
 	t.Helper()
 
 	mockDB := testutil.NewTestDB(t, &testutil.BookmarkTestDB{})
+	mockRedis := pkgRedis.NewMockRedis(t)
 
 	bookmarkRepository := bookmarkRepo.NewRepository(mockDB)
+	bookmarkService := bookmarkSvc.NewService(bookmarkRepository)
 
-	bookmarkService := bookmarkSvc.NewService(
-		bookmarkRepository,
-		utils.NewCodeGenerator(),
-	)
+	cacheRepository := cacheRepo.NewRedis(mockRedis.Client)
+	cacheService := bookmarkCacheSvc.NewBookmarkService(bookmarkService, cacheRepository)
 
-	bookmarkHandlerInstance := bookmarkHandler.NewHandler(bookmarkService)
+	bookmarkHandlerInstance := bookmarkHandler.NewHandler(cacheService)
 
 	tokenGenerator, tokenValidator := createTestJWT(t)
 
@@ -223,8 +233,51 @@ func setupBookmarkTestApp(t *testing.T) *AuthenticatedTestApp {
 
 	return &AuthenticatedTestApp{
 		TestApp: &TestApp{
-			Router: router,
+			Router:    router,
+			MockRedis: mockRedis,
 		},
 		TokenGenerator: tokenGenerator,
 	}
+}
+
+const cacheSeedUserID = "user-uuid-1"
+
+func cacheSeededBookmarks() []*model.Bookmark {
+	return []*model.Bookmark{
+		{BaseModel: model.BaseModel{ID: "cache-bm-1"}, Description: "Cached Bookmark 1", URL: "https://cache.example.com/1", Code: "zCACHE1", UserID: cacheSeedUserID},
+		{BaseModel: model.BaseModel{ID: "cache-bm-2"}, Description: "Cached Bookmark 2", URL: "https://cache.example.com/2", Code: "zCACHE2", UserID: cacheSeedUserID},
+		{BaseModel: model.BaseModel{ID: "cache-bm-3"}, Description: "Cached Bookmark 3", URL: "https://cache.example.com/3", Code: "zCACHE3", UserID: cacheSeedUserID},
+	}
+}
+
+func bookmarkCacheHashKey(userID string) string {
+	return fmt.Sprintf("bookmarks:%s", userID)
+}
+
+func bookmarkCacheFieldKey(page, limit int64, sort string) string {
+	return fmt.Sprintf("page:%d:limit:%d:sort:%s", page, limit, sort)
+}
+
+func seedBookmarkListCache(t *testing.T, app *AuthenticatedTestApp, page, limit int64, sort string) {
+	t.Helper()
+
+	bookmarks := cacheSeededBookmarks()
+	payload := struct {
+		Bookmarks  []*model.Bookmark             `json:"bookmarks"`
+		Pagination *bookmarkSvc.PaginationResult `json:"pagination"`
+	}{
+		Bookmarks:  bookmarks,
+		Pagination: &bookmarkSvc.PaginationResult{Page: page, Limit: limit, Total: int64(len(bookmarks))},
+	}
+
+	data, err := json.Marshal(payload)
+	require.NoError(t, err)
+
+	err = app.MockRedis.Client.HSet(
+		context.Background(),
+		bookmarkCacheHashKey(cacheSeedUserID),
+		bookmarkCacheFieldKey(page, limit, sort),
+		data,
+	).Err()
+	require.NoError(t, err)
 }

@@ -6,175 +6,88 @@ import (
 	"testing"
 
 	linkDTO "github.com/huypham67/bookmark-service/internal/dto/link"
-	"github.com/huypham67/bookmark-service/internal/repository/link/mocks"
+	linkRepoMocks "github.com/huypham67/bookmark-service/internal/repository/link/mocks"
+	resolverMocks "github.com/huypham67/bookmark-service/internal/service/link/resolver/mocks"
+	"github.com/huypham67/bookmark-service/pkg/shortcode"
 	utilsMocks "github.com/huypham67/bookmark-service/pkg/utils/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
+
+// redisCodeWithPayload matches a code that carries a Redis routing prefix
+// followed by the given random payload.
+func redisCodeWithPayload(payload string) interface{} {
+	return mock.MatchedBy(func(code string) bool {
+		return shortcode.Classify(code) == shortcode.StoreRedis && len(code) > 1 && code[1:] == payload
+	})
+}
 
 func TestService_ShortenURL(t *testing.T) {
 	t.Parallel()
 
-	type args struct {
-		request linkDTO.ShortenURLRequest
-	}
+	request := linkDTO.ShortenURLRequest{Url: "https://google.com", Exp: 3600}
 
 	testCases := []struct {
 		name           string
-		args           args
-		setupMocks     func(context.Context, *mocks.Repository, *utilsMocks.CodeGenerator)
+		setupMocks     func(context.Context, *linkRepoMocks.Repository, *utilsMocks.CodeGenerator)
 		verifyResponse func(*testing.T, string, error)
 	}{
 		{
 			name: "should shorten URL successfully when code does not exist",
-			args: args{
-				request: linkDTO.ShortenURLRequest{
-					Url: "https://google.com",
-					Exp: 3600,
-				},
-			},
-			setupMocks: func(ctx context.Context, mockRepo *mocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
-				mockCodeGen.
-					On("Generate", shortCodeLength).
-					Return("abc1234", nil).
-					Once()
-
-				mockRepo.
-					On("CheckExists", ctx, "abc1234").
-					Return(false, nil).
-					Once()
-
-				mockRepo.
-					On(
-						"SaveLink",
-						ctx,
-						"abc1234",
-						"https://google.com",
-						int64(3600),
-					).
-					Return(nil).
-					Once()
+			setupMocks: func(ctx context.Context, mockRepo *linkRepoMocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
+				mockCodeGen.On("Generate", shortCodeLength).Return("abc1234", nil).Once()
+				mockRepo.On("CheckExists", ctx, redisCodeWithPayload("abc1234")).Return(false, nil).Once()
+				mockRepo.On("SaveLink", ctx, redisCodeWithPayload("abc1234"), "https://google.com", int64(3600)).Return(nil).Once()
 			},
 			verifyResponse: func(t *testing.T, code string, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, "abc1234", code)
+				assert.Equal(t, shortcode.StoreRedis, shortcode.Classify(code))
+				assert.Equal(t, "abc1234", code[1:])
 			},
 		},
 		{
 			name: "should return error when code generation fails",
-			args: args{
-				request: linkDTO.ShortenURLRequest{
-					Url: "https://google.com",
-					Exp: 3600,
-				},
-			},
-			setupMocks: func(ctx context.Context, mockRepo *mocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
-				mockCodeGen.
-					On("Generate", shortCodeLength).
-					Return("", errors.New("code generation failed")).
-					Once()
+			setupMocks: func(ctx context.Context, mockRepo *linkRepoMocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
+				mockCodeGen.On("Generate", shortCodeLength).Return("", errors.New("code generation failed")).Once()
 			},
 			verifyResponse: func(t *testing.T, code string, err error) {
 				assert.Error(t, err)
 				assert.Empty(t, code)
 			},
-		}, {
+		},
+		{
 			name: "should return error when checking code existence fails",
-			args: args{
-				request: linkDTO.ShortenURLRequest{
-					Url: "https://google.com",
-					Exp: 3600,
-				},
-			},
-			setupMocks: func(ctx context.Context, mockRepo *mocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
-				mockCodeGen.
-					On("Generate", shortCodeLength).
-					Return("abc1234", nil).
-					Once()
-
-				mockRepo.
-					On("CheckExists", ctx, "abc1234").
-					Return(false, errors.New("redis error")).
-					Once()
+			setupMocks: func(ctx context.Context, mockRepo *linkRepoMocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
+				mockCodeGen.On("Generate", shortCodeLength).Return("abc1234", nil).Once()
+				mockRepo.On("CheckExists", ctx, redisCodeWithPayload("abc1234")).Return(false, errors.New("redis error")).Once()
 			},
 			verifyResponse: func(t *testing.T, code string, err error) {
 				assert.Error(t, err)
 				assert.Empty(t, code)
 			},
-		}, {
+		},
+		{
 			name: "should retry code generation when code already exists",
-			args: args{
-				request: linkDTO.ShortenURLRequest{
-					Url: "https://google.com",
-					Exp: 3600,
-				},
-			},
-			setupMocks: func(ctx context.Context, mockRepo *mocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
-				// First attempt
-				mockCodeGen.
-					On("Generate", shortCodeLength).
-					Return("abc1234", nil).
-					Once()
+			setupMocks: func(ctx context.Context, mockRepo *linkRepoMocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
+				mockCodeGen.On("Generate", shortCodeLength).Return("abc1234", nil).Once()
+				mockRepo.On("CheckExists", ctx, redisCodeWithPayload("abc1234")).Return(true, nil).Once()
 
-				mockRepo.
-					On("CheckExists", ctx, "abc1234").
-					Return(true, nil).
-					Once()
-
-				// Second attempt
-				mockCodeGen.
-					On("Generate", shortCodeLength).
-					Return("def5678", nil).
-					Once()
-
-				mockRepo.
-					On("CheckExists", ctx, "def5678").
-					Return(false, nil).
-					Once()
-
-				mockRepo.
-					On(
-						"SaveLink",
-						ctx,
-						"def5678",
-						"https://google.com",
-						int64(3600),
-					).
-					Return(nil).
-					Once()
+				mockCodeGen.On("Generate", shortCodeLength).Return("def5678", nil).Once()
+				mockRepo.On("CheckExists", ctx, redisCodeWithPayload("def5678")).Return(false, nil).Once()
+				mockRepo.On("SaveLink", ctx, redisCodeWithPayload("def5678"), "https://google.com", int64(3600)).Return(nil).Once()
 			},
 			verifyResponse: func(t *testing.T, code string, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, "def5678", code)
+				assert.Equal(t, shortcode.StoreRedis, shortcode.Classify(code))
+				assert.Equal(t, "def5678", code[1:])
 			},
-		}, {
+		},
+		{
 			name: "should return error when saving link fails",
-			args: args{
-				request: linkDTO.ShortenURLRequest{
-					Url: "https://google.com",
-					Exp: 3600,
-				},
-			},
-			setupMocks: func(ctx context.Context, mockRepo *mocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
-				mockCodeGen.
-					On("Generate", shortCodeLength).
-					Return("abc1234", nil).
-					Once()
-
-				mockRepo.
-					On("CheckExists", ctx, "abc1234").
-					Return(false, nil).
-					Once()
-
-				mockRepo.
-					On(
-						"SaveLink",
-						ctx,
-						"abc1234",
-						"https://google.com",
-						int64(3600),
-					).
-					Return(errors.New("save error")).
-					Once()
+			setupMocks: func(ctx context.Context, mockRepo *linkRepoMocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
+				mockCodeGen.On("Generate", shortCodeLength).Return("abc1234", nil).Once()
+				mockRepo.On("CheckExists", ctx, redisCodeWithPayload("abc1234")).Return(false, nil).Once()
+				mockRepo.On("SaveLink", ctx, redisCodeWithPayload("abc1234"), "https://google.com", int64(3600)).Return(errors.New("save error")).Once()
 			},
 			verifyResponse: func(t *testing.T, code string, err error) {
 				assert.Error(t, err)
@@ -183,22 +96,9 @@ func TestService_ShortenURL(t *testing.T) {
 		},
 		{
 			name: "should return error when context is cancelled",
-			args: args{
-				request: linkDTO.ShortenURLRequest{
-					Url: "https://google.com",
-					Exp: 3600,
-				},
-			},
-			setupMocks: func(ctx context.Context, mockRepo *mocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
-				mockCodeGen.
-					On("Generate", shortCodeLength).
-					Return("abc1234", nil).
-					Once()
-
-				mockRepo.
-					On("CheckExists", ctx, "abc1234").
-					Return(false, context.Canceled).
-					Once()
+			setupMocks: func(ctx context.Context, mockRepo *linkRepoMocks.Repository, mockCodeGen *utilsMocks.CodeGenerator) {
+				mockCodeGen.On("Generate", shortCodeLength).Return("abc1234", nil).Once()
+				mockRepo.On("CheckExists", ctx, redisCodeWithPayload("abc1234")).Return(false, context.Canceled).Once()
 			},
 			verifyResponse: func(t *testing.T, code string, err error) {
 				assert.Error(t, err)
@@ -208,16 +108,15 @@ func TestService_ShortenURL(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			var ctx context.Context
-			mockRepo := new(mocks.Repository)
+			mockRepo := linkRepoMocks.NewRepository(t)
 			mockCodeGen := new(utilsMocks.CodeGenerator)
+			mockResolver := resolverMocks.NewBookmark(t)
 
-			// For context cancellation test, create a cancelled context
 			if tc.name == "should return error when context is cancelled" {
 				cancelledCtx, cancel := context.WithCancel(context.Background())
 				cancel()
@@ -228,9 +127,9 @@ func TestService_ShortenURL(t *testing.T) {
 
 			tc.setupMocks(ctx, mockRepo, mockCodeGen)
 
-			service := NewService(mockRepo, mockCodeGen)
+			service := NewService(mockRepo, mockCodeGen, mockResolver)
 
-			code, err := service.ShortenURL(ctx, tc.args.request)
+			code, err := service.ShortenURL(ctx, request)
 
 			tc.verifyResponse(t, code, err)
 

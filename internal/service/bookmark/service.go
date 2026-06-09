@@ -7,7 +7,6 @@ import (
 	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
 	"github.com/huypham67/bookmark-service/internal/model"
 	"github.com/huypham67/bookmark-service/internal/repository/bookmark"
-	"github.com/huypham67/bookmark-service/pkg/utils"
 )
 
 var (
@@ -17,8 +16,6 @@ var (
 
 	ErrInternalServerError = errors.New("internal server error")
 )
-
-const bookmarkCodeLength = 6
 
 // PaginationResult holds pagination metadata.
 type PaginationResult struct {
@@ -38,17 +35,12 @@ type Service interface {
 }
 
 type service struct {
-	bookmarkRepo  bookmark.Repository
-	codeGenerator utils.CodeGenerator
+	bookmarkRepo bookmark.Repository
 }
 
 // NewService creates a new instance of the bookmark service with the provided dependencies.
-func NewService(
-	bookmarkRepo bookmark.Repository,
-	codeGenerator utils.CodeGenerator,
-) Service {
+func NewService(bookmarkRepo bookmark.Repository) Service {
 	return &service{
-		bookmarkRepo:  bookmarkRepo,
-		codeGenerator: codeGenerator,
+		bookmarkRepo: bookmarkRepo,
 	}
 }

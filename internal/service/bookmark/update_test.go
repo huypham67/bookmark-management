@@ -8,7 +8,6 @@ import (
 	"github.com/huypham67/bookmark-service/internal/model"
 	bookmarkMocks "github.com/huypham67/bookmark-service/internal/repository/bookmark/mocks"
 	"github.com/huypham67/bookmark-service/pkg/dbutils"
-	utilsMocks "github.com/huypham67/bookmark-service/pkg/utils/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -280,14 +279,12 @@ func TestService_Update(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			var ctx context.Context
 			bookmarkRepo := bookmarkMocks.NewRepository(t)
-			codeGenerator := utilsMocks.NewCodeGenerator(t)
 
 			// For context cancellation test, create a cancelled context
 			if tc.name == "should return error when context is cancelled" {
@@ -300,7 +297,7 @@ func TestService_Update(t *testing.T) {
 
 			tc.setupMocks(ctx, bookmarkRepo)
 
-			bookmarkService := NewService(bookmarkRepo, codeGenerator)
+			bookmarkService := NewService(bookmarkRepo)
 
 			err := bookmarkService.Update(ctx, tc.args.userID, tc.args.bookmarkID, tc.args.request)
 

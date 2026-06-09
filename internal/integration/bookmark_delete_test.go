@@ -18,28 +18,13 @@ func TestDeleteBookmarkEndpoint(t *testing.T) {
 	}
 
 	testCases := []struct {
-		name       string
-		bookmarkID string
-		setupAuth  func(t *testing.T, app *AuthenticatedTestApp, req *http.Request)
-		expected   expected
+		name        string
+		bookmarkID  string
+		setupAuth   func(t *testing.T, app *AuthenticatedTestApp, req *http.Request)
+		setupCache  func(t *testing.T, app *AuthenticatedTestApp)
+		verifyCache func(t *testing.T, app *AuthenticatedTestApp)
+		expected    expected
 	}{
-		{
-			name:       "should return 200 when bookmark is deleted successfully",
-			bookmarkID: "bookmark-1-1",
-			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
-				token, err := app.TokenGenerator.GenerateToken(
-					"user-uuid-1",
-					"testuser1",
-					"testuser1@gmail.com",
-				)
-				require.NoError(t, err)
-				req.Header.Set("Authorization", "Bearer "+token)
-			},
-			expected: expected{
-				statusCode:   http.StatusOK,
-				bodyContains: "Success",
-			},
-		},
 		{
 			name:       "should return 401 when authorization header is missing",
 			bookmarkID: "bookmark-1-1",
@@ -68,15 +53,42 @@ func TestDeleteBookmarkEndpoint(t *testing.T) {
 				bodyContains: "Bookmark not found",
 			},
 		},
+		{
+			name:       "should return 200 and invalidate cache when bookmark is deleted successfully",
+			bookmarkID: "bookmark-1-1",
+			setupCache: func(t *testing.T, app *AuthenticatedTestApp) {
+				seedBookmarkListCache(t, app, 1, 10, "created_at")
+				require.True(t, app.MockRedis.Server.Exists(bookmarkCacheHashKey(cacheSeedUserID)))
+			},
+			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
+				token, err := app.TokenGenerator.GenerateToken(
+					"user-uuid-1",
+					"testuser1",
+					"testuser1@gmail.com",
+				)
+				require.NoError(t, err)
+				req.Header.Set("Authorization", "Bearer "+token)
+			},
+			verifyCache: func(t *testing.T, app *AuthenticatedTestApp) {
+				assert.False(t, app.MockRedis.Server.Exists(bookmarkCacheHashKey(cacheSeedUserID)))
+			},
+			expected: expected{
+				statusCode:   http.StatusOK,
+				bodyContains: "Success",
+			},
+		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			app := setupBookmarkTestApp(t)
+
+			if tc.setupCache != nil {
+				tc.setupCache(t, app)
+			}
 
 			httpRequest := httptest.NewRequest(
 				http.MethodDelete,
@@ -92,6 +104,10 @@ func TestDeleteBookmarkEndpoint(t *testing.T) {
 
 			assert.Equal(t, tc.expected.statusCode, httpRecorder.Code)
 			assert.Contains(t, httpRecorder.Body.String(), tc.expected.bodyContains)
+
+			if tc.verifyCache != nil {
+				tc.verifyCache(t, app)
+			}
 		})
 	}
 }
