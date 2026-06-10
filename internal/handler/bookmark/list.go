@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
-	"github.com/huypham67/bookmark-service/pkg/jwtutils"
-	"github.com/huypham67/bookmark-service/pkg/requestutils"
-	"github.com/huypham67/bookmark-service/pkg/response"
+	bookmarkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/bookmark"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/requestutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 

@@ -5,8 +5,8 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/huypham67/bookmark-service/internal/api"
-	"github.com/huypham67/bookmark-service/pkg/logger"
+	"github.com/huypham67/bookmark-service-monolithic/internal/api"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/logger"
 )
 
 // App represents the application and manages its runtime lifecycle.

@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"github.com/huypham67/bookmark-service/internal/api"
+	"github.com/huypham67/bookmark-service-monolithic/internal/api"
 )
 
 // SetupRoutes registers all API routes with the provided router and dependency container.

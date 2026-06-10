@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
-	"github.com/huypham67/bookmark-service/internal/model"
-	bookmarkMocks "github.com/huypham67/bookmark-service/internal/repository/bookmark/mocks"
+	bookmarkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/bookmark"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
+	bookmarkMocks "github.com/huypham67/bookmark-service-monolithic/internal/repository/bookmark/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

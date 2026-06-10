@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/huypham67/bookmark-service/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
 	"github.com/rs/zerolog/log"
 )
 

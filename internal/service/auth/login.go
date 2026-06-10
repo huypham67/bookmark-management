@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	authDTO "github.com/huypham67/bookmark-service/internal/dto/auth"
-	"github.com/huypham67/bookmark-service/pkg/dbutils"
-	"github.com/huypham67/bookmark-service/pkg/security"
+	authDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/auth"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/dbutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/security"
 	"github.com/rs/zerolog/log"
 )
 

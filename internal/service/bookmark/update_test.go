@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
-	"github.com/huypham67/bookmark-service/internal/model"
-	bookmarkMocks "github.com/huypham67/bookmark-service/internal/repository/bookmark/mocks"
-	"github.com/huypham67/bookmark-service/pkg/dbutils"
+	bookmarkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/bookmark"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
+	bookmarkMocks "github.com/huypham67/bookmark-service-monolithic/internal/repository/bookmark/mocks"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/dbutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

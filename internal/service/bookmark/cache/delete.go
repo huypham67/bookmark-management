@@ -3,7 +3,7 @@ package cache
 import (
 	"context"
 
-	"github.com/huypham67/bookmark-service/internal/service/bookmark"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark"
 	"github.com/rs/zerolog/log"
 )
 

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/huypham67/bookmark-service/internal/repository/cache"
-	"github.com/huypham67/bookmark-service/internal/service/bookmark"
+	"github.com/huypham67/bookmark-service-monolithic/internal/repository/cache"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark"
 )
 
 const (

@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/internal/test/fixtures"
-	"github.com/huypham67/bookmark-service/pkg/dbutils"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
+	"github.com/huypham67/bookmark-service-monolithic/internal/test/fixtures"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/dbutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"

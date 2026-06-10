@@ -9,10 +9,10 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	profileDTO "github.com/huypham67/bookmark-service/internal/dto/profile"
-	"github.com/huypham67/bookmark-service/internal/service/profile"
-	"github.com/huypham67/bookmark-service/internal/service/profile/mocks"
-	"github.com/huypham67/bookmark-service/pkg/jwtutils"
+	profileDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/profile"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/profile"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/profile/mocks"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
 	"github.com/stretchr/testify/assert"
 )
 

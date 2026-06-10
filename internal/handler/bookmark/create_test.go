@@ -9,11 +9,11 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
-	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/internal/service/bookmark"
-	"github.com/huypham67/bookmark-service/internal/service/bookmark/mocks"
-	"github.com/huypham67/bookmark-service/pkg/jwtutils"
+	bookmarkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/bookmark"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark/mocks"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
 	"github.com/stretchr/testify/assert"
 )
 

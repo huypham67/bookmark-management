@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
-	authDTO "github.com/huypham67/bookmark-service/internal/dto/auth"
-	"github.com/huypham67/bookmark-service/internal/model"
-	userMocks "github.com/huypham67/bookmark-service/internal/repository/user/mocks"
-	"github.com/huypham67/bookmark-service/pkg/dbutils"
-	jwtutilsMocks "github.com/huypham67/bookmark-service/pkg/jwtutils/mocks"
-	"github.com/huypham67/bookmark-service/pkg/security"
-	securityMocks "github.com/huypham67/bookmark-service/pkg/security/mocks"
+	authDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/auth"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
+	userMocks "github.com/huypham67/bookmark-service-monolithic/internal/repository/user/mocks"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/dbutils"
+	jwtutilsMocks "github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils/mocks"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/security"
+	securityMocks "github.com/huypham67/bookmark-service-monolithic/pkg/security/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

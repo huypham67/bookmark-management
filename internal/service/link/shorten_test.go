@@ -5,11 +5,11 @@ import (
 	"errors"
 	"testing"
 
-	linkDTO "github.com/huypham67/bookmark-service/internal/dto/link"
-	linkRepoMocks "github.com/huypham67/bookmark-service/internal/repository/link/mocks"
-	resolverMocks "github.com/huypham67/bookmark-service/internal/service/link/resolver/mocks"
-	"github.com/huypham67/bookmark-service/pkg/shortcode"
-	utilsMocks "github.com/huypham67/bookmark-service/pkg/utils/mocks"
+	linkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/link"
+	linkRepoMocks "github.com/huypham67/bookmark-service-monolithic/internal/repository/link/mocks"
+	resolverMocks "github.com/huypham67/bookmark-service-monolithic/internal/service/link/resolver/mocks"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/shortcode"
+	utilsMocks "github.com/huypham67/bookmark-service-monolithic/pkg/utils/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

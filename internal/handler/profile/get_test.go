@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/internal/service/profile/mocks"
-	"github.com/huypham67/bookmark-service/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/profile/mocks"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -3,7 +3,7 @@ package health
 import (
 	"context"
 
-	healthDTO "github.com/huypham67/bookmark-service/internal/dto/health"
+	healthDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/health"
 	"github.com/rs/zerolog/log"
 )
 

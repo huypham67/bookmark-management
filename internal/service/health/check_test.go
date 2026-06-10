@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	healthDTO "github.com/huypham67/bookmark-service/internal/dto/health"
-	"github.com/huypham67/bookmark-service/internal/repository/ping/mocks"
+	healthDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/health"
+	"github.com/huypham67/bookmark-service-monolithic/internal/repository/ping/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
