@@ -8,7 +8,7 @@ import (
 	"github.com/huypham67/bookmark-service-monolithic/internal/model"
 	userMocks "github.com/huypham67/bookmark-service-monolithic/internal/repository/user/mocks"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/dbutils"
-	jwtutilsMocks "github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils/mocks"
+	jwtMocks "github.com/huypham67/bookmark-service-monolithic/pkg/jwt/mocks"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/security"
 	securityMocks "github.com/huypham67/bookmark-service-monolithic/pkg/security/mocks"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +24,7 @@ func TestService_LoginUser(t *testing.T) {
 	testCases := []struct {
 		name           string
 		args           args
-		setupMocks     func(context.Context, *userMocks.Repository, *securityMocks.PasswordHasher, *jwtutilsMocks.TokenGenerator)
+		setupMocks     func(context.Context, *userMocks.Repository, *securityMocks.PasswordHasher, *jwtMocks.TokenGenerator)
 		verifyResponse func(*testing.T, string, error)
 	}{
 		{
@@ -39,7 +39,7 @@ func TestService_LoginUser(t *testing.T) {
 				ctx context.Context,
 				userRepo *userMocks.Repository,
 				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
+				tokenGenerator *jwtMocks.TokenGenerator,
 			) {
 				user := &model.User{
 					BaseModel: model.BaseModel{
@@ -83,7 +83,7 @@ func TestService_LoginUser(t *testing.T) {
 				ctx context.Context,
 				userRepo *userMocks.Repository,
 				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
+				tokenGenerator *jwtMocks.TokenGenerator,
 			) {
 				userRepo.
 					On("GetByUsername", ctx, "nonexistent").
@@ -108,7 +108,7 @@ func TestService_LoginUser(t *testing.T) {
 				ctx context.Context,
 				userRepo *userMocks.Repository,
 				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
+				tokenGenerator *jwtMocks.TokenGenerator,
 			) {
 				user := &model.User{
 					BaseModel: model.BaseModel{
@@ -148,7 +148,7 @@ func TestService_LoginUser(t *testing.T) {
 				ctx context.Context,
 				userRepo *userMocks.Repository,
 				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
+				tokenGenerator *jwtMocks.TokenGenerator,
 			) {
 				userRepo.
 					On("GetByUsername", ctx, "testuser").
@@ -173,7 +173,7 @@ func TestService_LoginUser(t *testing.T) {
 				ctx context.Context,
 				userRepo *userMocks.Repository,
 				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
+				tokenGenerator *jwtMocks.TokenGenerator,
 			) {
 				user := &model.User{
 					BaseModel: model.BaseModel{
@@ -218,7 +218,7 @@ func TestService_LoginUser(t *testing.T) {
 				ctx context.Context,
 				userRepo *userMocks.Repository,
 				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
+				tokenGenerator *jwtMocks.TokenGenerator,
 			) {
 				userRepo.
 					On("GetByUsername", ctx, "testuser").
@@ -240,7 +240,7 @@ func TestService_LoginUser(t *testing.T) {
 			var ctx context.Context
 			userRepo := userMocks.NewRepository(t)
 			passwordHasher := securityMocks.NewPasswordHasher(t)
-			tokenGenerator := jwtutilsMocks.NewTokenGenerator(t)
+			tokenGenerator := jwtMocks.NewTokenGenerator(t)
 
 			// For context cancellation test, create a cancelled context
 			if tc.name == "should return error when context is cancelled" {

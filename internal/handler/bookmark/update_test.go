@@ -12,7 +12,7 @@ import (
 	bookmarkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/bookmark"
 	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark"
 	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark/mocks"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,7 +40,7 @@ func TestHandler_Update(t *testing.T) {
 				"url":"https://updated.com"
 			}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
@@ -85,7 +85,7 @@ func TestHandler_Update(t *testing.T) {
 			bookmarkID:  "bm-123",
 			requestBody: `{invalid json}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
@@ -104,7 +104,7 @@ func TestHandler_Update(t *testing.T) {
 				"description":"Updated Description"
 			}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
@@ -137,7 +137,7 @@ func TestHandler_Update(t *testing.T) {
 				"url":"https://updated.com"
 			}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
@@ -169,7 +169,7 @@ func TestHandler_Update(t *testing.T) {
 				"description":"Updated Description"
 			}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},

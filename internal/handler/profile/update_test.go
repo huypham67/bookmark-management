@@ -12,7 +12,7 @@ import (
 	profileDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/profile"
 	"github.com/huypham67/bookmark-service-monolithic/internal/service/profile"
 	"github.com/huypham67/bookmark-service-monolithic/internal/service/profile/mocks"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,7 +38,7 @@ func TestHandler_UpdateUserInfo(t *testing.T) {
 				"email":"updated@example.com"
 			}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id",
 				})
 			},
@@ -68,7 +68,7 @@ func TestHandler_UpdateUserInfo(t *testing.T) {
 			name:        "should return 400 when request body is invalid",
 			requestBody: `{invalid json}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id",
 				})
 			},
@@ -127,7 +127,7 @@ func TestHandler_UpdateUserInfo(t *testing.T) {
 				"email":"existing@example.com"
 			}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id",
 				})
 			},
@@ -162,7 +162,7 @@ func TestHandler_UpdateUserInfo(t *testing.T) {
 				"email":"updated@example.com"
 			}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id",
 				})
 			},

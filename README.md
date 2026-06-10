@@ -213,7 +213,8 @@ bookmark-service-monolithic/
 │   ├── base62/                          # Base62 encode/decode for short codes
 │   ├── common/                          # Common utilities
 │   ├── dbutils/                         # Database helpers
-│   ├── jwtutils/                        # JWT: generator, validator, claims, loader, provider, config
+│   ├── jwt/                             # JWT domain logic: generator, validator, claims
+│   ├── jwtprovider/                     # JWT wiring: config, RSA key loading, provider (DI)
 │   ├── logger/                          # Zerolog configuration
 │   ├── redis/                           # Redis client wrapper + config
 │   ├── requestutils/                    # Request binding utilities
@@ -709,17 +710,18 @@ reused for both the local coverage filter and SonarCloud.
 - **Handlers**: HTTP request/response handling, validation, error cases
 - **Services**: Business logic, error handling, domain operations
 - **Repository**: Database operations, query building, error classification
+- **Middleware**: JWT auth — header parsing, scheme/token validation, context injection
 - **Integration**: End-to-end API flows with real database
-- **Utilities**: `pkg/base62`, `pkg/shortcode`, and JWT token logic
+- **Utilities**: `pkg/base62`, `pkg/shortcode`, and JWT token logic (`pkg/jwt`)
 
 **Excluded from the coverage gate but still security-scanned (`INFRA_DIRS` / `INFRA_FILES`):**
 - `cmd/` - Application entry points
 - `internal/api`, `internal/bootstrap` - Routing & dependency injection setup
 - `internal/dto`, `internal/model` - Contracts & domain structs
 - `internal/repository/ping` - Trivial health-check probe
-- `middleware`, and `pkg/{common,dbutils,logger,redis,requestutils,response,security,sqldb,utils}`
-- `pkg/jwtutils/{config,loader,provider}.go` - env load / key file I/O / DI wiring
-  (the real token logic — `generator.go`, `validator.go`, `claims.go` — stays counted)
+- `pkg/{common,dbutils,logger,redis,requestutils,response,security,sqldb,utils}`
+- `pkg/jwtprovider` - JWT env load / RSA key file I/O / DI wiring
+  (the real token logic lives in `pkg/jwt` — `generator.go`, `validator.go`, `claims.go` — and stays counted)
 
 **Excluded completely, no scan (`SYSTEM_DIRS` / `SYSTEM_FILES`):**
 - `vendor/`, `docs/`, `bin/`, `internal/test/`, `**/mocks/`

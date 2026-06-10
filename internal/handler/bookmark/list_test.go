@@ -12,7 +12,7 @@ import (
 	"github.com/huypham67/bookmark-service-monolithic/internal/model"
 	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark"
 	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark/mocks"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,7 +35,7 @@ func TestHandler_List(t *testing.T) {
 			name:        "should return 200 with bookmarks list",
 			queryParams: "?page=1&limit=10&sort=created_at",
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
@@ -92,7 +92,7 @@ func TestHandler_List(t *testing.T) {
 			name:        "should return 200 with empty bookmarks list",
 			queryParams: "?page=1&limit=10",
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-456",
 				})
 			},
@@ -144,7 +144,7 @@ func TestHandler_List(t *testing.T) {
 			name:        "should return 400 when query parameters are invalid",
 			queryParams: "?page=-1&limit=200&sort=invalid",
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
@@ -160,7 +160,7 @@ func TestHandler_List(t *testing.T) {
 			name:        "should return 500 when service returns error",
 			queryParams: "?page=1&limit=10",
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},

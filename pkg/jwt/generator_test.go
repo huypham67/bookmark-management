@@ -1,4 +1,4 @@
-package jwtutils
+package jwt
 
 import (
 	"crypto/rand"
@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
+	gojwt "github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -48,7 +48,7 @@ func TestRSATokenGenerator_GenerateToken(t *testing.T) {
 				require.NoError(t, err)
 				require.NotEmpty(t, tokenString)
 
-				token, _, err := jwt.NewParser().ParseUnverified(
+				token, _, err := gojwt.NewParser().ParseUnverified(
 					tokenString,
 					&CustomClaims{},
 				)

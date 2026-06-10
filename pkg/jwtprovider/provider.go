@@ -1,18 +1,20 @@
-package jwtutils
+package jwtprovider
 
 import (
 	"fmt"
+
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 )
 
 // Provider encapsulates JWT token generation and validation capabilities.
 type Provider interface {
-	Generator() TokenGenerator
-	Validator() TokenValidator
+	Generator() jwt.TokenGenerator
+	Validator() jwt.TokenValidator
 }
 
 type jwtProvider struct {
-	generator TokenGenerator
-	validator TokenValidator
+	generator jwt.TokenGenerator
+	validator jwt.TokenValidator
 }
 
 // NewProvider initializes a new JWT provider from environment configuration.
@@ -38,13 +40,13 @@ func NewProvider(envPrefix string) (Provider, error) {
 	}
 
 	// Create TokenGenerator
-	generator, err := NewTokenGenerator(privateKey, cfg.Issuer, cfg.Audience, cfg.ExpirationDuration())
+	generator, err := jwt.NewTokenGenerator(privateKey, cfg.Issuer, cfg.Audience, cfg.ExpirationDuration())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create token generator: %w", err)
 	}
 
 	// Create TokenValidator
-	validator, err := NewTokenValidator(publicKey, cfg.Issuer, cfg.Audience)
+	validator, err := jwt.NewTokenValidator(publicKey, cfg.Issuer, cfg.Audience)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create token validator: %w", err)
 	}
@@ -56,11 +58,11 @@ func NewProvider(envPrefix string) (Provider, error) {
 }
 
 // Generator returns the TokenGenerator instance from the provider.
-func (p *jwtProvider) Generator() TokenGenerator {
+func (p *jwtProvider) Generator() jwt.TokenGenerator {
 	return p.generator
 }
 
 // Validator returns the TokenValidator instance from the provider.
-func (p *jwtProvider) Validator() TokenValidator {
+func (p *jwtProvider) Validator() jwt.TokenValidator {
 	return p.validator
 }

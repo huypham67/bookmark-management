@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark"
 	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark/mocks"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -33,7 +33,7 @@ func TestHandler_Delete(t *testing.T) {
 			name:       "should return 200 when bookmark is deleted successfully",
 			bookmarkID: "bm-123",
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
@@ -71,7 +71,7 @@ func TestHandler_Delete(t *testing.T) {
 			name:       "should return 404 when bookmark is not found",
 			bookmarkID: "nonexistent-bm",
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
@@ -95,7 +95,7 @@ func TestHandler_Delete(t *testing.T) {
 			name:       "should return 400 when service returns bad request error",
 			bookmarkID: "bm-123",
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
@@ -119,7 +119,7 @@ func TestHandler_Delete(t *testing.T) {
 			name:       "should return 500 when service returns unexpected error",
 			bookmarkID: "bm-123",
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
