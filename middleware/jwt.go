@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 	"github.com/rs/zerolog/log"
 )
 
@@ -16,7 +16,7 @@ const (
 )
 
 // JWTAuth returns a Gin middleware function that validates JWT tokens in the Authorization header.
-func JWTAuth(validator jwtutils.TokenValidator) gin.HandlerFunc {
+func JWTAuth(validator jwt.TokenValidator) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get Authorization header
 		authHeader := c.GetHeader(AuthorizationHeader)

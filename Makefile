@@ -6,7 +6,7 @@
 
 APP_NAME    := bookmark-service
 CMD_PATH    := ./cmd/api/main.go
-MAIN_PKG    := github.com/huypham67/bookmark-service
+MAIN_PKG    := github.com/huypham67/bookmark-service-monolithic
 
 BIN_DIR     := ./bin
 DOCS_DIR    := ./docs
@@ -27,18 +27,19 @@ COVERAGE_THRESHOLD ?= 80
 #      → Used for sonar.exclusions + local coverage filter
 #
 #   2. INFRA_DIRS / INFRA_FILES: Exclude from coverage % but INCLUDE in scan
-#      → Infrastructure/setup code (DI, config, models, middleware)
-#      → INFRA_DIRS: whole packages excluded from coverage threshold
-#      → INFRA_FILES: surgical per-file exclusion. Used when a package mixes
-#        real logic (keep counted) with wiring/setup (exclude). Example:
-#        pkg/jwtutils keeps generator/validator/claims in coverage, but
-#        config/loader/provider (env load, key file I/O, DI wiring) are excluded.
+#      → Infrastructure/setup code (DI, config, models, adapters)
+#      → INFRA_DIRS: whole packages excluded from coverage threshold.
+#        Pure adapters/wiring with no testable logic, e.g. pkg/logger,
+#        pkg/redis, pkg/sqldb, pkg/jwtprovider (env load, key file I/O, DI).
+#      → INFRA_FILES: surgical per-file exclusion for packages that mix
+#        tested logic with wiring/setup. Currently empty — packages are
+#        split so each is wholly one category (see pkg/jwt vs pkg/jwtprovider).
 #      → Both are still scanned for security vulnerabilities (SonarQube)
 #
 #   3. Everything else = business logic → MUST be covered:
 #      handler/*, service/* (incl. service/bookmark/cache, service/link/resolver),
-#      repository/{bookmark,cache,link,user}, pkg/base62, pkg/shortcode,
-#      pkg/jwtutils/{generator,validator,claims}.go
+#      repository/{bookmark,cache,link,user}, middleware, pkg/base62,
+#      pkg/shortcode, pkg/jwt (generator, validator, claims)
 #
 # Usage:
 #   - make test        → filters coverage.out to exclude infrastructure + system
@@ -55,9 +56,9 @@ INFRA_DIRS := \
 	internal/dto \
 	internal/model \
 	internal/repository/ping \
-	middleware \
 	pkg/common \
 	pkg/dbutils \
+	pkg/jwtprovider \
 	pkg/logger \
 	pkg/redis \
 	pkg/requestutils \
@@ -67,11 +68,8 @@ INFRA_DIRS := \
 	pkg/utils
 
 # Infrastructure files: surgical per-file coverage exclusion (still SCANNED).
-# For packages that mix tested logic with untestable-worth wiring/setup.
-INFRA_FILES := \
-	pkg/jwtutils/config.go \
-	pkg/jwtutils/loader.go \
-	pkg/jwtutils/provider.go
+# For packages that mix tested logic with wiring/setup.
+INFRA_FILES :=
 
 # System artifacts: auto-generated, vendored, test infrastructure (NO SCAN)
 SYSTEM_DIRS := vendor docs bin internal/test mocks

@@ -1,15 +1,15 @@
-package jwtutils
+package jwt
 
 import (
 	"crypto/rsa"
 	"fmt"
 
-	"github.com/golang-jwt/jwt/v5"
+	gojwt "github.com/golang-jwt/jwt/v5"
 )
 
 // TokenValidator defines the contract for JWT token validation operations.
 //
-//go:generate mockery --name=TokenValidator --dir=pkg/jwtutils --output=pkg/jwtutils/mocks --filename=validator.go
+//go:generate mockery --name=TokenValidator --dir=pkg/jwt --output=pkg/jwt/mocks --filename=validator.go
 type TokenValidator interface {
 	ValidateToken(tokenString string) (*CustomClaims, error)
 }
@@ -31,8 +31,8 @@ func NewTokenValidator(publicKey *rsa.PublicKey, issuer, audience string) (Token
 
 // ValidateToken validates the given JWT token string and returns the custom claims if the token is valid.
 func (v *rsaTokenValidator) ValidateToken(tokenString string) (*CustomClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+	token, err := gojwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *gojwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*gojwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return v.publicKey, nil

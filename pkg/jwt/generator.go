@@ -1,15 +1,15 @@
-package jwtutils
+package jwt
 
 import (
 	"crypto/rsa"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
+	gojwt "github.com/golang-jwt/jwt/v5"
 )
 
 // TokenGenerator defines the contract for JWT token generation operations.
 //
-//go:generate mockery --name=TokenGenerator --dir=pkg/jwtutils --output=pkg/jwtutils/mocks --filename=generator.go
+//go:generate mockery --name=TokenGenerator --dir=pkg/jwt --output=pkg/jwt/mocks --filename=generator.go
 type TokenGenerator interface {
 	GenerateToken(userID, displayName, email string) (string, error)
 }
@@ -34,6 +34,6 @@ func NewTokenGenerator(privateKey *rsa.PrivateKey, issuer, audience string, expi
 // GenerateToken generates a JWT token string with the given user information and configured claims.
 func (g *rsaTokenGenerator) GenerateToken(userID, displayName, email string) (string, error) {
 	claims := newCustomClaims(userID, displayName, email, g.expiry, g.issuer, g.audience)
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	token := gojwt.NewWithClaims(gojwt.SigningMethodRS256, claims)
 	return token.SignedString(g.privateKey)
 }

@@ -25,7 +25,8 @@ import (
 	healthSvc "github.com/huypham67/bookmark-service-monolithic/internal/service/health"
 	linkSvc "github.com/huypham67/bookmark-service-monolithic/internal/service/link"
 	profileSvc "github.com/huypham67/bookmark-service-monolithic/internal/service/profile"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtprovider"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/security"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/utils"
 )
@@ -77,7 +78,7 @@ func NewContainer() (*Container, error) {
 		return nil, err
 	}
 
-	jwtProvider, err := jwtutils.NewProvider("")
+	jwtProvider, err := jwtprovider.NewProvider("")
 	if err != nil {
 		log.Error().Err(err).Msg("failed to initialize jwt provider")
 		return nil, err
@@ -111,7 +112,7 @@ func NewContainer() (*Container, error) {
 	}, nil
 }
 
-func initAuthHandler(db *gorm.DB, tokenGenerator jwtutils.TokenGenerator) (authHandler.Handler, error) {
+func initAuthHandler(db *gorm.DB, tokenGenerator jwt.TokenGenerator) (authHandler.Handler, error) {
 	userRepository := user.NewRepository(db)
 	passwordHasher := security.NewBcryptPasswordHasher()
 

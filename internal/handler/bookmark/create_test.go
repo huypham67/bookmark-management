@@ -13,7 +13,7 @@ import (
 	"github.com/huypham67/bookmark-service-monolithic/internal/model"
 	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark"
 	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark/mocks"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,7 +39,7 @@ func TestHandler_Create(t *testing.T) {
 				"url":"https://example.com"
 			}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
@@ -94,7 +94,7 @@ func TestHandler_Create(t *testing.T) {
 			name:        "should return 400 when request body is invalid JSON",
 			requestBody: `{invalid json}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
@@ -113,7 +113,7 @@ func TestHandler_Create(t *testing.T) {
 				"url":"https://example.com"
 			}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},
@@ -143,7 +143,7 @@ func TestHandler_Create(t *testing.T) {
 				"url":"https://example.com"
 			}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "nonexistent-user",
 				})
 			},
@@ -173,7 +173,7 @@ func TestHandler_Create(t *testing.T) {
 				"url":"https://example.com"
 			}`,
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id-123",
 				})
 			},

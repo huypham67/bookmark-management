@@ -31,7 +31,7 @@ import (
 	linkSvc "github.com/huypham67/bookmark-service-monolithic/internal/service/link"
 	profileSvc "github.com/huypham67/bookmark-service-monolithic/internal/service/profile"
 	"github.com/huypham67/bookmark-service-monolithic/internal/test/fixtures"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 	pkgRedis "github.com/huypham67/bookmark-service-monolithic/pkg/redis"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/security"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/utils"
@@ -50,12 +50,12 @@ type TestApp struct {
 
 type AuthenticatedTestApp struct {
 	*TestApp
-	TokenGenerator jwtutils.TokenGenerator
+	TokenGenerator jwt.TokenGenerator
 }
 
 func createTestJWT(t *testing.T) (
-	jwtutils.TokenGenerator,
-	jwtutils.TokenValidator,
+	jwt.TokenGenerator,
+	jwt.TokenValidator,
 ) {
 	t.Helper()
 
@@ -65,7 +65,7 @@ func createTestJWT(t *testing.T) (
 	)
 	require.NoError(t, err)
 
-	tokenGenerator, err := jwtutils.NewTokenGenerator(
+	tokenGenerator, err := jwt.NewTokenGenerator(
 		privateKey,
 		testIssuer,
 		testAudience,
@@ -73,7 +73,7 @@ func createTestJWT(t *testing.T) (
 	)
 	require.NoError(t, err)
 
-	tokenValidator, err := jwtutils.NewTokenValidator(
+	tokenValidator, err := jwt.NewTokenValidator(
 		&privateKey.PublicKey,
 		testIssuer,
 		testAudience,
@@ -140,13 +140,13 @@ func setupLinkTestApp(t *testing.T) *TestApp {
 	}
 }
 
-func createTestTokenGenerator(t *testing.T) jwtutils.TokenGenerator {
+func createTestTokenGenerator(t *testing.T) jwt.TokenGenerator {
 	t.Helper()
 
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	require.NoError(t, err)
 
-	generator, err := jwtutils.NewTokenGenerator(
+	generator, err := jwt.NewTokenGenerator(
 		privateKey,
 		"test-issuer",
 		"test-audience",

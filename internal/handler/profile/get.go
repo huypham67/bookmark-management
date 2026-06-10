@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	profileDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/profile"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/response"
 	"github.com/rs/zerolog/log"
 )
@@ -24,7 +24,7 @@ import (
 // @Failure 500 {object} gin.H "Internal server error"
 // @Router /v1/self/info [get]
 func (h *handler) GetUserInfo(c *gin.Context) {
-	userID, err := jwtutils.GetUserIDFromContext(c)
+	userID, err := jwt.GetUserIDFromContext(c)
 
 	if err != nil {
 		log.Warn().Msg("user ID not found in context")

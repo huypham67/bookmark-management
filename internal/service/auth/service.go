@@ -9,7 +9,7 @@ import (
 	authDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/auth"
 	"github.com/huypham67/bookmark-service-monolithic/internal/model"
 	"github.com/huypham67/bookmark-service-monolithic/internal/repository/user"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/security"
 )
 
@@ -30,14 +30,14 @@ type Service interface {
 type service struct {
 	userRepo       user.Repository
 	passwordHasher security.PasswordHasher
-	tokenGenerator jwtutils.TokenGenerator
+	tokenGenerator jwt.TokenGenerator
 }
 
 // NewService creates a new instance of the authentication service with the provided dependencies.
 func NewService(
 	userRepo user.Repository,
 	passwordHasher security.PasswordHasher,
-	tokenGenerator jwtutils.TokenGenerator,
+	tokenGenerator jwt.TokenGenerator,
 ) Service {
 	return &service{
 		userRepo:       userRepo,

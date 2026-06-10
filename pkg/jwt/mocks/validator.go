@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	jwtutils "github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	jwt "github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -13,23 +13,23 @@ type TokenValidator struct {
 }
 
 // ValidateToken provides a mock function with given fields: tokenString
-func (_m *TokenValidator) ValidateToken(tokenString string) (*jwtutils.CustomClaims, error) {
+func (_m *TokenValidator) ValidateToken(tokenString string) (*jwt.CustomClaims, error) {
 	ret := _m.Called(tokenString)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ValidateToken")
 	}
 
-	var r0 *jwtutils.CustomClaims
+	var r0 *jwt.CustomClaims
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*jwtutils.CustomClaims, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*jwt.CustomClaims, error)); ok {
 		return rf(tokenString)
 	}
-	if rf, ok := ret.Get(0).(func(string) *jwtutils.CustomClaims); ok {
+	if rf, ok := ret.Get(0).(func(string) *jwt.CustomClaims); ok {
 		r0 = rf(tokenString)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*jwtutils.CustomClaims)
+			r0 = ret.Get(0).(*jwt.CustomClaims)
 		}
 	}
 

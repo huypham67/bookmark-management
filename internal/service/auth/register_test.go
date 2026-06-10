@@ -8,7 +8,7 @@ import (
 	"github.com/huypham67/bookmark-service-monolithic/internal/model"
 	userMocks "github.com/huypham67/bookmark-service-monolithic/internal/repository/user/mocks"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/dbutils"
-	jwtutilsMocks "github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils/mocks"
+	jwtMocks "github.com/huypham67/bookmark-service-monolithic/pkg/jwt/mocks"
 	securityMocks "github.com/huypham67/bookmark-service-monolithic/pkg/security/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -43,7 +43,7 @@ func TestService_RegisterUser(t *testing.T) {
 	testCases := []struct {
 		name           string
 		args           args
-		setupMocks     func(context.Context, *userMocks.Repository, *securityMocks.PasswordHasher, *jwtutilsMocks.TokenGenerator)
+		setupMocks     func(context.Context, *userMocks.Repository, *securityMocks.PasswordHasher, *jwtMocks.TokenGenerator)
 		verifyResponse func(*testing.T, *model.User, error)
 	}{
 		{
@@ -60,7 +60,7 @@ func TestService_RegisterUser(t *testing.T) {
 				ctx context.Context,
 				userRepo *userMocks.Repository,
 				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
+				tokenGenerator *jwtMocks.TokenGenerator,
 			) {
 				passwordHasher.
 					On("Hash", "password123").
@@ -106,7 +106,7 @@ func TestService_RegisterUser(t *testing.T) {
 				ctx context.Context,
 				userRepo *userMocks.Repository,
 				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
+				tokenGenerator *jwtMocks.TokenGenerator,
 			) {
 				passwordHasher.
 					On("Hash", "password123").
@@ -148,7 +148,7 @@ func TestService_RegisterUser(t *testing.T) {
 				ctx context.Context,
 				userRepo *userMocks.Repository,
 				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
+				tokenGenerator *jwtMocks.TokenGenerator,
 			) {
 				passwordHasher.
 					On("Hash", "password123").
@@ -179,7 +179,7 @@ func TestService_RegisterUser(t *testing.T) {
 				ctx context.Context,
 				userRepo *userMocks.Repository,
 				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
+				tokenGenerator *jwtMocks.TokenGenerator,
 			) {
 				passwordHasher.
 					On("Hash", "password123").
@@ -221,7 +221,7 @@ func TestService_RegisterUser(t *testing.T) {
 				ctx context.Context,
 				userRepo *userMocks.Repository,
 				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
+				tokenGenerator *jwtMocks.TokenGenerator,
 			) {
 				passwordHasher.
 					On("Hash", "password123").
@@ -259,7 +259,7 @@ func TestService_RegisterUser(t *testing.T) {
 			var ctx context.Context
 			userRepo := new(userMocks.Repository)
 			passwordHasher := securityMocks.NewPasswordHasher(t)
-			tokenGenerator := jwtutilsMocks.NewTokenGenerator(t)
+			tokenGenerator := jwtMocks.NewTokenGenerator(t)
 
 			// For context cancellation test, create a cancelled context
 			if tc.name == "should return error when context is cancelled" {

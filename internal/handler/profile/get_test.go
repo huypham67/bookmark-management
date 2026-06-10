@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/huypham67/bookmark-service-monolithic/internal/model"
 	"github.com/huypham67/bookmark-service-monolithic/internal/service/profile/mocks"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -31,7 +31,7 @@ func TestHandler_GetUserInfo(t *testing.T) {
 		{
 			name: "should return 200 when user exists",
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id",
 				})
 			},
@@ -98,7 +98,7 @@ func TestHandler_GetUserInfo(t *testing.T) {
 		{
 			name: "should return 500 when service fails",
 			setupClaims: func(ctx *gin.Context) {
-				ctx.Set("claims", &jwtutils.CustomClaims{
+				ctx.Set("claims", &jwt.CustomClaims{
 					UserID: "user-id",
 				})
 			},
