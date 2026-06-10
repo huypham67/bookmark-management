@@ -14,10 +14,9 @@ import (
 )
 
 var (
-	ErrEmailAlreadyRegistered = errors.New("email already registered")
-	ErrUsernameAlreadyExists  = errors.New("username already exists")
-	ErrInvalidCredentials     = errors.New("Invalid username or password")
-	ErrInternalServerError    = errors.New("internal server error")
+	ErrUserAlreadyExists   = errors.New("Username or email already exists")
+	ErrInvalidCredentials  = errors.New("Invalid username or password")
+	ErrInternalServerError = errors.New("internal server error")
 )
 
 // Service defines the interface for authentication operations, including user registration and login.

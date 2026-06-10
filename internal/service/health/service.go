@@ -1,5 +1,3 @@
-// Package health provides health check services for monitoring application health.
-// It performs health checks by pinging dependencies like Redis.
 package health
 
 import (
@@ -9,14 +7,15 @@ import (
 	"github.com/huypham67/bookmark-service/internal/repository/ping"
 )
 
-const statusMessage = "OK"
-const failedStatusMessage = "FAILED"
+const (
+	statusMessage       = "OK"
+	failedStatusMessage = "FAILED"
+)
 
 // Service defines the contract for health check operations.
 //
 //go:generate mockery --name=Service --output=./mocks --outpkg=mocks --filename=mock_service.go
 type Service interface {
-	// GetStatus checks the health status of the application and returns a health check response.
 	GetStatus(ctx context.Context) healthDTO.HealthCheckResponse
 }
 

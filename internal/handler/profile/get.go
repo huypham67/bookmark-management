@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	profileDTO "github.com/huypham67/bookmark-service/internal/dto/profile"
 	"github.com/huypham67/bookmark-service/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -27,9 +28,7 @@ func (h *handler) GetUserInfo(c *gin.Context) {
 
 	if err != nil {
 		log.Warn().Msg("user ID not found in context")
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Unauthorized",
-		})
+		response.Unauthorized(c, "Unauthorized")
 		return
 	}
 
@@ -41,21 +40,19 @@ func (h *handler) GetUserInfo(c *gin.Context) {
 			Str("user_id", userID).
 			Msg("failed to get user info")
 
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal Server Error",
-		})
+		response.InternalServerError(c)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, profileDTO.UserResponse{
-		Data: &profileDTO.UserData{
+	c.JSON(http.StatusOK, response.Success(
+		profileDTO.UserData{
 			ID:          user.ID,
 			DisplayName: user.DisplayName,
 			Username:    user.Username,
 			Email:       user.Email,
 			CreatedAt:   user.CreatedAt,
 		},
-		Message: "User information retrieved successfully!",
-	})
+		"User information retrieved successfully!",
+	))
 }

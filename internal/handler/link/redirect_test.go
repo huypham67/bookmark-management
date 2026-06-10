@@ -2,13 +2,13 @@ package link
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/huypham67/bookmark-service/internal/service/link/mocks"
+	"github.com/huypham67/bookmark-service/pkg/dbutils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -55,12 +55,41 @@ func TestHandler_RedirectToURL(t *testing.T) {
 						ctx,
 						"missing",
 					).
-					Return("", errors.New("not found")).
+					Return("", dbutils.ErrRecordNotFoundType).
 					Once()
 			},
 			expected: expected{
 				statusCode: http.StatusNotFound,
 				body:       "Short link not found",
+			},
+		},
+		{
+			name: "should return 400 when code parameter is missing",
+			code: "",
+			setupMock: func(ctx context.Context, mockService *mocks.Service) {
+				// No mock setup needed for invalid request
+			},
+			expected: expected{
+				statusCode: http.StatusBadRequest,
+				body:       "Invalid request",
+			},
+		},
+		{
+			name: "should return 500 when service returns unexpected error",
+			code: "abc1234",
+			setupMock: func(ctx context.Context, mockService *mocks.Service) {
+				mockService.
+					On(
+						"GetOriginalURL",
+						ctx,
+						"abc1234",
+					).
+					Return("", assert.AnError).
+					Once()
+			},
+			expected: expected{
+				statusCode: http.StatusInternalServerError,
+				body:       "Internal Server Error",
 			},
 		},
 	}
@@ -76,7 +105,11 @@ func TestHandler_RedirectToURL(t *testing.T) {
 			ctx, _ := gin.CreateTestContext(recorder)
 			httpRequest := httptest.NewRequest(http.MethodGet, "/links/"+tc.code, nil)
 			ctx.Request = httpRequest
-			ctx.Params = []gin.Param{{Key: "code", Value: tc.code}}
+
+			// Only set params if code is not empty
+			if tc.code != "" {
+				ctx.Params = []gin.Param{{Key: "code", Value: tc.code}}
+			}
 
 			tc.setupMock(ctx, mockSvc)
 

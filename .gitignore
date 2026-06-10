@@ -29,3 +29,5 @@ coverage.tmp
 
 # PEM key files (private/public keys)
 *.pem
+
+CLAUDE.md

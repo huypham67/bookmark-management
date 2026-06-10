@@ -18,28 +18,83 @@ DOCS_DIR    := ./docs
 COVERAGE_DIR       ?= coverage_report
 COVERAGE_THRESHOLD ?= 80
 
-# Single source of truth: list infrastructure packages that don't require tests
-INFRA_DIRS  := cmd internal/bootstrap pkg/logger pkg/redis pkg/sqldb
-INFRA_FILES := config.go loader.go claims.go router.go test_helper.go
+# ═══════════════════════════════════════════════════════════════════════════
+# SINGLE SOURCE OF TRUTH: Coverage & Quality Gate Exclusions
+#
+# Strategy:
+#   1. SYSTEM_DIRS/FILES: Completely excluded (no scan, no coverage)
+#      → Auto-generated, vendored, test infrastructure
+#      → Used for sonar.exclusions + local coverage filter
+#
+#   2. INFRA_DIRS / INFRA_FILES: Exclude from coverage % but INCLUDE in scan
+#      → Infrastructure/setup code (DI, config, models, middleware)
+#      → INFRA_DIRS: whole packages excluded from coverage threshold
+#      → INFRA_FILES: surgical per-file exclusion. Used when a package mixes
+#        real logic (keep counted) with wiring/setup (exclude). Example:
+#        pkg/jwtutils keeps generator/validator/claims in coverage, but
+#        config/loader/provider (env load, key file I/O, DI wiring) are excluded.
+#      → Both are still scanned for security vulnerabilities (SonarQube)
+#
+#   3. Everything else = business logic → MUST be covered:
+#      handler/*, service/* (incl. service/bookmark/cache, service/link/resolver),
+#      repository/{bookmark,cache,link,user}, pkg/base62, pkg/shortcode,
+#      pkg/jwtutils/{generator,validator,claims}.go
+#
+# Usage:
+#   - make test        → filters coverage.out to exclude infrastructure + system
+#   - make docker-test → passes COVERAGE_EXCLUDE to Docker build
+#   - make docker-sonar → sonar.exclusions (system only)
+#                        sonar.coverage.exclusions (system + infra)
+# ═══════════════════════════════════════════════════════════════════════════
 
-# System artifacts: auto-generated, vendored, or test infrastructure
-SYSTEM_FILES := _test.go mocks vendor docs bin testutil .pb.go
+# Infrastructure dirs: exclude from coverage % but SCAN for security
+INFRA_DIRS := \
+	cmd \
+	internal/api \
+	internal/bootstrap \
+	internal/dto \
+	internal/model \
+	internal/repository/ping \
+	middleware \
+	pkg/common \
+	pkg/dbutils \
+	pkg/logger \
+	pkg/redis \
+	pkg/requestutils \
+	pkg/response \
+	pkg/security \
+	pkg/sqldb \
+	pkg/utils
 
-# Build all exclude patterns from raw lists (automatic format conversion)
+# Infrastructure files: surgical per-file coverage exclusion (still SCANNED).
+# For packages that mix tested logic with untestable-worth wiring/setup.
+INFRA_FILES := \
+	pkg/jwtutils/config.go \
+	pkg/jwtutils/loader.go \
+	pkg/jwtutils/provider.go
+
+# System artifacts: auto-generated, vendored, test infrastructure (NO SCAN)
+SYSTEM_DIRS := vendor docs bin internal/test mocks
+SYSTEM_FILES := _test.go .pb.go test_helper.go mock.go
+
+# Format conversion for Makefile
 comma := ,
 space := $(subst ,, )
 
-# SONAR: Ant-style glob format
-SONAR_DIRS := $(foreach d,$(INFRA_DIRS),**/$(d)**)
-SONAR_FILES := $(foreach f,$(INFRA_FILES),**/$(f))
-SONAR_TRASH_FILES := $(foreach f,$(filter %.go,$(SYSTEM_FILES)),**/*$(f))
-SONAR_TRASH_DIRS := $(foreach d,$(filter-out %.go,$(SYSTEM_FILES)),**/$(d)**)
+# Pattern builders for Sonar (Ant-style glob)
+SONAR_INFRA_DIRS := $(foreach d,$(INFRA_DIRS),**/$(d)**)
+SONAR_INFRA_FILES := $(foreach f,$(INFRA_FILES),**/$(f))
+SONAR_SYSTEM_DIRS := $(foreach d,$(SYSTEM_DIRS),**/$(d)**)
+SONAR_SYSTEM_FILES := $(foreach f,$(SYSTEM_FILES),**/*$(f))
 
-SONAR_EXCLUDE_PATTERNS := $(subst $(space),$(comma),$(strip $(SONAR_TRASH_FILES) $(SONAR_TRASH_DIRS) $(COVERAGE_DIR)/**))
-SONAR_COVERAGE_EXCLUSIONS := $(subst $(space),$(comma),$(strip $(SONAR_DIRS) $(SONAR_FILES)))
+# Sonar: exclude system artifacts completely (INFRA_FILES intentionally absent → still scanned)
+SONAR_EXCLUDE_PATTERNS := $(subst $(space),$(comma),$(strip $(SONAR_SYSTEM_FILES) $(SONAR_SYSTEM_DIRS) $(COVERAGE_DIR)/**))
 
-# Local/Docker: Regex format
-ALL_EXCLUDES := $(INFRA_DIRS) $(INFRA_FILES) $(SYSTEM_FILES)
+# Sonar: exclude infrastructure (dirs + files) from coverage % but allow security scan
+SONAR_COVERAGE_EXCLUSIONS := $(subst $(space),$(comma),$(strip $(SONAR_INFRA_DIRS) $(SONAR_INFRA_FILES) $(SONAR_SYSTEM_DIRS)))
+
+# Local/Docker: Regex format (coverage.out filtering)
+ALL_EXCLUDES := $(INFRA_DIRS) $(INFRA_FILES) $(SYSTEM_DIRS) $(SYSTEM_FILES)
 COVERAGE_EXCLUDE := $(subst $(space),|,$(strip $(ALL_EXCLUDES)))
 
 # Go test: Scan all, let grep filter
@@ -117,6 +172,12 @@ help:
 	@echo "  make lint            Linter"
 	@echo "  make tidy            Dependencies"
 	@echo ""
+	@echo "Database:"
+	@echo "  make migrate-up      Apply all pending migrations"
+	@echo "  make migrate-down    Rollback last migration"
+	@echo "  make migrate-version Show current migration version"
+	@echo "  make migrate-force   Force migration to specific version"
+	@echo ""
 	@echo "Testing:"
 	@echo "  make test            Local tests + coverage report"
 	@echo "  make test-coverage   Open coverage HTML"
@@ -180,7 +241,8 @@ test:
 	@$(GO) clean -testcache
 	@mkdir -p $(COVERAGE_DIR)
 	@$(GO) test ./... -coverprofile=$(COVERAGE_DIR)/coverage.tmp -covermode=atomic -coverpkg=$(COVERPKG) -p 1
-	@grep -vE "$(COVERAGE_EXCLUDE)" $(COVERAGE_DIR)/coverage.tmp > $(COVERAGE_DIR)/coverage.out || touch $(COVERAGE_DIR)/coverage.out
+	@head -1 $(COVERAGE_DIR)/coverage.tmp > $(COVERAGE_DIR)/coverage.out
+	@grep -vE "$(COVERAGE_EXCLUDE)" $(COVERAGE_DIR)/coverage.tmp | tail -n +2 >> $(COVERAGE_DIR)/coverage.out || true
 	@$(GO) tool cover -html=$(COVERAGE_DIR)/coverage.out -o $(COVERAGE_DIR)/coverage.html
 	@total=$$($(GO) tool cover -func=$(COVERAGE_DIR)/coverage.out | grep total | awk '{print $$3}' | sed 's/%//'); \
 	echo "Coverage: $$total%"; \
@@ -324,6 +386,32 @@ compose-restart:
 	docker compose down && docker compose up --build -d
 
 # =============================================================================
+# DATABASE MIGRATIONS
+# =============================================================================
+
+.PHONY: migrate-up migrate-down migrate-force migrate-version
+
+MIGRATE_CMD := $(GO) run ./cmd/migrate
+
+migrate-up:
+	@echo "Applying all pending migrations..."
+	$(MIGRATE_CMD)
+
+migrate-down:
+	@echo "Rolling back last migration..."
+	$(MIGRATE_CMD) -direction down -steps 1
+
+migrate-force:
+	@read -p "Enter number of steps to rollback (default 1): " steps; \
+	steps=$${steps:-1}; \
+	echo "Rolling back $$steps migration(s)..."; \
+	$(MIGRATE_CMD) -direction down -steps $$steps
+
+migrate-version:
+	@echo "Current migration status:"
+	$(MIGRATE_CMD) -direction up -steps 0
+
+# =============================================================================
 # UTILITIES
 # =============================================================================
 
@@ -357,16 +445,34 @@ gen-keys-local:
 	openssl rsa -pubout -in $(LOCAL_KEYS_DIR)/private.pem -out $(LOCAL_KEYS_DIR)/public.pem
 
 generate-mocks:
+	@echo "Generating mocks for bookmark repository..."
+	cd internal/repository/bookmark && $(GO) generate
 	@echo "Generating mocks for link repository..."
 	cd internal/repository/link && $(GO) generate
 	@echo "Generating mocks for user repository..."
 	cd internal/repository/user && $(GO) generate
+	@echo "Generating mocks for auth service..."
+	cd internal/service/auth && $(GO) generate
+	@echo "Generating mocks for bookmark service..."
+	cd internal/service/bookmark && $(GO) generate
+	@echo "Generating mocks for health service..."
+	cd internal/service/health && $(GO) generate
+	@echo "Generating mocks for link service..."
+	cd internal/service/link && $(GO) generate
+	@echo "Generating mocks for profile service..."
+	cd internal/service/profile && $(GO) generate
 	@echo "✓ Mocks generated successfully"
 
 clean-mocks:
 	@echo "Cleaning mocks..."
+	rm -rf internal/repository/bookmark/mocks
 	rm -rf internal/repository/link/mocks
 	rm -rf internal/repository/user/mocks
+	rm -rf internal/service/auth/mocks
+	rm -rf internal/service/bookmark/mocks
+	rm -rf internal/service/health/mocks
+	rm -rf internal/service/link/mocks
+	rm -rf internal/service/profile/mocks
 	@echo "✓ Mocks cleaned"
 
 clean:

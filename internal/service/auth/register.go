@@ -10,43 +10,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// RegisterUser registers a new user by validating input, hashing password, and saving to database.
+// RegisterUser registers a new user by hashing the password and saving to the database.
 func (s *service) RegisterUser(ctx context.Context, req authDTO.RegisterUserRequest) (*model.User, error) {
-	// Check if email already exists
-	existingUser, err := s.userRepo.GetByEmail(ctx, req.Email)
-	if err != nil && !errors.Is(err, dbutils.ErrRecordNotFoundType) {
-		log.Error().
-			Err(err).
-			Str("email", req.Email).
-			Msg("failed to check if email exists")
-		return nil, ErrInternalServerError
-	}
-
-	if existingUser != nil {
-		log.Warn().
-			Str("email", req.Email).
-			Msg("email already registered")
-		return nil, ErrEmailAlreadyRegistered
-	}
-
-	// Check if username already exists
-	existingUser, err = s.userRepo.GetByUsername(ctx, req.Username)
-	if err != nil && !errors.Is(err, dbutils.ErrRecordNotFoundType) {
-		log.Error().
-			Err(err).
-			Str("username", req.Username).
-			Msg("failed to check if username exists")
-		return nil, ErrInternalServerError
-	}
-
-	if existingUser != nil {
-		log.Warn().
-			Str("username", req.Username).
-			Msg("username already exists")
-		return nil, ErrUsernameAlreadyExists
-	}
-
-	// Hash password
 	hashedPassword, err := s.passwordHasher.Hash(req.Password)
 	if err != nil {
 		log.Error().
@@ -55,7 +20,6 @@ func (s *service) RegisterUser(ctx context.Context, req authDTO.RegisterUserRequ
 		return nil, ErrInternalServerError
 	}
 
-	// Create new user
 	user := &model.User{
 		DisplayName: req.DisplayName,
 		Username:    req.Username,
@@ -63,8 +27,15 @@ func (s *service) RegisterUser(ctx context.Context, req authDTO.RegisterUserRequ
 		Password:    hashedPassword,
 	}
 
-	// Save to database
 	if err := s.userRepo.Create(ctx, user); err != nil {
+		if errors.Is(err, dbutils.ErrDuplicationType) {
+			log.Warn().
+				Str("email", req.Email).
+				Str("username", req.Username).
+				Msg("user already exists")
+			return nil, ErrUserAlreadyExists
+		}
+
 		log.Error().
 			Err(err).
 			Str("email", req.Email).

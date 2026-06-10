@@ -71,24 +71,6 @@ func TestService_RegisterUser(t *testing.T) {
 
 				userRepo.
 					On(
-						"GetByEmail",
-						ctx,
-						expectedUser.Email,
-					).
-					Return(nil, dbutils.ErrRecordNotFoundType).
-					Once()
-
-				userRepo.
-					On(
-						"GetByUsername",
-						ctx,
-						expectedUser.Username,
-					).
-					Return(nil, dbutils.ErrRecordNotFoundType).
-					Once()
-
-				userRepo.
-					On(
 						"Create",
 						ctx,
 						matchAuthUser(expectedUser),
@@ -111,7 +93,7 @@ func TestService_RegisterUser(t *testing.T) {
 			},
 		},
 		{
-			name: "should return error when email already exists",
+			name: "should return error when user already exists",
 			args: args{
 				request: authDTO.RegisterUserRequest{
 					DisplayName: "Test Display Name",
@@ -126,92 +108,20 @@ func TestService_RegisterUser(t *testing.T) {
 				passwordHasher *securityMocks.PasswordHasher,
 				tokenGenerator *jwtutilsMocks.TokenGenerator,
 			) {
-				userRepo.
-					On(
-						"GetByEmail",
-						ctx,
-						"testuser@gmail.com",
-					).
-					Return(&model.User{}, nil).
+				passwordHasher.
+					On("Hash", "password123").
+					Return("$2a$10$hashedpassword123456789", nil).
 					Once()
-			},
-			verifyResponse: func(
-				t *testing.T,
-				user *model.User,
-				err error,
-			) {
-				assert.Error(t, err)
-				assert.Nil(t, user)
-				assert.ErrorIs(t, err, ErrEmailAlreadyRegistered)
-			},
-		},
-		{
-			name: "should return error when checking email fails",
-			args: args{
-				request: authDTO.RegisterUserRequest{
-					DisplayName: "Test Display Name",
-					Username:    "testuser",
-					Email:       "testuser@gmail.com",
-					Password:    "password123",
-				},
-			},
-			setupMocks: func(
-				ctx context.Context,
-				userRepo *userMocks.Repository,
-				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
-			) {
-				userRepo.
-					On(
-						"GetByEmail",
-						ctx,
-						"testuser@gmail.com",
-					).
-					Return(nil, assert.AnError).
-					Once()
-			},
-			verifyResponse: func(
-				t *testing.T,
-				user *model.User,
-				err error,
-			) {
-				assert.Error(t, err)
-				assert.Nil(t, user)
-				assert.ErrorIs(t, err, ErrInternalServerError)
-			},
-		},
-		{
-			name: "should return error when username already exists",
-			args: args{
-				request: authDTO.RegisterUserRequest{
-					DisplayName: "Test Display Name",
-					Username:    "testuser",
-					Email:       "testuser@gmail.com",
-					Password:    "password123",
-				},
-			},
-			setupMocks: func(
-				ctx context.Context,
-				userRepo *userMocks.Repository,
-				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
-			) {
-				userRepo.
-					On(
-						"GetByEmail",
-						ctx,
-						"testuser@gmail.com",
-					).
-					Return(nil, dbutils.ErrRecordNotFoundType).
-					Once()
+
+				expectedUser := expectedAuthRegisteredUser()
 
 				userRepo.
 					On(
-						"GetByUsername",
+						"Create",
 						ctx,
-						"testuser",
+						matchAuthUser(expectedUser),
 					).
-					Return(&model.User{}, nil).
+					Return(dbutils.ErrDuplicationType).
 					Once()
 			},
 			verifyResponse: func(
@@ -221,51 +131,7 @@ func TestService_RegisterUser(t *testing.T) {
 			) {
 				assert.Error(t, err)
 				assert.Nil(t, user)
-				assert.ErrorIs(t, err, ErrUsernameAlreadyExists)
-			},
-		},
-		{
-			name: "should return error when checking username fails",
-			args: args{
-				request: authDTO.RegisterUserRequest{
-					DisplayName: "Test Display Name",
-					Username:    "testuser",
-					Email:       "testuser@gmail.com",
-					Password:    "password123",
-				},
-			},
-			setupMocks: func(
-				ctx context.Context,
-				userRepo *userMocks.Repository,
-				passwordHasher *securityMocks.PasswordHasher,
-				tokenGenerator *jwtutilsMocks.TokenGenerator,
-			) {
-				userRepo.
-					On(
-						"GetByEmail",
-						ctx,
-						"testuser@gmail.com",
-					).
-					Return(nil, dbutils.ErrRecordNotFoundType).
-					Once()
-
-				userRepo.
-					On(
-						"GetByUsername",
-						ctx,
-						"testuser",
-					).
-					Return(nil, assert.AnError).
-					Once()
-			},
-			verifyResponse: func(
-				t *testing.T,
-				user *model.User,
-				err error,
-			) {
-				assert.Error(t, err)
-				assert.Nil(t, user)
-				assert.ErrorIs(t, err, ErrInternalServerError)
+				assert.ErrorIs(t, err, ErrUserAlreadyExists)
 			},
 		},
 		{
@@ -287,24 +153,6 @@ func TestService_RegisterUser(t *testing.T) {
 				passwordHasher.
 					On("Hash", "password123").
 					Return("", assert.AnError).
-					Once()
-
-				userRepo.
-					On(
-						"GetByEmail",
-						ctx,
-						"testuser@gmail.com",
-					).
-					Return(nil, dbutils.ErrRecordNotFoundType).
-					Once()
-
-				userRepo.
-					On(
-						"GetByUsername",
-						ctx,
-						"testuser",
-					).
-					Return(nil, dbutils.ErrRecordNotFoundType).
 					Once()
 			},
 			verifyResponse: func(
@@ -342,24 +190,6 @@ func TestService_RegisterUser(t *testing.T) {
 
 				userRepo.
 					On(
-						"GetByEmail",
-						ctx,
-						expectedUser.Email,
-					).
-					Return(nil, dbutils.ErrRecordNotFoundType).
-					Once()
-
-				userRepo.
-					On(
-						"GetByUsername",
-						ctx,
-						expectedUser.Username,
-					).
-					Return(nil, dbutils.ErrRecordNotFoundType).
-					Once()
-
-				userRepo.
-					On(
 						"Create",
 						ctx,
 						matchAuthUser(expectedUser),
@@ -377,19 +207,68 @@ func TestService_RegisterUser(t *testing.T) {
 				assert.ErrorIs(t, err, ErrInternalServerError)
 			},
 		},
+		{
+			name: "should return error when context is cancelled",
+			args: args{
+				request: authDTO.RegisterUserRequest{
+					DisplayName: "Test Display Name",
+					Username:    "testuser",
+					Email:       "testuser@gmail.com",
+					Password:    "password123",
+				},
+			},
+			setupMocks: func(
+				ctx context.Context,
+				userRepo *userMocks.Repository,
+				passwordHasher *securityMocks.PasswordHasher,
+				tokenGenerator *jwtutilsMocks.TokenGenerator,
+			) {
+				passwordHasher.
+					On("Hash", "password123").
+					Return("$2a$10$hashedpassword123456789", nil).
+					Once()
+
+				expectedUser := expectedAuthRegisteredUser()
+
+				userRepo.
+					On(
+						"Create",
+						ctx,
+						matchAuthUser(expectedUser),
+					).
+					Return(context.Canceled).
+					Once()
+			},
+			verifyResponse: func(
+				t *testing.T,
+				user *model.User,
+				err error,
+			) {
+				assert.Error(t, err)
+				assert.Nil(t, user)
+				assert.ErrorIs(t, err, ErrInternalServerError)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
-
+			var ctx context.Context
 			userRepo := new(userMocks.Repository)
 			passwordHasher := securityMocks.NewPasswordHasher(t)
 			tokenGenerator := jwtutilsMocks.NewTokenGenerator(t)
+
+			// For context cancellation test, create a cancelled context
+			if tc.name == "should return error when context is cancelled" {
+				cancelledCtx, cancel := context.WithCancel(context.Background())
+				cancel()
+				ctx = cancelledCtx
+			} else {
+				ctx = context.Background()
+			}
 
 			tc.setupMocks(ctx, userRepo, passwordHasher, tokenGenerator)
 

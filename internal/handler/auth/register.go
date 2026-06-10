@@ -8,6 +8,7 @@ import (
 	authDTO "github.com/huypham67/bookmark-service/internal/dto/auth"
 	"github.com/huypham67/bookmark-service/internal/service/auth"
 	"github.com/huypham67/bookmark-service/pkg/requestutils"
+	"github.com/huypham67/bookmark-service/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -28,9 +29,7 @@ func (h *handler) Register(c *gin.Context) {
 	req, err := requestutils.Bind[authDTO.RegisterUserRequest](c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid request body",
-		})
+		response.BadRequest(c, "Invalid request body")
 		return
 	}
 
@@ -44,26 +43,22 @@ func (h *handler) Register(c *gin.Context) {
 			Msg("failed to register user")
 
 		switch {
-		case errors.Is(err, auth.ErrEmailAlreadyRegistered), errors.Is(err, auth.ErrUsernameAlreadyExists):
-			c.JSON(http.StatusConflict, gin.H{
-				"error": "User already exists",
-			})
+		case errors.Is(err, auth.ErrUserAlreadyExists):
+			response.Conflict(c, "User already exists")
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error",
-			})
+			response.InternalServerError(c)
 		}
 		return
 	}
 
-	c.JSON(http.StatusCreated, authDTO.RegisterUserResponse{
-		Data: authDTO.UserData{
+	c.JSON(http.StatusCreated, response.Success(
+		authDTO.UserData{
 			ID:          user.ID,
 			DisplayName: user.DisplayName,
 			Username:    user.Username,
 			Email:       user.Email,
 			CreatedAt:   user.CreatedAt,
 		},
-		Message: "Register an user successfully!",
-	})
+		"Register an user successfully!",
+	))
 }

@@ -74,10 +74,25 @@ func TestRepository_SaveLink(t *testing.T) {
 				assert.False(t, exists)
 			},
 		},
+		{
+			name: "should return error if Redis client is unavailable",
+			args: args{
+				code: "abc1234",
+				url:  "https://www.google.com",
+				exp:  1234,
+			},
+			verify: func(t *testing.T, ctx context.Context, repo Repository, mockRedis *redis.MockRedis, a args) {
+				mockRedis.Close()
+
+				err := repo.SaveLink(ctx, a.code, a.url, a.exp)
+
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), "redis: client is closed")
+			},
+		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -85,12 +100,12 @@ func TestRepository_SaveLink(t *testing.T) {
 
 			repo, mockRedis := newTestRepository(t)
 
-			err := repo.SaveLink(ctx, tc.args.code, tc.args.url, tc.args.exp)
-
-			require.NoError(t, err)
+			if tc.name != "should return error if Redis client is unavailable" {
+				err := repo.SaveLink(ctx, tc.args.code, tc.args.url, tc.args.exp)
+				require.NoError(t, err)
+			}
 
 			tc.verify(t, ctx, repo, mockRedis, tc.args)
 		})
 	}
 }
-

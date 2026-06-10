@@ -1,6 +1,14 @@
 package security
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"errors"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	ErrPasswordMismatch = errors.New("password mismatch")
+)
 
 // PasswordHasher defines the contract for password hashing operations.
 // mockery --name=PasswordHasher --dir=pkg/security --output=pkg/security/mocks --filename=password_hasher.go
@@ -30,6 +38,14 @@ func (h *bcryptPasswordHasher) Hash(password string) (string, error) {
 }
 
 // Compare compares a bcrypt hashed password with its possible plaintext equivalent.
+// Returns ErrPasswordMismatch if the password doesn't match, or other errors for system failures.
 func (h *bcryptPasswordHasher) Compare(hashedPassword, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	if err == nil {
+		return nil
+	}
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		return ErrPasswordMismatch
+	}
+	return err
 }

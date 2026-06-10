@@ -6,3 +6,7 @@ type ShortenURLRequest struct {
 	Exp int64  `json:"exp" binding:"gte=0,lte=86400"`
 }
 
+// RedirectRequest handles URI binding for the redirect endpoint.
+type RedirectRequest struct {
+	Code string `uri:"code" validate:"required"`
+}

@@ -44,9 +44,278 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/bookmarks": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get paginated list of bookmarks for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bookmarks"
+                ],
+                "summary": "List Bookmarks",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page, max 100 (default: 10)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "created_at",
+                            "updated_at",
+                            "code",
+                            "url"
+                        ],
+                        "type": "string",
+                        "default": "created_at",
+                        "description": "Sort field: created_at, updated_at, code, url (default: created_at)",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of bookmarks with pagination",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new bookmark for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bookmarks"
+                ],
+                "summary": "Create Bookmark",
+                "parameters": [
+                    {
+                        "description": "Bookmark creation data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.CreateBookmarkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Bookmark created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "409": {
+                        "description": "Bookmark code already exists",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bookmarks/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update an existing bookmark (description and/or URL)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bookmarks"
+                ],
+                "summary": "Update Bookmark",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bookmark ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated bookmark data",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "description": {
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bookmark updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid bookmark ID or request data",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "404": {
+                        "description": "Bookmark not found",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Delete an existing bookmark",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bookmarks"
+                ],
+                "summary": "Delete Bookmark",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bookmark ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bookmark deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid bookmark ID",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "404": {
+                        "description": "Bookmark not found",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/links/redirect/{code}": {
             "get": {
-                "description": "Redirect user to the original URL based on the shortened code",
+                "description": "Redirect user to the original URL for a given code. The code's routing prefix selects the backing store: shortened links resolve from Redis, bookmarks resolve from the database.",
                 "consumes": [
                     "application/json"
                 ],
@@ -60,14 +329,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Shortened code",
+                        "description": "Short code (prefixed: a-h for links, i-z for bookmarks)",
                         "name": "code",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "301": {
+                    "302": {
                         "description": "Redirect successful"
                     },
                     "404": {
@@ -378,6 +647,9 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination"
                 }
             }
         },
@@ -417,13 +689,18 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination"
                 }
             }
         },
         "github_com_huypham67_bookmark-service_internal_dto_auth.UserData": {
             "type": "object",
             "properties": {
-                "created_at": {},
+                "created_at": {
+                    "type": "string"
+                },
                 "display_name": {
                     "type": "string"
                 },
@@ -434,6 +711,77 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_internal_dto_bookmark.CreateBookmarkRequest": {
+            "type": "object",
+            "required": [
+                "description",
+                "url"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 2
+                },
+                "url": {
                     "type": "string"
                 }
             }
@@ -494,12 +842,7 @@ const docTemplate = `{
             }
         },
         "github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
+            "type": "object"
         },
         "github_com_huypham67_bookmark-service_internal_dto_profile.UserData": {
             "type": "object",
@@ -529,6 +872,23 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination"
+                }
+            }
+        },
+        "github_com_huypham67_bookmark-service_pkg_response.Pagination": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         }

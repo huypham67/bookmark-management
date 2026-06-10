@@ -4,17 +4,29 @@ import (
 	"context"
 
 	linkDTO "github.com/huypham67/bookmark-service/internal/dto/link"
+	"github.com/huypham67/bookmark-service/pkg/shortcode"
 	"github.com/rs/zerolog/log"
 )
 
 // ShortenURL generates a unique short code for the provided URL and saves the mapping to Redis.
+//
+// The code carries a Redis routing prefix so the redirect endpoint can tell it
+// apart from SQL bookmark codes.
 func (s *service) ShortenURL(ctx context.Context, request linkDTO.ShortenURLRequest) (string, error) {
-	code, err := s.codeGenerator.Generate(shortCodeLength)
+	payload, err := s.codeGenerator.Generate(shortCodeLength)
 
 	if err != nil {
 		log.Error().
 			Err(err).
 			Msg("failed to generate short code")
+		return "", err
+	}
+
+	code, err := shortcode.AddRedisPrefix(payload)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("failed to add routing prefix to short code")
 		return "", err
 	}
 
@@ -43,4 +55,3 @@ func (s *service) ShortenURL(ctx context.Context, request linkDTO.ShortenURLRequ
 	}
 	return code, nil
 }
-

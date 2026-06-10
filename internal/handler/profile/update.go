@@ -9,6 +9,7 @@ import (
 	"github.com/huypham67/bookmark-service/internal/service/profile"
 	"github.com/huypham67/bookmark-service/pkg/jwtutils"
 	"github.com/huypham67/bookmark-service/pkg/requestutils"
+	"github.com/huypham67/bookmark-service/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -32,18 +33,14 @@ func (h *handler) UpdateUserInfo(c *gin.Context) {
 
 	if err != nil {
 		log.Warn().Msg("user ID not found in context")
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Unauthorized",
-		})
+		response.Unauthorized(c, "Unauthorized")
 		return
 	}
 
 	req, err := requestutils.Bind[profileDTO.UpdateUserRequest](c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid request body",
-		})
+		response.BadRequest(c, "Invalid request body")
 		return
 	}
 
@@ -54,22 +51,15 @@ func (h *handler) UpdateUserInfo(c *gin.Context) {
 			Str("email", req.Email).
 			Msg("failed to update user info")
 
-		// Check if email already exists
 		if errors.Is(err, profile.ErrEmailAlreadyRegistered) {
-			c.JSON(http.StatusConflict, gin.H{
-				"error": "Email already exists",
-			})
+			response.Conflict(c, "Email already exists")
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal Server Error",
-		})
+		response.InternalServerError(c)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, profileDTO.UpdateUserResponse{
-		Message: "Edit current user successfully!",
-	})
+	c.JSON(http.StatusOK, response.Message("Edit current user successfully!"))
 }

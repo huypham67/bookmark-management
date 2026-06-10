@@ -348,17 +348,56 @@ func TestService_UpdateUserInfo(t *testing.T) {
 				assert.Error(t, err)
 			},
 		},
+		{
+			name: "should return error when context is cancelled",
+			args: args{
+				userID: "user-id",
+				req: profileDTO.UpdateUserRequest{
+					DisplayName: "Updated User",
+					Email:       "john@example.com",
+				},
+			},
+			setupMocks: func(
+				ctx context.Context,
+				mockRepo *mocks.Repository,
+			) {
+				mockRepo.
+					On(
+						"GetByID",
+						ctx,
+						"user-id",
+					).
+					Return(
+						nil,
+						context.Canceled,
+					).
+					Once()
+			},
+			verifyResponse: func(
+				t *testing.T,
+				err error,
+			) {
+				assert.Error(t, err)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
-
+			var ctx context.Context
 			mockRepo := new(mocks.Repository)
+
+			// For context cancellation test, create a cancelled context
+			if tc.name == "should return error when context is cancelled" {
+				cancelledCtx, cancel := context.WithCancel(context.Background())
+				cancel()
+				ctx = cancelledCtx
+			} else {
+				ctx = context.Background()
+			}
 
 			tc.setupMocks(
 				ctx,
