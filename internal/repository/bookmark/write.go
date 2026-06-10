@@ -15,7 +15,19 @@ func (r *repository) Create(ctx context.Context, bookmark *model.Bookmark) error
 	return nil
 }
 
-// NextCodeInt generates the next integer code for a new bookmark.
+// NextCodeInt reserves the next code_int value before a row is inserted.
+//
+// The bookmark's code is derived from code_int, so we need the integer up front
+// (code is required at INSERT time, but code_int is normally
+// assigned by the DB during the INSERT). The two branches below are not
+// interchangeable styling — they reflect a real difference between the engines:
+//
+//   - Postgres (prod): code_int is SERIAL, backed by a real sequence, so
+//     nextval() hands out the next value atomically and is safe under
+//     concurrent creates (two callers can never get the same number).
+//   - SQLite (tests only): code_int is not the INTEGER PRIMARY KEY, so SQLite
+//     has no sequence for it; MAX(code_int)+1 is the only portable option. It
+//     is NOT concurrency-safe, which is acceptable because tests run serially.
 func (r *repository) NextCodeInt(ctx context.Context) (int64, error) {
 	query := "SELECT COALESCE(MAX(code_int), 0) + 1 FROM bookmarks"
 	if r.db.Dialector.Name() == "postgres" {

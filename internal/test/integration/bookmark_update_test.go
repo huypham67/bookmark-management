@@ -28,7 +28,22 @@ func TestUpdateBookmarkEndpoint(t *testing.T) {
 		expected    expected
 	}{
 		{
-			name:        "should return 400 when request body is invalid JSON",
+			name:       "should return 401 when the Authorization header is missing",
+			bookmarkID: "bookmark-1-1",
+			requestBody: `{
+				"description": "Updated Description",
+				"url": "https://updated-example.com"
+			}`,
+			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
+				// No auth header set
+			},
+			expected: expected{
+				statusCode:   http.StatusUnauthorized,
+				bodyContains: "missing authorization header",
+			},
+		},
+		{
+			name:        "should return 400 when the request body is malformed JSON",
 			bookmarkID:  "bookmark-1-1",
 			requestBody: `{invalid json}`,
 			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
@@ -46,22 +61,7 @@ func TestUpdateBookmarkEndpoint(t *testing.T) {
 			},
 		},
 		{
-			name:       "should return 401 when authorization header is missing",
-			bookmarkID: "bookmark-1-1",
-			requestBody: `{
-				"description": "Updated Description",
-				"url": "https://updated-example.com"
-			}`,
-			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
-				// No auth header set
-			},
-			expected: expected{
-				statusCode:   http.StatusUnauthorized,
-				bodyContains: "missing authorization header",
-			},
-		},
-		{
-			name:       "should return 404 when bookmark does not exist",
+			name:       "should return 404 when the bookmark does not exist",
 			bookmarkID: "nonexistent-bookmark",
 			requestBody: `{
 				"description": "Updated Description",
@@ -82,7 +82,7 @@ func TestUpdateBookmarkEndpoint(t *testing.T) {
 			},
 		},
 		{
-			name:       "should return 200 and update bookmark successfully, and invalidate cache",
+			name:       "should return 200, apply the update, and invalidate the user's list cache",
 			bookmarkID: "bookmark-1-1",
 			requestBody: `{
 				"description": "Updated Description",
@@ -103,6 +103,29 @@ func TestUpdateBookmarkEndpoint(t *testing.T) {
 			},
 			verifyCache: func(t *testing.T, app *AuthenticatedTestApp) {
 				assert.False(t, app.MockRedis.Server.Exists(bookmarkCacheHashKey(cacheSeedUserID)))
+
+				// The cache is gone, so listing now reads from the database and must
+				// reflect the persisted update.
+				token, err := app.TokenGenerator.GenerateToken(
+					"user-uuid-1",
+					"testuser1",
+					"testuser1@gmail.com",
+				)
+				require.NoError(t, err)
+
+				listReq := httptest.NewRequest(
+					http.MethodGet,
+					"/api/bookmark_service/v1/bookmarks?page=1&limit=10&sort=created_at",
+					nil,
+				)
+				listReq.Header.Set("Authorization", "Bearer "+token)
+
+				listRec := httptest.NewRecorder()
+				app.Router.ServeHTTP(listRec, listReq)
+
+				assert.Equal(t, http.StatusOK, listRec.Code)
+				assert.Contains(t, listRec.Body.String(), "Updated Description")
+				assert.Contains(t, listRec.Body.String(), "https://updated-example.com")
 			},
 			expected: expected{
 				statusCode:   http.StatusOK,

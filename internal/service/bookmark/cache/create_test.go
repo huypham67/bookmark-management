@@ -7,6 +7,7 @@ import (
 	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
 	"github.com/huypham67/bookmark-service/internal/model"
 	"github.com/huypham67/bookmark-service/internal/repository/cache/mocks"
+	bookmarkSvc "github.com/huypham67/bookmark-service/internal/service/bookmark"
 	bookmarkMocks "github.com/huypham67/bookmark-service/internal/service/bookmark/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -72,6 +73,13 @@ func TestService_Create(t *testing.T) {
 				},
 			},
 			setupMocks: func(ctx context.Context, req *bookmarkDTO.CreateBookmarkRequest, bookmarkServiceMock *bookmarkMocks.Service, cacheRepoMock *mocks.Repository) {
+				// Cache is invalidated first; the DB write then fails.
+				cacheRepoMock.On(
+					"DeleteCacheByHashKey",
+					ctx,
+					"bookmarks:user-456",
+				).Return(nil).Once()
+
 				bookmarkServiceMock.On(
 					"Create",
 					ctx,
@@ -85,7 +93,7 @@ func TestService_Create(t *testing.T) {
 			},
 		},
 		{
-			name: "should return bookmark even if cache invalidation fails",
+			name: "should not write and return error when cache invalidation fails",
 			args: args{
 				userID: "user-789",
 				request: bookmarkDTO.CreateBookmarkRequest{
@@ -94,20 +102,7 @@ func TestService_Create(t *testing.T) {
 				},
 			},
 			setupMocks: func(ctx context.Context, req *bookmarkDTO.CreateBookmarkRequest, bookmarkServiceMock *bookmarkMocks.Service, cacheRepoMock *mocks.Repository) {
-				bookmark := &model.Bookmark{
-					BaseModel: model.BaseModel{ID: "bm-3"},
-					URL:       "https://example3.com",
-					Code:      "ghi789",
-					UserID:    "user-789",
-				}
-
-				bookmarkServiceMock.On(
-					"Create",
-					ctx,
-					"user-789",
-					*req,
-				).Return(bookmark, nil).Once()
-
+				// Cache invalidation fails, so the bookmark service must NOT be called.
 				cacheRepoMock.On(
 					"DeleteCacheByHashKey",
 					ctx,
@@ -115,9 +110,8 @@ func TestService_Create(t *testing.T) {
 				).Return(assert.AnError).Once()
 			},
 			verifyResponse: func(t *testing.T, bm *model.Bookmark, err error) {
-				assert.NoError(t, err)
-				require.NotNil(t, bm)
-				assert.Equal(t, "bm-3", bm.ID)
+				assert.Nil(t, bm)
+				assert.ErrorIs(t, err, bookmarkSvc.ErrInternalServerError)
 			},
 		},
 	}
