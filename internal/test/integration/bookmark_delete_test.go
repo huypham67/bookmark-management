@@ -26,7 +26,7 @@ func TestDeleteBookmarkEndpoint(t *testing.T) {
 		expected    expected
 	}{
 		{
-			name:       "should return 401 when authorization header is missing",
+			name:       "should return 401 when the Authorization header is missing",
 			bookmarkID: "bookmark-1-1",
 			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
 				// No auth header set
@@ -37,7 +37,7 @@ func TestDeleteBookmarkEndpoint(t *testing.T) {
 			},
 		},
 		{
-			name:       "should return 404 when bookmark does not exist",
+			name:       "should return 404 when the bookmark does not exist",
 			bookmarkID: "nonexistent-bookmark",
 			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
 				token, err := app.TokenGenerator.GenerateToken(
@@ -54,7 +54,7 @@ func TestDeleteBookmarkEndpoint(t *testing.T) {
 			},
 		},
 		{
-			name:       "should return 200 and invalidate cache when bookmark is deleted successfully",
+			name:       "should return 200, remove the bookmark, and invalidate the user's list cache",
 			bookmarkID: "bookmark-1-1",
 			setupCache: func(t *testing.T, app *AuthenticatedTestApp) {
 				seedBookmarkListCache(t, app, 1, 10, "created_at")
@@ -71,6 +71,28 @@ func TestDeleteBookmarkEndpoint(t *testing.T) {
 			},
 			verifyCache: func(t *testing.T, app *AuthenticatedTestApp) {
 				assert.False(t, app.MockRedis.Server.Exists(bookmarkCacheHashKey(cacheSeedUserID)))
+
+				// The cache is gone, so listing now reads from the database and must
+				// no longer contain the deleted bookmark.
+				token, err := app.TokenGenerator.GenerateToken(
+					"user-uuid-1",
+					"testuser1",
+					"testuser1@gmail.com",
+				)
+				require.NoError(t, err)
+
+				listReq := httptest.NewRequest(
+					http.MethodGet,
+					"/api/bookmark_service/v1/bookmarks?page=1&limit=10&sort=created_at",
+					nil,
+				)
+				listReq.Header.Set("Authorization", "Bearer "+token)
+
+				listRec := httptest.NewRecorder()
+				app.Router.ServeHTTP(listRec, listReq)
+
+				assert.Equal(t, http.StatusOK, listRec.Code)
+				assert.NotContains(t, listRec.Body.String(), "code1001")
 			},
 			expected: expected{
 				statusCode:   http.StatusOK,

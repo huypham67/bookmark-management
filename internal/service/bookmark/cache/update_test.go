@@ -6,6 +6,7 @@ import (
 
 	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
 	"github.com/huypham67/bookmark-service/internal/repository/cache/mocks"
+	bookmarkSvc "github.com/huypham67/bookmark-service/internal/service/bookmark"
 	bookmarkMocks "github.com/huypham67/bookmark-service/internal/service/bookmark/mocks"
 	"github.com/stretchr/testify/assert"
 )
@@ -65,6 +66,13 @@ func TestService_Update(t *testing.T) {
 				},
 			},
 			setupMocks: func(ctx context.Context, req *bookmarkDTO.UpdateBookmarkRequest, bookmarkServiceMock *bookmarkMocks.Service, cacheRepoMock *mocks.Repository) {
+				// Cache is invalidated first; the DB write then fails.
+				cacheRepoMock.On(
+					"DeleteCacheByHashKey",
+					ctx,
+					"bookmarks:user-456",
+				).Return(nil).Once()
+
 				bookmarkServiceMock.On(
 					"Update",
 					ctx,
@@ -78,7 +86,7 @@ func TestService_Update(t *testing.T) {
 			},
 		},
 		{
-			name: "should return nil even if cache invalidation fails",
+			name: "should not write and return error when cache invalidation fails",
 			args: args{
 				userID:     "user-789",
 				bookmarkID: "bm-3",
@@ -88,14 +96,7 @@ func TestService_Update(t *testing.T) {
 				},
 			},
 			setupMocks: func(ctx context.Context, req *bookmarkDTO.UpdateBookmarkRequest, bookmarkServiceMock *bookmarkMocks.Service, cacheRepoMock *mocks.Repository) {
-				bookmarkServiceMock.On(
-					"Update",
-					ctx,
-					"user-789",
-					"bm-3",
-					*req,
-				).Return(nil).Once()
-
+				// Cache invalidation fails, so the bookmark service must NOT be called.
 				cacheRepoMock.On(
 					"DeleteCacheByHashKey",
 					ctx,
@@ -103,7 +104,7 @@ func TestService_Update(t *testing.T) {
 				).Return(assert.AnError).Once()
 			},
 			verifyResponse: func(t *testing.T, err error) {
-				assert.NoError(t, err)
+				assert.ErrorIs(t, err, bookmarkSvc.ErrInternalServerError)
 			},
 		},
 	}

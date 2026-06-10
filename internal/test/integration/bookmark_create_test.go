@@ -29,7 +29,38 @@ func TestCreateBookmarkEndpoint(t *testing.T) {
 		expected    expected
 	}{
 		{
-			name: "should return 400 when user does not exist",
+			name: "should return 401 when the Authorization header is missing",
+			requestBody: `{
+				"description": "Test Bookmark",
+				"url": "https://test-example.com"
+			}`,
+			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
+				// No auth header set
+			},
+			expected: expected{
+				statusCode:   http.StatusUnauthorized,
+				bodyContains: "missing authorization header",
+			},
+		},
+		{
+			name:        "should return 400 when the request body is malformed JSON",
+			requestBody: `{invalid json}`,
+			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
+				token, err := app.TokenGenerator.GenerateToken(
+					"user-uuid-1",
+					"testuser1",
+					"testuser1@gmail.com",
+				)
+				require.NoError(t, err)
+				req.Header.Set("Authorization", "Bearer "+token)
+			},
+			expected: expected{
+				statusCode:   http.StatusBadRequest,
+				bodyContains: "Invalid request body",
+			},
+		},
+		{
+			name: "should return 400 when the authenticated user does not exist",
 			requestBody: `{
 				"description": "Test Bookmark",
 				"url": "https://test-example.com"
@@ -49,38 +80,7 @@ func TestCreateBookmarkEndpoint(t *testing.T) {
 			},
 		},
 		{
-			name:        "should return 400 when request body is invalid JSON",
-			requestBody: `{invalid json}`,
-			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
-				token, err := app.TokenGenerator.GenerateToken(
-					"user-uuid-1",
-					"testuser1",
-					"testuser1@gmail.com",
-				)
-				require.NoError(t, err)
-				req.Header.Set("Authorization", "Bearer "+token)
-			},
-			expected: expected{
-				statusCode:   http.StatusBadRequest,
-				bodyContains: "Invalid request body",
-			},
-		},
-		{
-			name: "should return 401 when authorization header is missing",
-			requestBody: `{
-				"description": "Test Bookmark",
-				"url": "https://test-example.com"
-			}`,
-			setupAuth: func(t *testing.T, app *AuthenticatedTestApp, req *http.Request) {
-				// No auth header set
-			},
-			expected: expected{
-				statusCode:   http.StatusUnauthorized,
-				bodyContains: "missing authorization header",
-			},
-		},
-		{
-			name: "should return 201 and create bookmark successfully, then invalidate cache",
+			name: "should return 201, persist the bookmark, and invalidate the user's list cache",
 			requestBody: `{
 				"description": "New Bookmark",
 				"url": "https://new-example.com"
