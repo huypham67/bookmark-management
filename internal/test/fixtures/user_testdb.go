@@ -1,7 +1,7 @@
 package fixtures
 
 import (
-	"github.com/huypham67/bookmark-service/internal/model"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )

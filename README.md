@@ -55,8 +55,8 @@ Bookmark Service is a modern, scalable microservice designed for user management
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/huypham67/bookmark-service.git
-   cd bookmark-service
+   git clone https://github.com/huypham67/bookmark-service-monolithic.git
+   cd bookmark-service-monolithic
    ```
 
 2. **Install dependencies**
@@ -77,7 +77,7 @@ Create a `.env` file in the project root:
 ```env
 # Application Configuration
 APP_PORT=8080
-SERVICE_NAME=bookmark-service
+SERVICE_NAME=bookmark-service-monolithic
 INSTANCE_ID=instance-1
 APP_HOST_NAME=/api/bookmark_service
 APP_ENV=development
@@ -85,8 +85,8 @@ APP_ENV=development
 # JWT Configuration
 JWT_PRIVATE_KEY_PATH=keys/private.pem
 JWT_PUBLIC_KEY_PATH=keys/public.pem
-JWT_ISSUER=bookmark-service
-JWT_AUDIENCE=bookmark-service
+JWT_ISSUER=bookmark-service-monolithic
+JWT_AUDIENCE=bookmark-service-monolithic
 JWT_EXPIRATION_SECONDS=3600
 
 # PostgreSQL Configuration
@@ -162,7 +162,7 @@ The API will be available at `http://localhost:8080/api/bookmark_service/v1` and
 ## 📁 Project Structure
 
 ```
-bookmark-service/
+bookmark-service-monolithic/
 ├── cmd/
 │   ├── api/
 │   │   └── main.go                      # Application entry point
@@ -792,7 +792,7 @@ make vet          # Run go vet analysis
 make build-prod
 
 # Build Docker image
-docker build -t bookmark-service:latest .
+docker build -t bookmark-service-monolithic:latest .
 ```
 
 ### Run Docker Container
@@ -800,7 +800,7 @@ docker build -t bookmark-service:latest .
 ```bash
 docker run -d \
   -e APP_PORT=8080 \
-  -e SERVICE_NAME=bookmark-service \
+  -e SERVICE_NAME=bookmark-service-monolithic \
   -e DB_HOST=host.docker.internal \
   -e DB_PORT=5432 \
   -e DB_USER=admin \
@@ -810,8 +810,8 @@ docker run -d \
   -e JWT_PUBLIC_KEY_PATH=/keys/public.pem \
   -v /path/to/keys:/keys \
   -p 8080:8080 \
-  --name bookmark-service \
-  bookmark-service:latest
+  --name bookmark-service-monolithic \
+  bookmark-service-monolithic:latest
 ```
 
 ### Docker Compose

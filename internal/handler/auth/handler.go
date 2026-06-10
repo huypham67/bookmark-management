@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/huypham67/bookmark-service/internal/service/auth"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/auth"
 )
 
 // Handler defines the interface for authentication-related HTTP handlers, including user registration and login.

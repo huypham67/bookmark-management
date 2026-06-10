@@ -3,8 +3,8 @@ package link
 import (
 	"context"
 
-	"github.com/huypham67/bookmark-service/pkg/dbutils"
-	"github.com/huypham67/bookmark-service/pkg/shortcode"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/dbutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/shortcode"
 	"github.com/rs/zerolog/log"
 )
 

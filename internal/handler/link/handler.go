@@ -2,7 +2,7 @@ package link
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/huypham67/bookmark-service/internal/service/link"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/link"
 )
 
 // Handler defines the interface for link management-related HTTP handlers, including URL shortening and redirection.

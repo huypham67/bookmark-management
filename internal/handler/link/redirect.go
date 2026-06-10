@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	linkDTO "github.com/huypham67/bookmark-service/internal/dto/link"
-	"github.com/huypham67/bookmark-service/pkg/dbutils"
-	"github.com/huypham67/bookmark-service/pkg/requestutils"
-	"github.com/huypham67/bookmark-service/pkg/response"
+	linkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/link"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/dbutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/requestutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 

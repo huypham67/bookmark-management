@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
+	bookmarkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/bookmark"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

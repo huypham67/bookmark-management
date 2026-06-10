@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/huypham67/bookmark-service/pkg/dbutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/dbutils"
 	"github.com/redis/go-redis/v9"
 )
 

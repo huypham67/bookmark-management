@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	profileDTO "github.com/huypham67/bookmark-service/internal/dto/profile"
-	"github.com/huypham67/bookmark-service/pkg/jwtutils"
-	"github.com/huypham67/bookmark-service/pkg/response"
+	profileDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/profile"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/response"
 	"github.com/rs/zerolog/log"
 )
 

@@ -5,10 +5,10 @@ package link
 import (
 	"context"
 
-	linkDTO "github.com/huypham67/bookmark-service/internal/dto/link"
-	"github.com/huypham67/bookmark-service/internal/repository/link"
-	"github.com/huypham67/bookmark-service/internal/service/link/resolver"
-	"github.com/huypham67/bookmark-service/pkg/utils"
+	linkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/link"
+	"github.com/huypham67/bookmark-service-monolithic/internal/repository/link"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/link/resolver"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/utils"
 )
 
 const shortCodeLength = 7

@@ -3,8 +3,8 @@ package bookmark
 import (
 	"context"
 
-	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/pkg/dbutils"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/dbutils"
 )
 
 // GetURLByCode retrieves the original URL associated with a given bookmark code.

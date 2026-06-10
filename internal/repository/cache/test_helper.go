@@ -3,7 +3,7 @@ package cache
 import (
 	"testing"
 
-	"github.com/huypham67/bookmark-service/pkg/redis"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/redis"
 )
 
 func newTestRepository(t *testing.T) (Repository, *redis.MockRedis) {

@@ -5,8 +5,8 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/huypham67/bookmark-service/pkg/logger"
-	"github.com/huypham67/bookmark-service/pkg/sqldb"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/logger"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/sqldb"
 )
 
 func main() {

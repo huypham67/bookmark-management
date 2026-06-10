@@ -3,7 +3,7 @@ package user
 import (
 	"testing"
 
-	"github.com/huypham67/bookmark-service/internal/test/fixtures"
+	"github.com/huypham67/bookmark-service-monolithic/internal/test/fixtures"
 	"gorm.io/gorm"
 )
 

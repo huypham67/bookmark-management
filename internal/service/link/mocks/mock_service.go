@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	dtolink "github.com/huypham67/bookmark-service/internal/dto/link"
+	dtolink "github.com/huypham67/bookmark-service-monolithic/internal/dto/link"
 
 	mock "github.com/stretchr/testify/mock"
 )

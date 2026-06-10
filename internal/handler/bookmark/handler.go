@@ -2,7 +2,7 @@ package bookmark
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/huypham67/bookmark-service/internal/service/bookmark"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark"
 )
 
 // Handler defines the interface for bookmark-related HTTP handlers.

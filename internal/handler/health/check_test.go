@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	healthDTO "github.com/huypham67/bookmark-service/internal/dto/health"
-	"github.com/huypham67/bookmark-service/internal/service/health/mocks"
+	healthDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/health"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/health/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

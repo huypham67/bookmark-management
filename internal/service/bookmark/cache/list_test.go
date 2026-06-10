@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"testing"
 
-	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
-	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/internal/repository/cache/mocks"
-	"github.com/huypham67/bookmark-service/internal/service/bookmark"
-	bookmarkMocks "github.com/huypham67/bookmark-service/internal/service/bookmark/mocks"
+	bookmarkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/bookmark"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
+	"github.com/huypham67/bookmark-service-monolithic/internal/repository/cache/mocks"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark"
+	bookmarkMocks "github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

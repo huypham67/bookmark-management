@@ -3,7 +3,7 @@ package profile
 import (
 	"time"
 
-	"github.com/huypham67/bookmark-service/pkg/response"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/response"
 )
 
 // UserData represents the user data in the profile response.

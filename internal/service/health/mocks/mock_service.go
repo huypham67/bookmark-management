@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	health "github.com/huypham67/bookmark-service/internal/dto/health"
+	health "github.com/huypham67/bookmark-service-monolithic/internal/dto/health"
 	mock "github.com/stretchr/testify/mock"
 )
 
