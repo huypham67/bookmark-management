@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	model "github.com/huypham67/bookmark-service/internal/model"
+	model "github.com/huypham67/bookmark-service-monolithic/internal/model"
 	mock "github.com/stretchr/testify/mock"
 )
 

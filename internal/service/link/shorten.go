@@ -3,8 +3,8 @@ package link
 import (
 	"context"
 
-	linkDTO "github.com/huypham67/bookmark-service/internal/dto/link"
-	"github.com/huypham67/bookmark-service/pkg/shortcode"
+	linkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/link"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/shortcode"
 	"github.com/rs/zerolog/log"
 )
 

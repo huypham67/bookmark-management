@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/huypham67/bookmark-service/pkg/base62"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/base62"
 )
 
 // failingReader always errors, used to cover the randomness failure paths.

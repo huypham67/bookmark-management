@@ -3,7 +3,7 @@ package api
 import (
 	"strings"
 
-	"github.com/huypham67/bookmark-service/docs"
+	"github.com/huypham67/bookmark-service-monolithic/docs"
 )
 
 // SetupSwagger configures Swagger documentation with provided schemes and base path.

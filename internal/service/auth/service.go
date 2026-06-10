@@ -6,11 +6,11 @@ import (
 	"context"
 	"errors"
 
-	authDTO "github.com/huypham67/bookmark-service/internal/dto/auth"
-	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/internal/repository/user"
-	"github.com/huypham67/bookmark-service/pkg/jwtutils"
-	"github.com/huypham67/bookmark-service/pkg/security"
+	authDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/auth"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
+	"github.com/huypham67/bookmark-service-monolithic/internal/repository/user"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/security"
 )
 
 var (

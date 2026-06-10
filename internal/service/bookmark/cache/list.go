@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 
-	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
-	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/internal/service/bookmark"
+	bookmarkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/bookmark"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/bookmark"
 	"github.com/rs/zerolog/log"
 )
 

@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	jwtutils "github.com/huypham67/bookmark-service/pkg/jwtutils"
+	jwtutils "github.com/huypham67/bookmark-service-monolithic/pkg/jwtutils"
 	mock "github.com/stretchr/testify/mock"
 )
 

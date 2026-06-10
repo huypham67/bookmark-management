@@ -9,9 +9,9 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	authDTO "github.com/huypham67/bookmark-service/internal/dto/auth"
-	"github.com/huypham67/bookmark-service/internal/service/auth"
-	"github.com/huypham67/bookmark-service/internal/service/auth/mocks"
+	authDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/auth"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/auth"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/auth/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

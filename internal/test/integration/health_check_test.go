@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/huypham67/bookmark-service/internal/bootstrap"
-	healthDTO "github.com/huypham67/bookmark-service/internal/dto/health"
+	"github.com/huypham67/bookmark-service-monolithic/internal/bootstrap"
+	healthDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/health"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

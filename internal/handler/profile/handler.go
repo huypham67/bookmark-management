@@ -2,7 +2,7 @@ package profile
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/huypham67/bookmark-service/internal/service/profile"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/profile"
 )
 
 // Handler defines the interface for profile-related HTTP handlers, including endpoints for retrieving and updating user information.

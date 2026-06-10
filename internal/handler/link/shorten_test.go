@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	linkDTO "github.com/huypham67/bookmark-service/internal/dto/link"
-	"github.com/huypham67/bookmark-service/internal/service/link/mocks"
+	linkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/link"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/link/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

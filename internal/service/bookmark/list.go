@@ -3,8 +3,8 @@ package bookmark
 import (
 	"context"
 
-	bookmarkDTO "github.com/huypham67/bookmark-service/internal/dto/bookmark"
-	"github.com/huypham67/bookmark-service/internal/model"
+	bookmarkDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/bookmark"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
 	"github.com/rs/zerolog/log"
 )
 

@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/huypham67/bookmark-service/pkg/base62"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/base62"
 )
 
 // randReader is the source of randomness for prefix selection. It is a

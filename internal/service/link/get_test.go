@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	linkRepoMocks "github.com/huypham67/bookmark-service/internal/repository/link/mocks"
-	resolverMocks "github.com/huypham67/bookmark-service/internal/service/link/resolver/mocks"
-	"github.com/huypham67/bookmark-service/pkg/dbutils"
-	utilsMocks "github.com/huypham67/bookmark-service/pkg/utils/mocks"
+	linkRepoMocks "github.com/huypham67/bookmark-service-monolithic/internal/repository/link/mocks"
+	resolverMocks "github.com/huypham67/bookmark-service-monolithic/internal/service/link/resolver/mocks"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/dbutils"
+	utilsMocks "github.com/huypham67/bookmark-service-monolithic/pkg/utils/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

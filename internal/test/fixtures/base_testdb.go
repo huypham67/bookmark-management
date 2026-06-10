@@ -3,7 +3,7 @@ package fixtures
 import (
 	"testing"
 
-	"github.com/huypham67/bookmark-service/pkg/sqldb"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/sqldb"
 	"gorm.io/gorm"
 )
 

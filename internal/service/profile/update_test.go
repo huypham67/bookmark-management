@@ -5,10 +5,10 @@ import (
 	"errors"
 	"testing"
 
-	profileDTO "github.com/huypham67/bookmark-service/internal/dto/profile"
-	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/internal/repository/user/mocks"
-	"github.com/huypham67/bookmark-service/pkg/dbutils"
+	profileDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/profile"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
+	"github.com/huypham67/bookmark-service-monolithic/internal/repository/user/mocks"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/dbutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

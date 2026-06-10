@@ -2,7 +2,7 @@ package health
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/huypham67/bookmark-service/internal/service/health"
+	"github.com/huypham67/bookmark-service-monolithic/internal/service/health"
 )
 
 // Handler defines the interface for health check-related HTTP handlers, including the GetHealthCheck endpoint.

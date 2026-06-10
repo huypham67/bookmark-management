@@ -3,8 +3,8 @@ package health
 import (
 	"context"
 
-	healthDTO "github.com/huypham67/bookmark-service/internal/dto/health"
-	"github.com/huypham67/bookmark-service/internal/repository/ping"
+	healthDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/health"
+	"github.com/huypham67/bookmark-service-monolithic/internal/repository/ping"
 )
 
 const (

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/huypham67/bookmark-service/internal/bootstrap"
-	"github.com/huypham67/bookmark-service/pkg/common"
+	"github.com/huypham67/bookmark-service-monolithic/internal/bootstrap"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/common"
 
 	// Docs package is required to automatically register Swagger documentation via its init() function.
-	_ "github.com/huypham67/bookmark-service/docs"
+	_ "github.com/huypham67/bookmark-service-monolithic/docs"
 )
 
 // @title Bookmark Service API

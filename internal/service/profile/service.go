@@ -6,9 +6,9 @@ import (
 	"context"
 	"errors"
 
-	profileDTO "github.com/huypham67/bookmark-service/internal/dto/profile"
-	"github.com/huypham67/bookmark-service/internal/model"
-	"github.com/huypham67/bookmark-service/internal/repository/user"
+	profileDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/profile"
+	"github.com/huypham67/bookmark-service-monolithic/internal/model"
+	"github.com/huypham67/bookmark-service-monolithic/internal/repository/user"
 )
 
 var (

@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	profileDTO "github.com/huypham67/bookmark-service/internal/dto/profile"
+	profileDTO "github.com/huypham67/bookmark-service-monolithic/internal/dto/profile"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
