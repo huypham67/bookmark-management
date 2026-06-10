@@ -59,6 +59,7 @@ INFRA_DIRS := \
 	pkg/common \
 	pkg/dbutils \
 	pkg/jwtprovider \
+	pkg/ratelimitprovider \
 	pkg/logger \
 	pkg/redis \
 	pkg/requestutils \

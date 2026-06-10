@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/huypham67/bookmark-service-monolithic/middleware"
+	"github.com/huypham67/bookmark-service-monolithic/pkg/ratelimitprovider"
 	pkgRedis "github.com/huypham67/bookmark-service-monolithic/pkg/redis"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/sqldb"
 	"github.com/redis/go-redis/v9"
@@ -48,7 +49,8 @@ type Container struct {
 	BookmarkHandler bookmarkHandler.Handler
 
 	// Middleware
-	JWTMiddleware gin.HandlerFunc
+	JWTMiddleware       gin.HandlerFunc
+	RateLimitMiddleware gin.HandlerFunc
 }
 
 // NewContainer initializes the application container by loading configuration,
@@ -86,6 +88,13 @@ func NewContainer() (*Container, error) {
 
 	jwtMiddleware := middleware.JWTAuth(jwtProvider.Validator())
 
+	rateLimiter, err := ratelimitprovider.NewLimiter(rdb, "")
+	if err != nil {
+		log.Error().Err(err).Msg("failed to initialize rate limiter")
+		return nil, err
+	}
+	rateLimitMiddleware := middleware.RateLimit(rateLimiter)
+
 	// Initialize shared infrastructure
 	cacheRepository := cacheRepo.NewRedis(rdb)
 
@@ -99,16 +108,17 @@ func NewContainer() (*Container, error) {
 	bookmarkHandlerInstance := initBookmarkHandler(db, cacheRepository)
 
 	return &Container{
-		Config:          cfg,
-		DB:              db,
-		Redis:           rdb,
-		CacheRepo:       cacheRepository,
-		HealthHandler:   healthHandlerInstance,
-		AuthHandler:     authHandlerInstance,
-		ProfileHandler:  profileHandlerInstance,
-		LinkHandler:     linkHandlerInstance,
-		BookmarkHandler: bookmarkHandlerInstance,
-		JWTMiddleware:   jwtMiddleware,
+		Config:              cfg,
+		DB:                  db,
+		Redis:               rdb,
+		CacheRepo:           cacheRepository,
+		HealthHandler:       healthHandlerInstance,
+		AuthHandler:         authHandlerInstance,
+		ProfileHandler:      profileHandlerInstance,
+		LinkHandler:         linkHandlerInstance,
+		BookmarkHandler:     bookmarkHandlerInstance,
+		JWTMiddleware:       jwtMiddleware,
+		RateLimitMiddleware: rateLimitMiddleware,
 	}, nil
 }
 
