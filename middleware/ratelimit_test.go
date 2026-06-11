@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -10,7 +11,6 @@ import (
 	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/ratelimit/mocks"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestRateLimit(t *testing.T) {
@@ -26,38 +26,38 @@ func TestRateLimit(t *testing.T) {
 	testCases := []struct {
 		name      string
 		userID    string // when set, claims are injected so the key is by user
-		setupMock func(*mocks.Limiter)
+		setupMock func(context.Context, *mocks.Limiter)
 		expected  expected
 	}{
 		{
 			name:   "should allow when limiter permits the request",
 			userID: userID,
-			setupMock: func(l *mocks.Limiter) {
-				l.On("Allow", mock.Anything, "ratelimit:user:"+userID).Return(true, nil).Once()
+			setupMock: func(ctx context.Context, l *mocks.Limiter) {
+				l.On("Allow", ctx, "ratelimit:user:"+userID).Return(true, nil).Once()
 			},
 			expected: expected{statusCode: http.StatusOK, nextCalled: true},
 		},
 		{
 			name:   "should block with 429 when limiter denies the request",
 			userID: userID,
-			setupMock: func(l *mocks.Limiter) {
-				l.On("Allow", mock.Anything, "ratelimit:user:"+userID).Return(false, nil).Once()
+			setupMock: func(ctx context.Context, l *mocks.Limiter) {
+				l.On("Allow", ctx, "ratelimit:user:"+userID).Return(false, nil).Once()
 			},
 			expected: expected{statusCode: http.StatusTooManyRequests, nextCalled: false},
 		},
 		{
 			name:   "should fail open when limiter returns an error",
 			userID: userID,
-			setupMock: func(l *mocks.Limiter) {
-				l.On("Allow", mock.Anything, "ratelimit:user:"+userID).Return(false, errors.New("redis down")).Once()
+			setupMock: func(ctx context.Context, l *mocks.Limiter) {
+				l.On("Allow", ctx, "ratelimit:user:"+userID).Return(false, errors.New("redis down")).Once()
 			},
 			expected: expected{statusCode: http.StatusOK, nextCalled: true},
 		},
 		{
 			name:   "should key by client IP when unauthenticated",
 			userID: "",
-			setupMock: func(l *mocks.Limiter) {
-				l.On("Allow", mock.Anything, "ratelimit:ip:192.0.2.1").Return(true, nil).Once()
+			setupMock: func(ctx context.Context, l *mocks.Limiter) {
+				l.On("Allow", ctx, "ratelimit:ip:192.0.2.1").Return(true, nil).Once()
 			},
 			expected: expected{statusCode: http.StatusOK, nextCalled: true},
 		},
@@ -70,16 +70,15 @@ func TestRateLimit(t *testing.T) {
 			gin.SetMode(gin.TestMode)
 
 			limiter := mocks.NewLimiter(t)
-			tc.setupMock(limiter)
 
 			nextCalled := false
 			router := gin.New()
 			router.GET("/resource",
 				func(c *gin.Context) {
-					// Inject claims so the limiter keys by user, mirroring JWTAuth.
 					if tc.userID != "" {
 						c.Set("claims", &jwt.CustomClaims{UserID: tc.userID})
 					}
+					tc.setupMock(c, limiter)
 				},
 				RateLimit(limiter),
 				func(c *gin.Context) {

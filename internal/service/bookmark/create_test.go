@@ -99,8 +99,14 @@ func TestService_Create(t *testing.T) {
 			args: args{userID: "user-id-123", request: baseReq},
 			setupMocks: func(ctx context.Context, bookmarkRepo *bookmarkMocks.Repository) {
 				bookmarkRepo.On("NextCodeInt", ctx).Return(codeInt, nil).Once()
+
+				expected := &model.Bookmark{
+					Description: "Test Bookmark",
+					URL:         "https://example.com",
+					UserID:      "user-id-123",
+				}
 				bookmarkRepo.
-					On("Create", ctx, mock.Anything).
+					On("Create", ctx, matchBookmark(expected, codeInt)).
 					Return(dbutils.ErrDuplicationType).
 					Once()
 			},
@@ -114,8 +120,14 @@ func TestService_Create(t *testing.T) {
 			args: args{userID: "nonexistent-user", request: baseReq},
 			setupMocks: func(ctx context.Context, bookmarkRepo *bookmarkMocks.Repository) {
 				bookmarkRepo.On("NextCodeInt", ctx).Return(codeInt, nil).Once()
+
+				expected := &model.Bookmark{
+					Description: "Test Bookmark",
+					URL:         "https://example.com",
+					UserID:      "nonexistent-user",
+				}
 				bookmarkRepo.
-					On("Create", ctx, mock.Anything).
+					On("Create", ctx, matchBookmark(expected, codeInt)).
 					Return(dbutils.ErrForeignKeyViolationType).
 					Once()
 			},
@@ -129,8 +141,14 @@ func TestService_Create(t *testing.T) {
 			args: args{userID: "user-id-123", request: baseReq},
 			setupMocks: func(ctx context.Context, bookmarkRepo *bookmarkMocks.Repository) {
 				bookmarkRepo.On("NextCodeInt", ctx).Return(codeInt, nil).Once()
+
+				expected := &model.Bookmark{
+					Description: "Test Bookmark",
+					URL:         "https://example.com",
+					UserID:      "user-id-123",
+				}
 				bookmarkRepo.
-					On("Create", ctx, mock.Anything).
+					On("Create", ctx, matchBookmark(expected, codeInt)).
 					Return(assert.AnError).
 					Once()
 			},

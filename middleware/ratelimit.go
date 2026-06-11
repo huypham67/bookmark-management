@@ -17,7 +17,7 @@ func RateLimit(limiter ratelimit.Limiter) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		key := fmt.Sprintf("%s%s", rateLimitKeyPrefix, rateLimitIdentifier(c))
 
-		allowed, err := limiter.Allow(c.Request.Context(), key)
+		allowed, err := limiter.Allow(c, key)
 		if err != nil {
 			// Fail-open: a broken rate limiter must not take the whole service down.
 			log.Error().Err(err).Msg("rate limit store error, allowing request")
