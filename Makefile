@@ -30,10 +30,10 @@ COVERAGE_THRESHOLD ?= 80
 #      → Infrastructure/setup code (DI, config, models, adapters)
 #      → INFRA_DIRS: whole packages excluded from coverage threshold.
 #        Pure adapters/wiring with no testable logic, e.g. pkg/logger,
-#        pkg/redis, pkg/sqldb, pkg/jwtprovider (env load, key file I/O, DI).
+#        pkg/redis, pkg/sqldb, pkg/jwt/provider (env load, key file I/O, DI).
 #      → INFRA_FILES: surgical per-file exclusion for packages that mix
 #        tested logic with wiring/setup. Currently empty — packages are
-#        split so each is wholly one category (see pkg/jwt vs pkg/jwtprovider).
+#        split so each is wholly one category (see pkg/jwt vs pkg/jwt/provider).
 #      → Both are still scanned for security vulnerabilities (SonarQube)
 #
 #   3. Everything else = business logic → MUST be covered:
@@ -58,7 +58,8 @@ INFRA_DIRS := \
 	internal/repository/ping \
 	pkg/common \
 	pkg/dbutils \
-	pkg/jwtprovider \
+	pkg/jwt/provider \
+	pkg/ratelimit/provider \
 	pkg/logger \
 	pkg/redis \
 	pkg/requestutils \

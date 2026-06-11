@@ -1,4 +1,4 @@
-package jwtprovider
+package provider
 
 import (
 	"fmt"
@@ -16,8 +16,8 @@ type Config struct {
 	ExpirationSeconds int64  `envconfig:"JWT_EXPIRATION_SECONDS" default:"3600"`
 }
 
-// LoadJWTConfig loads JWT configuration from environment variables using the specified prefix.
-func LoadJWTConfig(prefix string) (*Config, error) {
+// LoadConfig loads JWT configuration from environment variables using the specified prefix.
+func LoadConfig(prefix string) (*Config, error) {
 	cfg := &Config{}
 	err := envconfig.Process(prefix, cfg)
 	if err != nil {

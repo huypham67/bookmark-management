@@ -2,7 +2,7 @@ definitions:
   gin.H:
     additionalProperties: {}
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_auth.LoginRequest:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_auth.LoginRequest:
     properties:
       password:
         minLength: 8
@@ -13,16 +13,16 @@ definitions:
     - password
     - username
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_auth.LoginResponse:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_auth.LoginResponse:
     properties:
       data:
         type: string
       message:
         type: string
       pagination:
-        $ref: '#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination'
+        $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_pkg_response.Pagination'
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserRequest:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_auth.RegisterUserRequest:
     properties:
       display_name:
         maxLength: 100
@@ -43,16 +43,16 @@ definitions:
     - password
     - username
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserResponse:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_auth.RegisterUserResponse:
     properties:
       data:
-        $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.UserData'
+        $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_auth.UserData'
       message:
         type: string
       pagination:
-        $ref: '#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination'
+        $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_pkg_response.Pagination'
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_auth.UserData:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_auth.UserData:
     properties:
       created_at:
         type: string
@@ -65,7 +65,7 @@ definitions:
       username:
         type: string
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_bookmark.BookmarkData:
     properties:
       code:
         type: string
@@ -80,27 +80,27 @@ definitions:
       url:
         type: string
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkListResponse:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_bookmark.BookmarkListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData'
+          $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_bookmark.BookmarkData'
         type: array
       message:
         type: string
       pagination:
-        $ref: '#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination'
+        $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_pkg_response.Pagination'
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkResponse:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_bookmark.BookmarkResponse:
     properties:
       data:
-        $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkData'
+        $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_bookmark.BookmarkData'
       message:
         type: string
       pagination:
-        $ref: '#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination'
+        $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_pkg_response.Pagination'
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_bookmark.CreateBookmarkRequest:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_bookmark.CreateBookmarkRequest:
     properties:
       description:
         maxLength: 500
@@ -112,7 +112,7 @@ definitions:
     - description
     - url
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_health.HealthCheckResponse:
     properties:
       instance_id:
         type: string
@@ -121,7 +121,7 @@ definitions:
       service_name:
         type: string
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_link.ShortenURLRequest:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_link.ShortenURLRequest:
     properties:
       exp:
         maximum: 86400
@@ -133,14 +133,14 @@ definitions:
     required:
     - url
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_link.ShortenURLResponse:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_link.ShortenURLResponse:
     properties:
       code:
         type: string
       message:
         type: string
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserRequest:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_profile.UpdateUserRequest:
     properties:
       display_name:
         maxLength: 100
@@ -149,9 +149,9 @@ definitions:
       email:
         type: string
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserResponse:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_profile.UpdateUserResponse:
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_profile.UserData:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_profile.UserData:
     properties:
       created_at:
         type: string
@@ -164,16 +164,16 @@ definitions:
       username:
         type: string
     type: object
-  github_com_huypham67_bookmark-service_internal_dto_profile.UserResponse:
+  github_com_huypham67_bookmark-service-monolithic_internal_dto_profile.UserResponse:
     properties:
       data:
-        $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UserData'
+        $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_profile.UserData'
       message:
         type: string
       pagination:
-        $ref: '#/definitions/github_com_huypham67_bookmark-service_pkg_response.Pagination'
+        $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_pkg_response.Pagination'
     type: object
-  github_com_huypham67_bookmark-service_pkg_response.Pagination:
+  github_com_huypham67_bookmark-service-monolithic_pkg_response.Pagination:
     properties:
       limit:
         type: integer
@@ -199,11 +199,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_health.HealthCheckResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_health.HealthCheckResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_health.HealthCheckResponse'
       summary: Health Check
       tags:
       - health
@@ -239,7 +239,7 @@ paths:
         "200":
           description: List of bookmarks with pagination
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkListResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_bookmark.BookmarkListResponse'
         "400":
           description: Invalid query parameters
           schema:
@@ -267,14 +267,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.CreateBookmarkRequest'
+          $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_bookmark.CreateBookmarkRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Bookmark created successfully
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_bookmark.BookmarkResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_bookmark.BookmarkResponse'
         "400":
           description: Invalid request body
           schema:
@@ -421,14 +421,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_link.ShortenURLRequest'
+          $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_link.ShortenURLRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Shorten URL generated successfully
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_link.ShortenURLResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_link.ShortenURLResponse'
         "400":
           description: Invalid request body
           schema:
@@ -451,7 +451,7 @@ paths:
         "200":
           description: User information
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UserResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_profile.UserResponse'
         "401":
           description: Unauthorized
           schema:
@@ -479,14 +479,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserRequest'
+          $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_profile.UpdateUserRequest'
       produces:
       - application/json
       responses:
         "200":
           description: User updated successfully
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_profile.UpdateUserResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_profile.UpdateUserResponse'
         "400":
           description: Invalid request body
           schema:
@@ -519,14 +519,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.LoginRequest'
+          $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_auth.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: User logged in successfully
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.LoginResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_auth.LoginResponse'
         "400":
           description: Invalid request body
           schema:
@@ -557,14 +557,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserRequest'
+          $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_auth.RegisterUserRequest'
       produces:
       - application/json
       responses:
         "201":
           description: User registered successfully
           schema:
-            $ref: '#/definitions/github_com_huypham67_bookmark-service_internal_dto_auth.RegisterUserResponse'
+            $ref: '#/definitions/github_com_huypham67_bookmark-service-monolithic_internal_dto_auth.RegisterUserResponse'
         "400":
           description: Invalid request body
           schema:

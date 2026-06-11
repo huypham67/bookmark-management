@@ -137,7 +137,11 @@ func TestService_UpdateUserInfo(t *testing.T) {
 					On(
 						"Update",
 						ctx,
-						mock.AnythingOfType("*model.User"),
+						mock.MatchedBy(func(user *model.User) bool {
+							return user.ID == "user-id" &&
+								user.DisplayName == "Updated User" &&
+								user.Email == "new@example.com"
+						}),
 					).
 					Return(nil).
 					Once()
@@ -334,7 +338,11 @@ func TestService_UpdateUserInfo(t *testing.T) {
 					On(
 						"Update",
 						ctx,
-						mock.AnythingOfType("*model.User"),
+						mock.MatchedBy(func(user *model.User) bool {
+							return user.ID == "user-id" &&
+								user.DisplayName == "Updated User" &&
+								user.Email == "john@example.com"
+						}),
 					).
 					Return(
 						errors.New("update failed"),

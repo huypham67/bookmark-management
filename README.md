@@ -214,7 +214,7 @@ bookmark-service-monolithic/
 │   ├── common/                          # Common utilities
 │   ├── dbutils/                         # Database helpers
 │   ├── jwt/                             # JWT domain logic: generator, validator, claims
-│   ├── jwtprovider/                     # JWT wiring: config, RSA key loading, provider (DI)
+│   │   └── provider/                    # JWT wiring: config, RSA key loading, provider (DI)
 │   ├── logger/                          # Zerolog configuration
 │   ├── redis/                           # Redis client wrapper + config
 │   ├── requestutils/                    # Request binding utilities
@@ -720,8 +720,10 @@ reused for both the local coverage filter and SonarCloud.
 - `internal/dto`, `internal/model` - Contracts & domain structs
 - `internal/repository/ping` - Trivial health-check probe
 - `pkg/{common,dbutils,logger,redis,requestutils,response,security,sqldb,utils}`
-- `pkg/jwtprovider` - JWT env load / RSA key file I/O / DI wiring
+- `pkg/jwt/provider` - JWT env load / RSA key file I/O / DI wiring
   (the real token logic lives in `pkg/jwt` — `generator.go`, `validator.go`, `claims.go` — and stays counted)
+- `pkg/ratelimit/provider` - rate limit env load / DI wiring
+  (the real limiter logic lives in `pkg/ratelimit` — `limiter.go`, `redis.go`, `store.go` — and stays counted)
 
 **Excluded completely, no scan (`SYSTEM_DIRS` / `SYSTEM_FILES`):**
 - `vendor/`, `docs/`, `bin/`, `internal/test/`, `**/mocks/`

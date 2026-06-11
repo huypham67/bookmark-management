@@ -17,7 +17,7 @@ type App struct {
 
 // NewApp initializes the application by setting up logging, configuration, dependencies, and routing.
 func NewApp() (*App, error) {
-	if err := logger.NewLoggerClient(""); err != nil {
+	if err := logger.NewClient(""); err != nil {
 		return nil, err
 	}
 
