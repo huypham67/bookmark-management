@@ -45,7 +45,7 @@ const (
 // TestApp represents the test application with its dependencies.
 type TestApp struct {
 	Router    *api.Router
-	MockRedis *pkgRedis.MockRedis
+	MockRedis *pkgRedis.Mock
 }
 
 type AuthenticatedTestApp struct {
@@ -86,7 +86,7 @@ func createTestJWT(t *testing.T) (
 func setupHealthCheckTestApp(t *testing.T, serviceName string, instanceID string) *TestApp {
 	t.Helper()
 
-	mockRedis := pkgRedis.NewMockRedis(t)
+	mockRedis := pkgRedis.NewMock(t)
 
 	pinger := ping.NewRedis(mockRedis.Client)
 
@@ -110,7 +110,7 @@ func setupHealthCheckTestApp(t *testing.T, serviceName string, instanceID string
 func setupLinkTestApp(t *testing.T) *TestApp {
 	t.Helper()
 
-	mockRedis := pkgRedis.NewMockRedis(t)
+	mockRedis := pkgRedis.NewMock(t)
 
 	linkRepository := linkRepo.NewRepository(mockRedis.Client)
 
@@ -213,7 +213,7 @@ func setupBookmarkTestApp(t *testing.T) *AuthenticatedTestApp {
 	t.Helper()
 
 	mockDB := fixtures.NewTestDB(t, &fixtures.BookmarkTestDB{})
-	mockRedis := pkgRedis.NewMockRedis(t)
+	mockRedis := pkgRedis.NewMock(t)
 
 	bookmarkRepository := bookmarkRepo.NewRepository(mockDB)
 	bookmarkService := bookmarkSvc.NewService(bookmarkRepository)

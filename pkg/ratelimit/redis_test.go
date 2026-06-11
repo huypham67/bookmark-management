@@ -12,10 +12,10 @@ import (
 
 const testWindow = 10 * time.Second
 
-func newTestStore(t *testing.T) (Store, *redis.MockRedis) {
+func newTestStore(t *testing.T) (Store, *redis.Mock) {
 	t.Helper()
 
-	mockRedis := redis.NewMockRedis(t)
+	mockRedis := redis.NewMock(t)
 	store := NewRedis(mockRedis.Client)
 
 	return store, mockRedis
@@ -28,13 +28,13 @@ func TestRedisStore_IncrementCounter(t *testing.T) {
 
 	testCases := []struct {
 		name   string
-		setup  func(context.Context, Store, *redis.MockRedis)
-		verify func(*testing.T, context.Context, Store, *redis.MockRedis)
+		setup  func(context.Context, Store, *redis.Mock)
+		verify func(*testing.T, context.Context, Store, *redis.Mock)
 	}{
 		{
 			name:  "should create counter with value 1 on first increment",
-			setup: func(_ context.Context, _ Store, _ *redis.MockRedis) {},
-			verify: func(t *testing.T, ctx context.Context, store Store, _ *redis.MockRedis) {
+			setup: func(_ context.Context, _ Store, _ *redis.Mock) {},
+			verify: func(t *testing.T, ctx context.Context, store Store, _ *redis.Mock) {
 				count, err := store.GetCounter(ctx, key)
 				require.NoError(t, err)
 				assert.Equal(t, 1, count)
@@ -42,11 +42,11 @@ func TestRedisStore_IncrementCounter(t *testing.T) {
 		},
 		{
 			name: "should accumulate on repeated increments",
-			setup: func(ctx context.Context, store Store, _ *redis.MockRedis) {
+			setup: func(ctx context.Context, store Store, _ *redis.Mock) {
 				store.IncrementCounter(ctx, key, testWindow)
 				store.IncrementCounter(ctx, key, testWindow)
 			},
-			verify: func(t *testing.T, ctx context.Context, store Store, _ *redis.MockRedis) {
+			verify: func(t *testing.T, ctx context.Context, store Store, _ *redis.Mock) {
 				count, err := store.GetCounter(ctx, key)
 				require.NoError(t, err)
 				assert.Equal(t, 3, count)
@@ -54,18 +54,18 @@ func TestRedisStore_IncrementCounter(t *testing.T) {
 		},
 		{
 			name:  "should set expiration on a new key",
-			setup: func(_ context.Context, _ Store, _ *redis.MockRedis) {},
-			verify: func(t *testing.T, _ context.Context, _ Store, mockRedis *redis.MockRedis) {
+			setup: func(_ context.Context, _ Store, _ *redis.Mock) {},
+			verify: func(t *testing.T, _ context.Context, _ Store, mockRedis *redis.Mock) {
 				assert.Equal(t, testWindow, mockRedis.Server.TTL(key))
 			},
 		},
 		{
 			name: "should not reset expiration on an existing key",
-			setup: func(ctx context.Context, store Store, mockRedis *redis.MockRedis) {
+			setup: func(ctx context.Context, store Store, mockRedis *redis.Mock) {
 				store.IncrementCounter(ctx, key, testWindow)
 				mockRedis.FastForward(4 * time.Second)
 			},
-			verify: func(t *testing.T, _ context.Context, _ Store, mockRedis *redis.MockRedis) {
+			verify: func(t *testing.T, _ context.Context, _ Store, mockRedis *redis.Mock) {
 				// ExpireNX is a no-op on the existing key, so the TTL keeps counting down.
 				assert.Equal(t, testWindow-4*time.Second, mockRedis.Server.TTL(key))
 			},

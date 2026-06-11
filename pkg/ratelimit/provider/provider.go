@@ -1,4 +1,4 @@
-package ratelimitprovider
+package provider
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// NewLimiter builds a rate limit Limiter over the shared Redis client, loading its policy from environment variables with the given prefix.
-func NewLimiter(client *redis.Client, envPrefix string) (ratelimit.Limiter, error) {
+// New builds a rate limit Limiter over the shared Redis client, loading its policy from environment variables with the given prefix.
+func New(client *redis.Client, envPrefix string) (ratelimit.Limiter, error) {
 	cfg, err := LoadConfig(envPrefix)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load rate limit config: %w", err)

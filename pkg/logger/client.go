@@ -8,9 +8,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// NewLoggerClient initializes the global logger with configuration loaded from environment variables
-func NewLoggerClient(envPrefix string) error {
-	config, err := LoadLoggerConfig(envPrefix)
+// NewClient initializes the global logger with configuration loaded from environment variables
+func NewClient(envPrefix string) error {
+	config, err := LoadConfig(envPrefix)
 	if err != nil {
 		return err
 	}

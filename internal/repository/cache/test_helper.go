@@ -6,10 +6,10 @@ import (
 	"github.com/huypham67/bookmark-service-monolithic/pkg/redis"
 )
 
-func newTestRepository(t *testing.T) (Repository, *redis.MockRedis) {
+func newTestRepository(t *testing.T) (Repository, *redis.Mock) {
 	t.Helper()
 
-	mockRedis := redis.NewMockRedis(t)
+	mockRedis := redis.NewMock(t)
 	repo := NewRedis(mockRedis.Client)
 
 	return repo, mockRedis

@@ -7,9 +7,9 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// NewRedisClient initializes and returns a new Redis client based on environment variables with the specified prefix.
-func NewRedisClient(envPrefix string) (*redis.Client, error) {
-	config, err := LoadRedisConfig(envPrefix)
+// NewClient initializes and returns a new Redis client based on environment variables with the specified prefix.
+func NewClient(envPrefix string) (*redis.Client, error) {
+	config, err := LoadConfig(envPrefix)
 	if err != nil {
 		return nil, err
 	}

@@ -8,8 +8,8 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// CreateMockDB creates an in-memory SQLite database for testing purposes.
-func CreateMockDB(t *testing.T) *gorm.DB {
+// NewMock creates an in-memory SQLite database for testing purposes.
+func NewMock(t *testing.T) *gorm.DB {
 	t.Helper()
 
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{

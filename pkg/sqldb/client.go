@@ -7,9 +7,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// NewDBClient initializes and returns a new database client based on the provided configuration.
-func NewDBClient(envPrefix string) (*gorm.DB, error) {
-	cfg, err := LoadDBConfig(envPrefix)
+// NewClient initializes and returns a new database client based on the provided configuration.
+func NewClient(envPrefix string) (*gorm.DB, error) {
+	cfg, err := LoadConfig(envPrefix)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func NewDBClient(envPrefix string) (*gorm.DB, error) {
 	return db, nil
 }
 
-func getDSN(cfg *DBConfig) string {
+func getDSN(cfg *Config) string {
 	return fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s TimeZone=%s",
 		cfg.Host,

@@ -1,4 +1,4 @@
-package ratelimitprovider
+package provider
 
 import (
 	"time"

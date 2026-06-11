@@ -14,12 +14,12 @@ func main() {
 	steps := flag.Int("steps", 0, "number of migration steps (0 means all)")
 	flag.Parse()
 
-	if err := logger.NewLoggerClient(""); err != nil {
+	if err := logger.NewClient(""); err != nil {
 		log.Error().Err(err).Msg("failed to initialize logger")
 		return
 	}
 
-	dbClient, err := sqldb.NewDBClient("")
+	dbClient, err := sqldb.NewClient("")
 	if err != nil {
 		log.Error().Err(err).Msg("failed to initialize postgres client")
 		return

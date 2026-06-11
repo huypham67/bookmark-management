@@ -3,7 +3,7 @@ package bootstrap
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/huypham67/bookmark-service-monolithic/middleware"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/ratelimitprovider"
+	ratelimitprovider "github.com/huypham67/bookmark-service-monolithic/pkg/ratelimit/provider"
 	pkgRedis "github.com/huypham67/bookmark-service-monolithic/pkg/redis"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/sqldb"
 	"github.com/redis/go-redis/v9"
@@ -27,7 +27,7 @@ import (
 	linkSvc "github.com/huypham67/bookmark-service-monolithic/internal/service/link"
 	profileSvc "github.com/huypham67/bookmark-service-monolithic/internal/service/profile"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/jwt"
-	"github.com/huypham67/bookmark-service-monolithic/pkg/jwtprovider"
+	jwtprovider "github.com/huypham67/bookmark-service-monolithic/pkg/jwt/provider"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/security"
 	"github.com/huypham67/bookmark-service-monolithic/pkg/utils"
 )
@@ -62,7 +62,7 @@ func NewContainer() (*Container, error) {
 		return nil, err
 	}
 
-	db, err := sqldb.NewDBClient("")
+	db, err := sqldb.NewClient("")
 	if err != nil {
 		log.Error().Err(err).Msg("failed to initialize postgres client")
 		return nil, err
@@ -74,13 +74,13 @@ func NewContainer() (*Container, error) {
 		return nil, err
 	}
 
-	rdb, err := pkgRedis.NewRedisClient("")
+	rdb, err := pkgRedis.NewClient("")
 	if err != nil {
 		log.Error().Err(err).Msg("failed to initialize redis client")
 		return nil, err
 	}
 
-	jwtProvider, err := jwtprovider.NewProvider("")
+	jwtProvider, err := jwtprovider.New("")
 	if err != nil {
 		log.Error().Err(err).Msg("failed to initialize jwt provider")
 		return nil, err
@@ -88,7 +88,7 @@ func NewContainer() (*Container, error) {
 
 	jwtMiddleware := middleware.JWTAuth(jwtProvider.Validator())
 
-	rateLimiter, err := ratelimitprovider.NewLimiter(rdb, "")
+	rateLimiter, err := ratelimitprovider.New(rdb, "")
 	if err != nil {
 		log.Error().Err(err).Msg("failed to initialize rate limiter")
 		return nil, err

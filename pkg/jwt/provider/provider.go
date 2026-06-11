@@ -1,4 +1,4 @@
-package jwtprovider
+package provider
 
 import (
 	"fmt"
@@ -17,9 +17,9 @@ type jwtProvider struct {
 	validator jwt.TokenValidator
 }
 
-// NewProvider initializes a new JWT provider from environment configuration.
-func NewProvider(envPrefix string) (Provider, error) {
-	cfg, err := LoadJWTConfig(envPrefix)
+// New initializes a new JWT provider from environment configuration.
+func New(envPrefix string) (Provider, error) {
+	cfg, err := LoadConfig(envPrefix)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load jwt config: %w", err)
 	}

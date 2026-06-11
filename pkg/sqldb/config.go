@@ -2,8 +2,8 @@ package sqldb
 
 import "github.com/kelseyhightower/envconfig"
 
-// DBConfig holds the database connection configuration.
-type DBConfig struct {
+// Config holds the database connection configuration.
+type Config struct {
 	Host     string `envconfig:"DB_HOST" default:"localhost"`
 	Port     string `envconfig:"DB_PORT" default:"5432"`
 	User     string `envconfig:"DB_USER" default:"admin"`
@@ -13,9 +13,9 @@ type DBConfig struct {
 	TimeZone string `envconfig:"DB_TIMEZONE" default:"UTC"`
 }
 
-// LoadDBConfig loads database configuration from environment variables with the given prefix.
-func LoadDBConfig(prefix string) (*DBConfig, error) {
-	cfg := &DBConfig{}
+// LoadConfig loads database configuration from environment variables with the given prefix.
+func LoadConfig(prefix string) (*Config, error) {
+	cfg := &Config{}
 	err := envconfig.Process(prefix, cfg)
 	if err != nil {
 		return nil, err

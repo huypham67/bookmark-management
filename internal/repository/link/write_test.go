@@ -22,7 +22,7 @@ func TestRepository_SaveLink(t *testing.T) {
 	testCases := []struct {
 		name   string
 		args   args
-		verify func(*testing.T, context.Context, Repository, *redis.MockRedis, args)
+		verify func(*testing.T, context.Context, Repository, *redis.Mock, args)
 	}{
 		{
 			name: "should save link successfully",
@@ -31,7 +31,7 @@ func TestRepository_SaveLink(t *testing.T) {
 				url:  "https://www.google.com",
 				exp:  1234,
 			},
-			verify: func(t *testing.T, ctx context.Context, repo Repository, mockRedis *redis.MockRedis, a args) {
+			verify: func(t *testing.T, ctx context.Context, repo Repository, mockRedis *redis.Mock, a args) {
 				url, err := repo.GetLink(ctx, a.code)
 				require.NoError(t, err)
 				require.Equal(t, a.url, url)
@@ -44,7 +44,7 @@ func TestRepository_SaveLink(t *testing.T) {
 				url:  "https://www.google.com/v2",
 				exp:  1234,
 			},
-			verify: func(t *testing.T, ctx context.Context, repo Repository, mockRedis *redis.MockRedis, a args) {
+			verify: func(t *testing.T, ctx context.Context, repo Repository, mockRedis *redis.Mock, a args) {
 				err := repo.SaveLink(ctx, a.code, "https://www.google.com/v1", 1234)
 				require.NoError(t, err)
 				err = repo.SaveLink(ctx, a.code, a.url, a.exp)
@@ -61,7 +61,7 @@ func TestRepository_SaveLink(t *testing.T) {
 				url:  "https://www.google.com",
 				exp:  1,
 			},
-			verify: func(t *testing.T, ctx context.Context, repo Repository, mockRedis *redis.MockRedis, a args) {
+			verify: func(t *testing.T, ctx context.Context, repo Repository, mockRedis *redis.Mock, a args) {
 				exists, err := repo.CheckExists(ctx, a.code)
 				require.NoError(t, err)
 				assert.True(t, exists)
@@ -81,7 +81,7 @@ func TestRepository_SaveLink(t *testing.T) {
 				url:  "https://www.google.com",
 				exp:  1234,
 			},
-			verify: func(t *testing.T, ctx context.Context, repo Repository, mockRedis *redis.MockRedis, a args) {
+			verify: func(t *testing.T, ctx context.Context, repo Repository, mockRedis *redis.Mock, a args) {
 				mockRedis.Close()
 
 				err := repo.SaveLink(ctx, a.code, a.url, a.exp)
